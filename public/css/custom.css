@@ -1,0 +1,95 @@
+
+  .content-section {
+      background-color: #f9f3ec;
+      padding: 50px 0;
+    }
+    .section-heading {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+    .icon-box {
+      width: 70px;
+      height: 70px;
+      background-color: #f2c94c;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      color: white;
+    }
+    .btn-know-more {
+      background-color: #3e1a7c;
+      color: white;
+      padding: 10px 30px;
+      font-weight: bold;
+    }
+    .btn-know-more:hover {
+      background-color: #533390;
+    }
+
+
+
+    /* products */
+   .white-label {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  color: #3e1a7c;
+  font-weight: bold;
+  /* border: 2px solid #3e1a7c; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 130px; /* Adjusted width for more space */
+  gap: 15px; /* Gap between icons */
+}
+    .white-label i {
+      font-size: 16px;
+      /* color: #3e1a7c; Color for the icons */
+    }
+
+       .go-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff; /* Blue color */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .go-to-top.show {
+            opacity: 1;
+        }
+
+         /* Styles for the drawer */
+        .drawer {
+            transition: transform 0.3s ease;
+            transform: translateX(100%);
+        }
+        .drawer.open {
+            transform: translateX(0);
+        }
+
+        .cart{
+          /* background-color: rgb(66, 3, 66); */
+          border-radius: 100%;
+          padding: 3px 5px 0 5px;
+          color: #e0dde7;
+          font-weight: bold;
+          font-size: 30px;
+          align-items: center;
+        }

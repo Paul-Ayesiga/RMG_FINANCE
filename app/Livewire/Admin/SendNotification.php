@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Livewire\Admin;
+
+use Livewire\Component;
+use Livewire\WithPagination;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
+
+class SendNotification extends Component
+{
+    use WithPagination;
+
+    public $type = 'info';
+    public $title = '';
+    public $message = '';
+    public $notifyAll = false;
+    public $selectedUsers = [];
+    public $roleFilter = '';
+    public $search = '';
+    public $roles;
+
+    public function mount()
+    {
+        $this->roles = Role::all();
+    }
+
+    public function updatedNotifyAll($value)
+    {
+        if ($value) {
+            $this->selectedUsers = [];
+        }
+    }
+
+    public function rules()
+    {
+        return [
+            'type' => 'required|in:info,success,warning,error',
+            'title' => 'required|string|max:255',
+            'message' => 'required|string|max:1000',
+            'selectedUsers' => 'required_unless:notifyAll,true|array',
+        ];
+    }
+
+    public function sendNotification()
+    {
+        $this->validate();
+
+        $users = $this->notifyAll 
+            ? User::all() 
+            : User::whereIn('id', $this->selectedUsers)->get();
+
+        foreach ($users as $user) {
+            $user->notify(new \App\Notifications\SystemNotification(
+                $this->type,
+                $this->title,
+                $this->message
+            ));
+        }
+
+        // Reset form
+        $this->reset(['title', 'message', 'selectedUsers']);
+        
+        // Show success message
+        session()->flash('success', 'Notification sent successfully!');
+    }
+
+    public function getUsersProperty()
+    {
+        return User::query()
+            ->when($this->search, function ($query) {
+                $query->where(function ($query) {
+                    $query->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->when($this->roleFilter, function ($query) {
+                $query->role($this->roleFilter);
+            })
+            ->get();
+    }
+
+    public function render()
+    {
+        return view('livewire.admin.send-notification', [
+            'users' => $this->users
+        ]);
+    }
+}

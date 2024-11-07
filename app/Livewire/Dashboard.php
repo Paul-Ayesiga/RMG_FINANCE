@@ -1,0 +1,407 @@
+<?php
+
+namespace App\Livewire;
+
+use Livewire\Component;
+use App\Models\User;
+use App\Models\Event;
+use App\Models\LoanProduct;
+use App\Models\Loan;
+use App\Models\Account;
+use App\Models\AccountType;
+use Carbon\Carbon;
+use Livewire\Attributes\Lazy;
+use App\Models\Transaction;
+
+#[Lazy()]
+class Dashboard extends Component
+{
+    public $myChart;
+    public $category;
+    public $recentEvents;
+    public $monthlyStats;
+    public $transactionChart;
+    public $loanChart;
+    public $accountChart;
+
+    public function mount()
+    {
+        $this->loadCharts();
+        $this->calculateMonthlyStats();
+    }
+
+    protected function loadCharts()
+    {
+        // Loan Distribution Chart
+        $this->myChart = [
+            'chart' => [
+                'type' => 'pie',
+                'height' => 300
+            ],
+            'title' => [
+                'text' => 'Loan Distribution by Type',
+                'align' => 'center'
+            ],
+            'series' => $this->getLoanDistribution(),
+            'labels' => LoanProduct::pluck('name')->toArray(),
+            'legend' => [
+                'position' => 'bottom'
+            ]
+        ];
+
+        // Monthly Applications Chart
+        $this->category = [
+            'chart' => [
+                'type' => 'bar',
+                'height' => 300
+            ],
+            'title' => [
+                'text' => 'Monthly Applications',
+                'align' => 'center'
+            ],
+            'series' => [
+                [
+                    'name' => 'Loans',
+                    'data' => $this->getMonthlyApplications('loan')
+                ],
+                [
+                    'name' => 'Accounts',
+                    'data' => $this->getMonthlyApplications('account')
+                ]
+            ],
+            'xaxis' => [
+                'categories' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            ]
+        ];
+
+        // Transaction Monitoring Chart
+        $this->transactionChart = [
+            'type' => 'line',
+            'data' => [
+                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                'datasets' => [
+                    [
+                        'label' => 'Deposits',
+                        'data' => $this->getMonthlyTransactions('deposit'),
+                        'borderColor' => '#10B981', // green
+                        'tension' => 0.1
+                    ],
+                    [
+                        'label' => 'Withdrawals',
+                        'data' => $this->getMonthlyTransactions('withdrawal'),
+                        'borderColor' => '#EF4444', // red
+                        'tension' => 0.1
+                    ],
+                    [
+                        'label' => 'Transfers',
+                        'data' => $this->getMonthlyTransactions('transfer'),
+                        'borderColor' => '#3B82F6', // blue
+                        'tension' => 0.1
+                    ]
+                ]
+            ],
+            'options' => [
+                'responsive' => true,
+                'plugins' => [
+                    'legend' => ['position' => 'bottom'],
+                    'title' => [
+                        'display' => true,
+                        'text' => 'Transaction Monitoring'
+                    ]
+                ]
+            ]
+        ];
+
+        // Loan Monitoring Chart
+        $this->loanChart = [
+            'type' => 'bar',
+            'data' => [
+                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                'datasets' => [
+                    [
+                        'label' => 'New Loans',
+                        'data' => $this->getMonthlyLoans('new'),
+                        'backgroundColor' => '#8B5CF6', // violet
+                    ],
+                    [
+                        'label' => 'Active Loans',
+                        'data' => $this->getMonthlyLoans('active'),
+                        'backgroundColor' => '#059669', // emerald
+                    ],
+                    [
+                        'label' => 'Completed Loans',
+                        'data' => $this->getMonthlyLoans('completed'),
+                        'backgroundColor' => '#2563EB', // blue
+                    ]
+                ]
+            ],
+            'options' => [
+                'responsive' => true,
+                'plugins' => [
+                    'legend' => ['position' => 'bottom'],
+                    'title' => [
+                        'display' => true,
+                        'text' => 'Loan Status Monitoring'
+                    ]
+                ]
+            ]
+        ];
+
+        // Account Status Chart
+        $this->accountChart = [
+            'type' => 'doughnut',
+            'data' => [
+                'labels' => ['Active', 'Pending', 'Suspended', 'Closed'],
+                'datasets' => [
+                    [
+                        'data' => $this->getAccountStatusDistribution(),
+                        'backgroundColor' => [
+                            '#10B981', // green
+                            '#F59E0B', // amber
+                            '#EF4444', // red
+                            '#6B7280', // gray
+                        ]
+                    ]
+                ]
+            ],
+            'options' => [
+                'responsive' => true,
+                'plugins' => [
+                    'legend' => ['position' => 'bottom'],
+                    'title' => [
+                        'display' => true,
+                        'text' => 'Account Status Distribution'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    protected function getLoanDistribution()
+    {
+        return Loan::selectRaw('loan_product_id, COUNT(*) as count')
+            ->groupBy('loan_product_id')
+            ->pluck('count')
+            ->toArray();
+    }
+
+    protected function getMonthlyApplications($type)
+    {
+        $year = Carbon::now()->year;
+        $data = [];
+
+        for ($month = 1; $month <= 12; $month++) {
+            if ($type === 'loan') {
+                $count = Loan::whereYear('created_at', $year)
+                    ->whereMonth('created_at', $month)
+                    ->count();
+            } else {
+                $count = Account::whereYear('created_at', $year)
+                    ->whereMonth('created_at', $month)
+                    ->count();
+            }
+            $data[] = $count;
+        }
+
+        return $data;
+    }
+
+    protected function getMonthlyTransactions($type)
+    {
+        $year = Carbon::now()->year;
+        $data = [];
+
+        for ($month = 1; $month <= 12; $month++) {
+            $amount = Transaction::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->where('type', $type)
+                ->sum('amount');
+            $data[] = $amount;
+        }
+
+        return $data;
+    }
+
+    protected function getMonthlyLoans($status)
+    {
+        $year = Carbon::now()->year;
+        $data = [];
+
+        for ($month = 1; $month <= 12; $month++) {
+            $query = Loan::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month);
+
+            if ($status === 'new') {
+                $count = $query->where('status', 'pending')->count();
+            } elseif ($status === 'active') {
+                $count = $query->where('status', 'active')->count();
+            } else {
+                $count = $query->where('status', 'paid')->count();
+            }
+
+            $data[] = $count;
+        }
+
+        return $data;
+    }
+
+    protected function getAccountStatusDistribution()
+    {
+        return [
+            Account::where('status', 'active')->count(),
+            Account::where('status', 'pending')->count(),
+            Account::where('status', 'inactive')->count(),
+            Account::where('status', 'closed')->count(),
+        ];
+    }
+
+    protected function calculateMonthlyStats()
+    {
+        $currentMonth = Carbon::now()->month;
+        $lastMonth = Carbon::now()->subMonth()->month;
+
+        // Calculate total deposits
+        $currentDeposits = Transaction::whereMonth('created_at', $currentMonth)
+            ->where('type', 'deposit')
+            ->sum('amount');
+        $lastMonthDeposits = Transaction::whereMonth('created_at', $lastMonth)
+            ->where('type', 'deposit')
+            ->sum('amount');
+
+        // Calculate total withdrawals
+        $currentWithdrawals = Transaction::whereMonth('created_at', $currentMonth)
+            ->where('type', 'withdrawal')
+            ->sum('amount');
+        $lastMonthWithdrawals = Transaction::whereMonth('created_at', $lastMonth)
+            ->where('type', 'withdrawal')
+            ->sum('amount');
+
+        // Calculate outstanding loans
+        $currentOutstandingLoans = Loan::where('status', 'active')->sum('amount');
+        $lastMonthOutstandingLoans = Loan::where('status', 'active')
+            ->whereMonth('created_at', '<=', $lastMonth)
+            ->sum('amount');
+
+        // Calculate loan repayments
+        $currentLoanRepayments = Transaction::whereMonth('created_at', $currentMonth)
+            ->where('type', 'loan_repayment')
+            ->sum('amount');
+        $lastMonthLoanRepayments = Transaction::whereMonth('created_at', $lastMonth)
+            ->where('type', 'loan_repayment')
+            ->sum('amount');
+
+        // Calculate other income
+        $currentOtherIncome = Transaction::whereMonth('created_at', $currentMonth)
+            ->where('type', 'other_income')
+            ->sum('amount');
+        $lastMonthOtherIncome = Transaction::whereMonth('created_at', $lastMonth)
+            ->where('type', 'other_income')
+            ->sum('amount');
+
+        // Calculate operational expenses
+        $currentOperationalExpenses = Transaction::whereMonth('created_at', $currentMonth)
+            ->where('type', 'operational_expense')
+            ->sum('amount');
+        $lastMonthOperationalExpenses = Transaction::whereMonth('created_at', $lastMonth)
+            ->where('type', 'operational_expense')
+            ->sum('amount');
+
+        // Calculate current wallet balance using the formula
+        $currentBalance = $currentDeposits - $currentWithdrawals - $currentOutstandingLoans + 
+                         $currentLoanRepayments + $currentOtherIncome - $currentOperationalExpenses;
+
+        // Calculate last month's wallet balance
+        $lastMonthBalance = $lastMonthDeposits - $lastMonthWithdrawals - $lastMonthOutstandingLoans + 
+                           $lastMonthLoanRepayments + $lastMonthOtherIncome - $lastMonthOperationalExpenses;
+
+        // Calculate percentage changes
+        $depositsPercentage = $lastMonthDeposits > 0 ? 
+            (($currentDeposits - $lastMonthDeposits) / $lastMonthDeposits) * 100 : 0;
+        $withdrawalsPercentage = $lastMonthWithdrawals > 0 ? 
+            (($currentWithdrawals - $lastMonthWithdrawals) / $lastMonthWithdrawals) * 100 : 0;
+        $balancePercentage = $lastMonthBalance > 0 ? 
+            (($currentBalance - $lastMonthBalance) / $lastMonthBalance) * 100 : 0;
+
+        // Calculate transfers (keeping existing transfer calculations)
+        $currentTransfers = Transaction::whereMonth('created_at', $currentMonth)
+            ->where('type', 'transfer')
+            ->sum('amount');
+        $lastMonthTransfers = Transaction::whereMonth('created_at', $lastMonth)
+            ->where('type', 'transfer')
+            ->sum('amount');
+        $transfersPercentage = $lastMonthTransfers > 0 ? 
+            (($currentTransfers - $lastMonthTransfers) / $lastMonthTransfers) * 100 : 0;
+
+        // Add active stats trends
+        $lastMonthActiveAccounts = Account::where('status', 'active')
+            ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->count();
+        $currentActiveAccounts = Account::where('status', 'active')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->count();
+        
+        $lastMonthActiveLoans = Loan::where('status', 'active')
+            ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->count();
+        $currentActiveLoans = Loan::where('status', 'active')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->count();
+
+        $this->monthlyStats = [
+            'deposits' => [
+                'current' => $currentDeposits,
+                'percentage' => round($depositsPercentage, 1),
+                'trend' => $depositsPercentage >= 0 ? 'increase' : 'decrease'
+            ],
+            'withdrawals' => [
+                'current' => $currentWithdrawals,
+                'percentage' => round($withdrawalsPercentage, 1),
+                'trend' => $withdrawalsPercentage >= 0 ? 'increase' : 'decrease'
+            ],
+            'transfers' => [
+                'current' => $currentTransfers,
+                'percentage' => round($transfersPercentage, 1),
+                'trend' => $transfersPercentage >= 0 ? 'increase' : 'decrease'
+            ],
+            'wallet_balance' => [
+                'current' => $currentBalance,
+                'percentage' => round($balancePercentage, 1),
+                'trend' => $balancePercentage >= 0 ? 'increase' : 'decrease'
+            ],
+            'active_accounts' => [
+                'current' => $currentActiveAccounts,
+                'percentage' => $lastMonthActiveAccounts > 0 ? 
+                    round((($currentActiveAccounts - $lastMonthActiveAccounts) / $lastMonthActiveAccounts) * 100, 1) : 0,
+                'trend' => $currentActiveAccounts >= $lastMonthActiveAccounts ? 'increase' : 'decrease'
+            ],
+            'active_loans' => [
+                'current' => $currentActiveLoans,
+                'percentage' => $lastMonthActiveLoans > 0 ? 
+                    round((($currentActiveLoans - $lastMonthActiveLoans) / $lastMonthActiveLoans) * 100, 1) : 0,
+                'trend' => $currentActiveLoans >= $lastMonthActiveLoans ? 'increase' : 'decrease'
+            ]
+        ];
+    }
+
+    public function render()
+    {
+        // Calculate totals
+        $totalAccounts = Account::count();
+        $totalLoans = Loan::count();
+        
+        return view('livewire.dashboard', [
+            'customers' => User::where('role', 'customer')->count(),
+            'staff' => User::where('role', 'staff')->count(),
+            'accountTypes' => AccountType::count(),
+            'pendingAccounts' => Account::where('status', 'pending')->count(),
+            'approvedAccounts' => Account::where('status', 'approved')->count(),
+            'activeAccounts' => Account::where('status', 'active')->count(),
+            'totalAccounts' => $totalAccounts,
+            'loanTypes' => LoanProduct::count(),
+            'pendingLoans' => Loan::where('status', 'pending')->count(),
+            'approvedLoans' => Loan::where('status', 'approved')->count(),
+            'activeLoans' => Loan::where('status', 'active')->count(),
+            'totalLoans' => $totalLoans,
+        ]);
+    }
+}
