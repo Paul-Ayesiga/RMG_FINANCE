@@ -94,13 +94,13 @@
                     'closed'
                 ];
                 @endphp
-                <select 
+                <select
                     wire:model.live="accountStatuses.{{ $account->id }}"
                     wire:change="updateStatus({{ $account->id }}, $event.target.value)"
                     class="select select-bordered select-sm w-full max-w-xs"
                 >
                     @foreach($statuses as $status)
-                        <option 
+                        <option
                             value="{{ $status }}"
                             {{ $account->status === $status ? 'selected' : '' }}
                         >
@@ -286,11 +286,11 @@
                 </x-mary-choices>
 
                 {{-- Category Selection (keeping x-mary-choices) --}}
-                <x-mary-choices 
-                    label="Account Category" 
-                    wire:model.live="selectedCategory" 
-                    :options="$this->getCategories()" 
-                    single 
+                <x-mary-choices
+                    label="Account Category"
+                    wire:model.live="selectedCategory"
+                    :options="$this->getCategories()"
+                    single
                     class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed"
                 >
                     @scope('item', $category)
