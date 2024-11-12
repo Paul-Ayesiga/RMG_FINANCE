@@ -10,6 +10,8 @@ RMG FINANCE SYSTEM
     > Notification system
     > Roles and Permissions Management
 
+    Requirements
+        php 8.2 >
 
     .env configurations
         DB_CONNECTION
