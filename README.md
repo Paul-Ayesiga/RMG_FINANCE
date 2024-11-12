@@ -1,3 +1,16 @@
+RMG FINANCE SYSTEM
+    This is software is built on laravel 11 , livewire 3, tailwind, daisy ui and maryui.
+    It is completely designed for smoothness 
+    
+    Features of the software
+    > Client Management
+    > Accounts Management
+    > Loans Management
+    > Transactions and receipt Management
+    > Notification system
+    > Roles and Permissions Management
+
+
 .env configurations
 DB_CONNECTION
     create a database give it a name then migrate by running the following command
