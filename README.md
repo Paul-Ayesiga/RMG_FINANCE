@@ -12,32 +12,32 @@ RMG FINANCE SYSTEM
 
 
 .env configurations
-DB_CONNECTION
-    create a database give it a name then migrate by running the following command
-        [ php artisan migrate ]
+    DB_CONNECTION
+        create a database give it a name then migrate by running the following command
+            [ php artisan migrate ]
     
-Mail 
-    use any mail tester of your choices
-    fill out with credentials given to u
-    suitable for testing for this project -> mailtrap.io
+    Mail 
+        use any mail tester of your choices
+        fill out with credentials given to u
+        suitable for testing for this project -> mailtrap.io
 
 Realtime handler
-Pusher 
-    BROADCAST_DRIVER=pusher
-    PUSHER_APP_ID=
-    PUSHER_APP_KEY=
-    PUSHER_APP_SECRET=
-    # PUSHER_HOST=127.0..1
-    # PUSHER_PORT=443
-    PUSHER_SCHEME=https
-    PUSHER_APP_CLUSTER=""
+    Pusher 
+        BROADCAST_DRIVER=pusher
+        PUSHER_APP_ID=
+        PUSHER_APP_KEY=
+        PUSHER_APP_SECRET=
+        # PUSHER_HOST=127.0..1
+        # PUSHER_PORT=443
+        PUSHER_SCHEME=https
+        PUSHER_APP_CLUSTER=""
 
-then this for vite
-    VITE_PUSHER_APP_KEY ="${PUSHER_APP_KEY}"
-    VITE_PUSHER_HOST ="${PUSHER_HOST}"
-    VITE_PUSHER_PORT ="${PUSHER_PORT}"
-    VITE_PUSHER_SCHEME = "${PUSHER_SCHEME}"
-    VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+    then this for vite
+        VITE_PUSHER_APP_KEY ="${PUSHER_APP_KEY}"
+        VITE_PUSHER_HOST ="${PUSHER_HOST}"
+        VITE_PUSHER_PORT ="${PUSHER_PORT}"
+        VITE_PUSHER_SCHEME = "${PUSHER_SCHEME}"
+        VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 
 
 ########################
@@ -56,9 +56,9 @@ After migration
     Then the rest will be customers 
 
 
-Start the servers
-    php artisan serve
-    npm run dev
-    php artisan queue:work
+    Start the servers
+        php artisan serve
+        npm run dev
+        php artisan queue:work
 
 Happy Exploration 😉👍
