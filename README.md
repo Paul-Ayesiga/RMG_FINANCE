@@ -11,26 +11,26 @@ RMG FINANCE SYSTEM
     > Roles and Permissions Management
 
 
-.env configurations
-    DB_CONNECTION
-        create a database give it a name then migrate by running the following command
-            [ php artisan migrate ]
+    .env configurations
+        DB_CONNECTION
+            create a database give it a name then migrate by running the following command
+                [ php artisan migrate ]
     
     Mail 
         use any mail tester of your choices
         fill out with credentials given to u
         suitable for testing for this project -> mailtrap.io
 
-Realtime handler
-    Pusher 
-        BROADCAST_DRIVER=pusher
-        PUSHER_APP_ID=
-        PUSHER_APP_KEY=
-        PUSHER_APP_SECRET=
-        # PUSHER_HOST=127.0..1
-        # PUSHER_PORT=443
-        PUSHER_SCHEME=https
-        PUSHER_APP_CLUSTER=""
+    Realtime handler
+        Pusher 
+            BROADCAST_DRIVER=pusher
+            PUSHER_APP_ID=
+            PUSHER_APP_KEY=
+            PUSHER_APP_SECRET=
+            # PUSHER_HOST=127.0..1
+            # PUSHER_PORT=443
+            PUSHER_SCHEME=https
+            PUSHER_APP_CLUSTER=""
 
     then this for vite
         VITE_PUSHER_APP_KEY ="${PUSHER_APP_KEY}"
@@ -42,10 +42,10 @@ Realtime handler
 
 ########################
 
-After migration 
-    check out the seeders folder
-    make sure you seed the database with this command 
-    [ php artisan db:seed]
+    After migration 
+        check out the seeders folder
+        make sure you seed the database with this command 
+        [ php artisan db:seed]
 
     for SuperAdmin seeder
         creating a user with id 1 in the users table then seed
