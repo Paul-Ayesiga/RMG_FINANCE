@@ -13,6 +13,12 @@ RMG FINANCE a MICROFINANCE SYSTEM
     Requirements
         php 8.2 >
 
+    Installation
+        > clone the project with [ git clone ]
+        > go to the project directory
+            - run composer install
+            - run npm install
+
     .env configurations
         DB_CONNECTION
             create a database give it a name then migrate by running the following command
