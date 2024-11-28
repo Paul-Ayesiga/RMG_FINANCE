@@ -33,14 +33,14 @@ class Overview extends Component
     public array $selected = [];
 
     public array $activeFilters = [];
-    
+
     // Modals
     public bool $addLoanModal = false;
     public bool $viewLoanModal = false;
     public bool $repaymentModal = false;
     public bool $showReceiptModal = false;
 
- 
+
     #[Validate('required')]
     public ? int $loanProductId = null;
 
@@ -79,16 +79,16 @@ class Overview extends Component
     // Add these new properties
     #[Validate('required|numeric|min:0.01')]
     public $paymentAmount;
-    
+
     #[Validate('required|string|regex:/^[0-9]{16}$/')]
     public $cardNumber;
-    
+
     #[Validate('required|string|regex:/^(0[1-9]|1[0-2])\/([0-9]{2})$/')]
     public $cardExpiry;
-    
+
     #[Validate('required|string|regex:/^[0-9]{3,4}$/')]
     public $cardCvv;
-    
+
     #[Validate('required|string|regex:/^[0-9]{10}$/')]
     public $mobileMoneyNumber;
 
@@ -206,15 +206,15 @@ class Overview extends Component
             $this->maxTerm = $loanProduct->maximum_term;
             $this->minAmount = $loanProduct->minimum_amount;
             $this->maxAmount = $loanProduct->maximum_amount;
-            
+
             // Handle the allowed frequencies
             $frequencies = $loanProduct->allowed_frequencies;
-            
+
             // Normalize the frequencies data structure
             if (is_string($frequencies)) {
                 $frequencies = json_decode($frequencies, true);
             }
-            
+
             $this->allowedFrequencies = collect($frequencies)
                 ->map(function($frequency) {
                     // Handle different possible data structures
@@ -223,7 +223,7 @@ class Overview extends Component
                         is_string($frequency) && str_starts_with($frequency, '[') => json_decode($frequency)[0],
                         default => $frequency
                     };
-                    
+
                     return [
                         'id' => $value,
                         'name' => str_replace('_', ' ', ucfirst($value))
@@ -337,7 +337,7 @@ class Overview extends Component
                 'max:' . $this->maxAmount
             ],
             'term' => [
-                'required', 
+                'required',
                 'integer',
                 'min:' . $this->minTerm,
                 'max:' . $this->maxTerm
@@ -362,10 +362,10 @@ class Overview extends Component
         ]);
 
         // Clean up the payment frequency value
-        $frequency = is_array($this->paymentFrequency) 
-            ? $this->paymentFrequency[0] 
-            : (is_string($this->paymentFrequency) && str_starts_with($this->paymentFrequency, '[') 
-                ? json_decode($this->paymentFrequency)[0] 
+        $frequency = is_array($this->paymentFrequency)
+            ? $this->paymentFrequency[0]
+            : (is_string($this->paymentFrequency) && str_starts_with($this->paymentFrequency, '[')
+                ? json_decode($this->paymentFrequency)[0]
                 : $this->paymentFrequency);
 
         try {
@@ -393,7 +393,7 @@ class Overview extends Component
                 }
             }
 
-           
+
 
             $this->addLoanModal = false;
             $this->reset(['amount', 'term', 'documents']);
@@ -431,7 +431,7 @@ class Overview extends Component
             $query->where('status', '!=', 'paid')
                 ->orderBy('due_date');
         }])->findOrFail($loanId);
-        
+
         $this->paymentAmount = 0;
         $this->isFullPayment = false;
         $this->repaymentModal = true;
@@ -451,12 +451,12 @@ class Overview extends Component
             ->where('status', '!=', 'paid')
             ->orderBy('due_date')
             ->get();
-            
+
         $totalRemainingAmount = $unpaidSchedules->sum('remaining_amount');
 
         // Check if this is a full repayment
         $isFullRepayment = $this->paymentAmount >= $totalRemainingAmount;
-        
+
         // If amount is more than total remaining, adjust it to exact amount
         if ($isFullRepayment) {
             $this->paymentAmount = $totalRemainingAmount;
@@ -465,7 +465,7 @@ class Overview extends Component
             $now = now();
             $remainingPaymentAmount = $this->paymentAmount;
             $paymentReference = 'PART-PAY-' . time();
-            
+
             // First handle any partially paid schedules
             $partialSchedules = $unpaidSchedules->where('status', 'partial');
             foreach ($partialSchedules as $schedule) {
@@ -473,7 +473,7 @@ class Overview extends Component
 
                 $scheduleRemainingAmount = $schedule->remaining_amount;
                 $amountToPayForSchedule = min($remainingPaymentAmount, $scheduleRemainingAmount);
-                
+
                 // Create payment record for this schedule
                 $payment = $this->selectedLoan->payments()->create([
                     'loan_id' => $this->selectedLoan->id,
@@ -507,7 +507,7 @@ class Overview extends Component
 
                 $scheduleRemainingAmount = $schedule->remaining_amount;
                 $amountToPayForSchedule = min($remainingPaymentAmount, $scheduleRemainingAmount);
-                
+
                 // Create payment record for this schedule
                 $payment = $this->selectedLoan->payments()->create([
                     'loan_id' => $this->selectedLoan->id,
@@ -552,10 +552,10 @@ class Overview extends Component
 
             $now = now();
             $totalAmount = $this->paymentAmount;
-            
+
             // Create withdrawal transaction
             $transaction = $account->transactions()->create([
-                'type' => 'withdrawal',
+                'type' => 'loanPayment',
                 'amount' => $totalAmount,
                 'reference_number' => 'LOAN-PMT-' . time(),
                 'description' => "Loan repayment for Loan #{$this->selectedLoan->id}",
@@ -658,7 +658,7 @@ class Overview extends Component
 
         } catch (\Exception $e) {
             \DB::rollBack();
-            
+
             $this->toast(
                 type: 'error',
                 title: 'Failed to process payment: ' . $e->getMessage(),
@@ -709,7 +709,7 @@ class Overview extends Component
         try {
             // Here you would integrate with your payment gateway
             // This is a placeholder for the actual payment processing logic
-            
+
             $schedule = $this->selectedLoan->schedules()
                 ->where('status', '!=', 'paid')
                 ->orderBy('due_date')
@@ -754,7 +754,7 @@ class Overview extends Component
 
         } catch (\Exception $e) {
             \DB::rollBack();
-            
+
             $this->toast(
                 type: 'error',
                 title: 'Failed to process card payment: ' . $e->getMessage(),
@@ -821,7 +821,7 @@ class Overview extends Component
         $totalRemaining = $this->selectedLoan->schedules()
             ->where('status', '!=', 'paid')
             ->sum('remaining_amount');
-            
+
         $this->paymentAmount = $totalRemaining;
         $this->isFullPayment = true;
     }

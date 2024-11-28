@@ -24,6 +24,10 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Collection;
 use App\Notifications\AccountStatusNotification;
+use App\Events\AccountStatusUpdated;
+use Livewire\Attributes\Computed;
+use Illuminate\Support\Facades\DB;
+
 
 #[Lazy()]
 class AccountsOverview extends Component
@@ -144,7 +148,7 @@ class AccountsOverview extends Component
     public function mount()
     {
         $this->searchCustomer();
-        $this->accountTypes = collect([]);
+        // $this->accountTypes = collect([]);
         $this->filteredAccountTypes = collect([]);
 
         // Initialize account statuses in mount
@@ -169,7 +173,7 @@ class AccountsOverview extends Component
             ->merge($selectedCustomer);
     }
 
-   
+
 
     public function headers()
     {
@@ -228,7 +232,7 @@ class AccountsOverview extends Component
                 type: 'error',
                 title: "Initial balance must be at least $" . number_format($accountType->min_balance, 2),
                 position: 'toast-top toast-end',
-                icon: 'o-x-circle', 
+                icon: 'o-x-circle',
                 css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
                 timeout: 3000
             );
@@ -263,11 +267,11 @@ class AccountsOverview extends Component
     public function updateStatus($accountId, $value)
     {
         try {
-            \DB::beginTransaction();
-            
+            DB::beginTransaction();
+
             $account = Account::with(['customer.user'])->findOrFail($accountId);
             $oldStatus = $account->status;
-            
+
             // Update the status
             $account->update([
                 'status' => $value
@@ -279,7 +283,7 @@ class AccountsOverview extends Component
             // Send notification if status has changed
             if ($oldStatus !== $value) {
                 $user = $account->customer->user;
-                
+
                 // Determine notification data based on new status
                 $notificationData = match($value) {
                     'active' => [
@@ -304,6 +308,9 @@ class AccountsOverview extends Component
                     ]
                 };
 
+                AccountStatusUpdated::dispatch();// New event dispatched
+                // event(new AccountStatusUpdated('updated successfully'));
+
                 // Send notification
                 $user->notify(new AccountStatusNotification(
                     $account,
@@ -312,10 +319,10 @@ class AccountsOverview extends Component
                     $notificationData['status']
                 ));
                 $this->dispatch('notification.sent');
-                
+
             }
 
-            \DB::commit();
+            DB::commit();
 
             // Show success toast to admin
             $this->toast(
@@ -328,11 +335,12 @@ class AccountsOverview extends Component
             );
 
         } catch (\Exception $e) {
-            \DB::rollBack();
-            
-            // Log the error
-            \Log::error('Failed to update account status: ' . $e->getMessage());
+            DB::rollBack();
 
+            // Log the error
+            // \Log::error('Failed to update account status: ' . $e->getMessage());
+
+            dd($e->getMessage());
             // Show error toast to admin
             $this->toast(
                 type: 'error',
@@ -344,14 +352,20 @@ class AccountsOverview extends Component
             );
         }
     }
-    
+
+    // #[On('echo:account-status,AccountStatusUpdated')]
+    // public function notifyNewOrder()
+    // {
+    //    dd('hello status update');
+    // }
+
     private function generateAccountNumber(): string
     {
         // Generate a unique account number with R#ACC prefix
         return 'R#ACC' . date('Y') . str_pad(Account::count() + 1, 8, '0', STR_PAD_LEFT);
     }
 
- 
+
     public function openDeleteModal($id)
     {
         $this->accountToDelete = $id;
@@ -363,19 +377,19 @@ class AccountsOverview extends Component
     {
         try {
             $account = Account::findOrFail($id);
-            
+
             // Begin a database transaction
-            \DB::beginTransaction();
-            
+            DB::beginTransaction();
+
             // Delete associated transactions
             $account->transactions()->delete();
-            
+
             // Delete the account
             $account->delete();
-            
+
             // Commit the transaction
-            \DB::commit();
-            
+            DB::commit();
+
             $this->deleteAccountModal = false;
             $this->toast(
                 type: 'success',
@@ -389,8 +403,8 @@ class AccountsOverview extends Component
             );
         } catch (\Exception $e) {
             // Rollback the transaction in case of error
-            \DB::rollBack();
-            
+            DB::rollBack();
+
             $this->deleteAccountModal = false;
             $this->toast(
                 type: 'error',
@@ -538,7 +552,7 @@ class AccountsOverview extends Component
     public function updatedSelectedCategory($value)
     {
         $this->accountTypeId = null; // Reset the selected account type
-        
+
         if ($value) {
             $this->filteredAccountTypes = AccountType::where('category', $value)
                 ->get()

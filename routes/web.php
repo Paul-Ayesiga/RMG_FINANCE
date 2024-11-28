@@ -22,6 +22,12 @@ use App\Livewire\Admin\SendNotification;
 
 use Livewire\Volt\Volt;
 
+use Spatie\Permission\Models\Role;
+
+Route::get('/roles', function () {
+    return Role::all();  // Fetch all roles
+})->name('roles.fetch');
+
 Route::get('/', function () {
     return view('landing');
 });

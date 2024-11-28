@@ -11,6 +11,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use App\Notifications\LoanApproved;
 use App\Notifications\LoanDisbursed;
+use Illuminate\Support\Facades\DB;
 
 class Overview extends Component
 {
@@ -100,9 +101,9 @@ class Overview extends Component
     public function viewLoan($loanId)
     {
         $this->selectedLoan = Loan::with([
-            'customer', 
-            'loanProduct', 
-            'schedules', 
+            'customer',
+            'loanProduct',
+            'schedules',
             'documents',
             'account'
         ])->findOrFail($loanId);
@@ -127,26 +128,26 @@ class Overview extends Component
         }
 
         try {
-            \DB::beginTransaction();
-            
+            DB::beginTransaction();
+
             $this->selectedLoan->approve(auth()->id());
-            
+
             $this->selectedLoan->customer->user->notify(new LoanApproved($this->selectedLoan));
-            
-            \DB::commit();
+
+            DB::commit();
 
             $this->toast(
                 type: 'success',
                 title: 'Loan approved successfully',
                 position: 'toast-top toast-end'
             );
-            
+
             $this->approveLoanModal = false;
             $this->selectedLoan = null;
 
         } catch (\Exception $e) {
-            \DB::rollBack();
-            
+            DB::rollBack();
+
             $this->toast(
                 type: 'error',
                 title: 'Error approving loan: ' . $e->getMessage(),
@@ -155,6 +156,11 @@ class Overview extends Component
         }
     }
 
+    #[On('echo:loan-approved,LoanApproved')]
+    public function notifyNewOrder()
+    {
+        dd('hello loan update');
+    }
     public function openDisbursementModal($loanId)
     {
         $this->selectedLoan = Loan::with(['customer', 'loanProduct', 'account'])
@@ -174,7 +180,7 @@ class Overview extends Component
         }
 
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $this->selectedLoan->disbursement_date = now();
             $this->selectedLoan->save();
@@ -189,7 +195,7 @@ class Overview extends Component
 
             $this->selectedLoan->customer->user->notify(new LoanDisbursed($this->selectedLoan));
 
-            \DB::commit();
+            DB::commit();
 
             $this->toast(
                 type: 'success',
@@ -202,7 +208,7 @@ class Overview extends Component
             $this->disbursementNote = '';
 
         } catch (\Exception $e) {
-            \DB::rollBack();
+            DB::rollBack();
             $this->toast(
                 type: 'error',
                 title: 'Error disbursing loan: ' . $e->getMessage(),

@@ -18,6 +18,7 @@
         {{-- Flatpickr  --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <wireui:scripts />
 
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
@@ -125,7 +126,7 @@
       @auth
         <script>
             window.userId = {{ auth()->id() }};
-            
+
             document.addEventListener('livewire:init', () => {
                 Echo.private(`App.Models.User.${window.userId}`)
                     .notification((notification) => {

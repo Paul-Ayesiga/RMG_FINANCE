@@ -18,14 +18,14 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Deposits</h3>
                 <p class="text-3xl dark:text-white">
-                    ${{ $monthlyStats['deposits']['current'] >= 1000000000 
+                    ${{ $monthlyStats['deposits']['current'] >= 1000000000
                         ? number_format($monthlyStats['deposits']['current'] / 1000000000, 1) . 'B'
-                        : ($monthlyStats['deposits']['current'] >= 1000000 
+                        : ($monthlyStats['deposits']['current'] >= 1000000
                             ? number_format($monthlyStats['deposits']['current'] / 1000000, 1) . 'M'
                             : number_format($monthlyStats['deposits']['current'])) }}
                 </p>
                 <span class="text-xs {{ $monthlyStats['deposits']['trend'] === 'increase' ? 'text-green-500' : 'text-red-500' }}">
-                    {{ $monthlyStats['deposits']['percentage'] }}% 
+                    {{ $monthlyStats['deposits']['percentage'] }}%
                     {{ $monthlyStats['deposits']['trend'] === 'increase' ? '↑' : '↓' }}
                 </span>
             </div>
@@ -41,14 +41,14 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Withdrawals</h3>
                 <p class="text-3xl dark:text-white">
-                    ${{ $monthlyStats['withdrawals']['current'] >= 1000000000 
+                    ${{ $monthlyStats['withdrawals']['current'] >= 1000000000
                         ? number_format($monthlyStats['withdrawals']['current'] / 1000000000, 1) . 'B'
-                        : ($monthlyStats['withdrawals']['current'] >= 1000000 
+                        : ($monthlyStats['withdrawals']['current'] >= 1000000
                             ? number_format($monthlyStats['withdrawals']['current'] / 1000000, 1) . 'M'
                             : number_format($monthlyStats['withdrawals']['current'])) }}
                 </p>
                 <span class="text-xs {{ $monthlyStats['withdrawals']['trend'] === 'increase' ? 'text-green-500' : 'text-red-500' }}">
-                    {{ $monthlyStats['withdrawals']['percentage'] }}% 
+                    {{ $monthlyStats['withdrawals']['percentage'] }}%
                     {{ $monthlyStats['withdrawals']['trend'] === 'increase' ? '↑' : '↓' }}
                 </span>
             </div>
@@ -64,14 +64,14 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Transfers</h3>
                 <p class="text-3xl dark:text-white">
-                    ${{ $monthlyStats['transfers']['current'] >= 1000000000 
+                    ${{ $monthlyStats['transfers']['current'] >= 1000000000
                         ? number_format($monthlyStats['transfers']['current'] / 1000000000, 1) . 'B'
-                        : ($monthlyStats['transfers']['current'] >= 1000000 
+                        : ($monthlyStats['transfers']['current'] >= 1000000
                             ? number_format($monthlyStats['transfers']['current'] / 1000000, 1) . 'M'
                             : number_format($monthlyStats['transfers']['current'])) }}
                 </p>
                 <span class="text-xs {{ $monthlyStats['transfers']['trend'] === 'increase' ? 'text-green-500' : 'text-red-500' }}">
-                    {{ $monthlyStats['transfers']['percentage'] }}% 
+                    {{ $monthlyStats['transfers']['percentage'] }}%
                     {{ $monthlyStats['transfers']['trend'] === 'increase' ? '↑' : '↓' }}
                 </span>
             </div>
@@ -90,14 +90,14 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Wallet Balance</h3>
                 <p class="text-3xl dark:text-white">
-                    ${{ $monthlyStats['wallet_balance']['current'] >= 1000000000 
+                    ${{ $monthlyStats['wallet_balance']['current'] >= 1000000000
                         ? number_format($monthlyStats['wallet_balance']['current'] / 1000000000, 1) . 'B'
-                        : ($monthlyStats['wallet_balance']['current'] >= 1000000 
+                        : ($monthlyStats['wallet_balance']['current'] >= 1000000
                             ? number_format($monthlyStats['wallet_balance']['current'] / 1000000, 1) . 'M'
                             : number_format($monthlyStats['wallet_balance']['current'])) }}
                 </p>
                 <span class="text-xs {{ $monthlyStats['wallet_balance']['trend'] === 'increase' ? 'text-green-500' : 'text-red-500' }}">
-                    {{ $monthlyStats['wallet_balance']['percentage'] }}% 
+                    {{ $monthlyStats['wallet_balance']['percentage'] }}%
                     {{ $monthlyStats['wallet_balance']['trend'] === 'increase' ? '↑' : '↓' }}
                 </span>
             </div>
@@ -112,9 +112,9 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-8 mt-5">
         <!-- Total Page Views -->
         <div class="stat dark:bg-inherit dark:text-white dark:shadow-white shadow p-4 bg-white rounded-lg">
-            <div class="stat-title">Total Page Views</div>
-            <div class="stat-value text-primary dark:text-white">
-                {{ number_format(1434000 / 1000000, 1) }}M
+            <div class="stat-title">Total Active Users</div>
+            <div class="stat-value text-primary dark:text-white" wire:poll.1s>
+                {{ $loggedInUsers }}
             </div>
             <div class="stat-desc dark:text-white">21% more than last month</div>
         </div>
@@ -125,9 +125,9 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Customers</h3>
                 <p class="text-3xl dark:text-white">
-                    {{ $customers >= 1000000 
+                    {{ $customers >= 1000000
                         ? number_format($customers / 1000000, 1) . 'M'
-                        : ($customers >= 1000 
+                        : ($customers >= 1000
                             ? number_format($customers / 1000, 1) . 'K'
                             : $customers) }}
                 </p>
@@ -141,9 +141,9 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Staff</h3>
                 <p class="text-3xl dark:text-white">
-                    {{ $staff >= 1000000 
+                    {{ $staff >= 1000000
                         ? number_format($staff / 1000000, 1) . 'M'
-                        : ($staff >= 1000 
+                        : ($staff >= 1000
                             ? number_format($staff / 1000, 1) . 'K'
                             : $staff) }}
                 </p>
@@ -166,9 +166,9 @@
         <div class="stat dark:bg-inherit dark:text-white dark:shadow-white shadow p-4 bg-white rounded-lg">
             <div class="stat-title">Pending Accounts</div>
             <div class="stat-value text-warning">
-                {{ $pendingAccounts >= 1000000 
+                {{ $pendingAccounts >= 1000000
                     ? number_format($pendingAccounts / 1000000, 1) . 'M'
-                    : ($pendingAccounts >= 1000 
+                    : ($pendingAccounts >= 1000
                         ? number_format($pendingAccounts / 1000, 1) . 'K'
                         : $pendingAccounts) }}
             </div>
@@ -178,9 +178,9 @@
         <div class="stat dark:bg-inherit dark:text-white dark:shadow-white shadow p-4 bg-white rounded-lg">
             <div class="stat-title">Approved Accounts</div>
             <div class="stat-value text-info">
-                {{ $approvedAccounts >= 1000000 
+                {{ $approvedAccounts >= 1000000
                     ? number_format($approvedAccounts / 1000000, 1) . 'M'
-                    : ($approvedAccounts >= 1000 
+                    : ($approvedAccounts >= 1000
                         ? number_format($approvedAccounts / 1000, 1) . 'K'
                         : $approvedAccounts) }}
             </div>
@@ -202,9 +202,9 @@
         <div class="stat dark:bg-inherit dark:text-white dark:shadow-white shadow p-4 bg-white rounded-lg">
             <div class="stat-title">Pending Loans</div>
             <div class="stat-value text-warning">
-                {{ $pendingLoans >= 1000000 
+                {{ $pendingLoans >= 1000000
                     ? number_format($pendingLoans / 1000000, 1) . 'M'
-                    : ($pendingLoans >= 1000 
+                    : ($pendingLoans >= 1000
                         ? number_format($pendingLoans / 1000, 1) . 'K'
                         : $pendingLoans) }}
             </div>
@@ -214,9 +214,9 @@
         <div class="stat dark:bg-inherit dark:text-white dark:shadow-white shadow p-4 bg-white rounded-lg">
             <div class="stat-title">Approved Loans</div>
             <div class="stat-value text-info">
-                {{ $approvedLoans >= 1000000 
+                {{ $approvedLoans >= 1000000
                     ? number_format($approvedLoans / 1000000, 1) . 'M'
-                    : ($approvedLoans >= 1000 
+                    : ($approvedLoans >= 1000
                         ? number_format($approvedLoans / 1000, 1) . 'K'
                         : $approvedLoans) }}
             </div>
@@ -240,9 +240,9 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Active Accounts</h3>
                 <p class="text-3xl dark:text-white">
-                    {{ $activeAccounts >= 1000000 
+                    {{ $activeAccounts >= 1000000
                         ? number_format($activeAccounts / 1000000, 1) . 'M'
-                        : ($activeAccounts >= 1000 
+                        : ($activeAccounts >= 1000
                             ? number_format($activeAccounts / 1000, 1) . 'K'
                             : number_format($activeAccounts)) }}
                 </p>
@@ -262,9 +262,9 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Active Loans</h3>
                 <p class="text-3xl dark:text-white">
-                    {{ $activeLoans >= 1000000 
+                    {{ $activeLoans >= 1000000
                         ? number_format($activeLoans / 1000000, 1) . 'M'
-                        : ($activeLoans >= 1000 
+                        : ($activeLoans >= 1000
                             ? number_format($activeLoans / 1000, 1) . 'K'
                             : number_format($activeLoans)) }}
                 </p>
@@ -278,7 +278,7 @@
     <!-- Monitoring Charts Section -->
     <div class="mt-10 px-4 sm:px-8" wire:poll.30s>
         <h2 class="text-2xl font-semibold mb-6 text-center dark:text-white">Performance Monitoring</h2>
-        
+
         <!-- Transaction Monitoring -->
         <div class="bg-white p-6 rounded-lg shadow mb-6 dark:bg-gray-800">
             <x-mary-chart wire:model="transactionChart" />

@@ -10,6 +10,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Account;
 use Livewire\Livewire;
+use Illuminate\Broadcasting\PrivateChannel;
 
 class AccountStatusNotification extends Notification implements ShouldQueue
 {
@@ -19,7 +20,7 @@ class AccountStatusNotification extends Notification implements ShouldQueue
         protected Account $account,
         protected string $title,
         protected string $message,
-        protected string $status
+        protected string $status,
     ) {}
 
     public function via($notifiable): array
@@ -52,7 +53,7 @@ class AccountStatusNotification extends Notification implements ShouldQueue
 
     private function getStatusSpecificMessage(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'active' => 'You can now access all account features.',
             'inactive' => 'If you need assistance, please contact our support team.',
             'closed' => 'Your account has been permanently closed.',
@@ -72,10 +73,13 @@ class AccountStatusNotification extends Notification implements ShouldQueue
         ]))->onQueue('broadcasts');
     }
 
-    public function broadcastOn()
-    {
-        return [new PrivateChannel('App.Models.User.'.$this->notifiable->id)];
-    }
+    // public function broadcastOn(): array
+    // {
+    //     // Access the notifiable model via $this->notifiable
+    //     return [
+    //         new PrivateChannel('App.Models.User.' . $this->notifiable->id)
+    //     ];
+    // }
 
     public function broadcastAs()
     {

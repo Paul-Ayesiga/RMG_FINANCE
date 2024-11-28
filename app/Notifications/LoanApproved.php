@@ -8,8 +8,11 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Loan;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\Channel;
 
-class LoanApproved extends Notification implements ShouldQueue
+class LoanApproved extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 
@@ -26,7 +29,7 @@ class LoanApproved extends Notification implements ShouldQueue
     {
         $amount = number_format($this->loan->amount, 2);
         $product = $this->loan->loanProduct->name;
-        
+
         return (new MailMessage)
             ->subject("Loan Application #{$this->loan->id} Approved")
             ->greeting('Hello ' . $notifiable->name)
@@ -55,4 +58,11 @@ class LoanApproved extends Notification implements ShouldQueue
     {
         return new BroadcastMessage($this->toArray($notifiable));
     }
-} 
+
+    public function broadcastOn(): array
+    {
+        return [
+            new Channel('loan-approved'),
+        ];
+    }
+}

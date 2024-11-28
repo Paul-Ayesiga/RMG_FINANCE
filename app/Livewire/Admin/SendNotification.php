@@ -46,8 +46,8 @@ class SendNotification extends Component
     {
         $this->validate();
 
-        $users = $this->notifyAll 
-            ? User::all() 
+        $users = $this->notifyAll
+            ? User::all()
             : User::whereIn('id', $this->selectedUsers)->get();
 
         foreach ($users as $user) {
@@ -59,10 +59,11 @@ class SendNotification extends Component
         }
 
         // Reset form
-        $this->reset(['title', 'message', 'selectedUsers']);
-        
+        $this->reset(['title', 'message', 'selectedUsers', 'notifyAll']);
+
         // Show success message
         session()->flash('success', 'Notification sent successfully!');
+        $this->dispatch('new-notification');
     }
 
     public function getUsersProperty()

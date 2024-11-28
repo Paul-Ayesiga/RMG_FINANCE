@@ -12,6 +12,7 @@ use App\Models\AccountType;
 use Carbon\Carbon;
 use Livewire\Attributes\Lazy;
 use App\Models\Transaction;
+use Illuminate\Support\Facades\DB;
 
 #[Lazy()]
 class Dashboard extends Component
@@ -28,6 +29,7 @@ class Dashboard extends Component
     {
         $this->loadCharts();
         $this->calculateMonthlyStats();
+
     }
 
     protected function loadCharts()
@@ -276,6 +278,12 @@ class Dashboard extends Component
             ->where('type', 'withdrawal')
             ->sum('amount');
 
+        // calculate total taxes collected
+        $totalTaxes = Transaction::where('status','completed')->sum('taxes');
+
+        // calculate total charges collected
+        $totalCharges = Transaction::where('status','completed')->sum('charges');
+
         // Calculate outstanding loans
         $currentOutstandingLoans = Loan::where('status', 'active')->sum('amount');
         $lastMonthOutstandingLoans = Loan::where('status', 'active')
@@ -283,12 +291,14 @@ class Dashboard extends Component
             ->sum('amount');
 
         // Calculate loan repayments
-        $currentLoanRepayments = Transaction::whereMonth('created_at', $currentMonth)
-            ->where('type', 'loan_repayment')
-            ->sum('amount');
+        $currentLoanRepayments = Loan::whereMonth('created_at', $currentMonth)
+            ->where('status', 'paid')
+            ->sum('total_interest');
+
         $lastMonthLoanRepayments = Transaction::whereMonth('created_at', $lastMonth)
-            ->where('type', 'loan_repayment')
+            ->where('type', 'loanPayment')
             ->sum('amount');
+
 
         // Calculate other income
         $currentOtherIncome = Transaction::whereMonth('created_at', $currentMonth)
@@ -307,19 +317,19 @@ class Dashboard extends Component
             ->sum('amount');
 
         // Calculate current wallet balance using the formula
-        $currentBalance = $currentDeposits - $currentWithdrawals - $currentOutstandingLoans + 
-                         $currentLoanRepayments + $currentOtherIncome - $currentOperationalExpenses;
+        $currentBalance =$currentDeposits - $currentWithdrawals - $currentOutstandingLoans +
+                         $currentLoanRepayments + $currentOtherIncome + $totalTaxes + $totalCharges - $currentOperationalExpenses;
 
         // Calculate last month's wallet balance
-        $lastMonthBalance = $lastMonthDeposits - $lastMonthWithdrawals - $lastMonthOutstandingLoans + 
+        $lastMonthBalance = $lastMonthDeposits - $lastMonthWithdrawals - $lastMonthOutstandingLoans +
                            $lastMonthLoanRepayments + $lastMonthOtherIncome - $lastMonthOperationalExpenses;
 
         // Calculate percentage changes
-        $depositsPercentage = $lastMonthDeposits > 0 ? 
+        $depositsPercentage = $lastMonthDeposits > 0 ?
             (($currentDeposits - $lastMonthDeposits) / $lastMonthDeposits) * 100 : 0;
-        $withdrawalsPercentage = $lastMonthWithdrawals > 0 ? 
+        $withdrawalsPercentage = $lastMonthWithdrawals > 0 ?
             (($currentWithdrawals - $lastMonthWithdrawals) / $lastMonthWithdrawals) * 100 : 0;
-        $balancePercentage = $lastMonthBalance > 0 ? 
+        $balancePercentage = $lastMonthBalance > 0 ?
             (($currentBalance - $lastMonthBalance) / $lastMonthBalance) * 100 : 0;
 
         // Calculate transfers (keeping existing transfer calculations)
@@ -329,7 +339,7 @@ class Dashboard extends Component
         $lastMonthTransfers = Transaction::whereMonth('created_at', $lastMonth)
             ->where('type', 'transfer')
             ->sum('amount');
-        $transfersPercentage = $lastMonthTransfers > 0 ? 
+        $transfersPercentage = $lastMonthTransfers > 0 ?
             (($currentTransfers - $lastMonthTransfers) / $lastMonthTransfers) * 100 : 0;
 
         // Add active stats trends
@@ -339,7 +349,7 @@ class Dashboard extends Component
         $currentActiveAccounts = Account::where('status', 'active')
             ->whereMonth('created_at', Carbon::now()->month)
             ->count();
-        
+
         $lastMonthActiveLoans = Loan::where('status', 'active')
             ->whereMonth('created_at', Carbon::now()->subMonth()->month)
             ->count();
@@ -370,13 +380,13 @@ class Dashboard extends Component
             ],
             'active_accounts' => [
                 'current' => $currentActiveAccounts,
-                'percentage' => $lastMonthActiveAccounts > 0 ? 
+                'percentage' => $lastMonthActiveAccounts > 0 ?
                     round((($currentActiveAccounts - $lastMonthActiveAccounts) / $lastMonthActiveAccounts) * 100, 1) : 0,
                 'trend' => $currentActiveAccounts >= $lastMonthActiveAccounts ? 'increase' : 'decrease'
             ],
             'active_loans' => [
                 'current' => $currentActiveLoans,
-                'percentage' => $lastMonthActiveLoans > 0 ? 
+                'percentage' => $lastMonthActiveLoans > 0 ?
                     round((($currentActiveLoans - $lastMonthActiveLoans) / $lastMonthActiveLoans) * 100, 1) : 0,
                 'trend' => $currentActiveLoans >= $lastMonthActiveLoans ? 'increase' : 'decrease'
             ]
@@ -388,7 +398,7 @@ class Dashboard extends Component
         // Calculate totals
         $totalAccounts = Account::count();
         $totalLoans = Loan::count();
-        
+
         return view('livewire.dashboard', [
             'customers' => User::where('role', 'customer')->count(),
             'staff' => User::where('role', 'staff')->count(),
@@ -402,6 +412,7 @@ class Dashboard extends Component
             'approvedLoans' => Loan::where('status', 'approved')->count(),
             'activeLoans' => Loan::where('status', 'active')->count(),
             'totalLoans' => $totalLoans,
+            'loggedInUsers' => DB::table('sessions')->whereNotNull('user_id')->distinct()->count('user_id')
         ]);
     }
 }

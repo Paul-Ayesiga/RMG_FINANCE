@@ -25,7 +25,7 @@ class Account extends Model
     {
         return $this->belongsTo(AccountType::class);
     }
-    
+
       public function transactions()
     {
         return $this->hasMany(Transaction::class);
@@ -47,19 +47,19 @@ class Account extends Model
         $totalTaxes = 0;
         $appliedChargeDetails = [];
         $appliedTaxDetails = [];
-        
+
         // Calculate Bank Charges
         $charges = BankCharge::where('type', $type)
             ->where('is_active', true)
             ->get();
 
         foreach ($charges as $charge) {
-            $chargeAmount = $charge->is_percentage 
-                ? ($amount * $charge->rate) / 100 
+            $chargeAmount = $charge->is_percentage
+                ? ($amount * $charge->rate) / 100
                 : $charge->rate;
-                
+
             $totalCharges += $chargeAmount;
-            
+
             // Store charge details
             $appliedChargeDetails[] = [
                 'name' => $charge->name,
@@ -80,12 +80,12 @@ class Account extends Model
         // Calculate Taxes
         $taxes = Tax::where('is_active', true)->get();
         foreach ($taxes as $tax) {
-            $taxAmount = $tax->is_percentage 
-                ? ($amount * $tax->rate) / 100 
+            $taxAmount = $tax->is_percentage
+                ? ($amount * $tax->rate) / 100
                 : $tax->rate;
-                
+
             $totalTaxes += $taxAmount;
-            
+
             // Store tax details
             $appliedTaxDetails[] = [
                 'name' => $tax->name,
@@ -114,11 +114,11 @@ class Account extends Model
 
     public function deposit($amount)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // Calculate charges and taxes
             $deductions = $this->calculateChargesAndTaxes('deposit', $amount);
-            
+
             // Calculate final amount (amount minus deductions)
             $finalAmount = $amount - $deductions['total_deductions'];
 
@@ -141,23 +141,23 @@ class Account extends Model
             ]);
 
             // Send notification
-            $this->customer->user->notify(new TransactionNotification(
-                $transaction,
-                'Deposit Successful',
-                "A deposit of " . number_format($amount, 2) . " has been processed. Net amount after charges: " . number_format($finalAmount, 2)
-            ));
+            // $this->customer->user->notify(new TransactionNotification(
+            //     $transaction,
+            //     'Deposit Successful',
+            //     "A deposit of " . number_format($amount, 2) . " has been processed. Net amount after charges: " . number_format($finalAmount, 2)
+            // ));
 
-            \DB::commit();
+            DB::commit();
             return $transaction;
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
             throw $e;
         }
     }
 
     public function withdraw($amount)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // Check minimum balance requirement
             $minBalance = $this->accountType->min_balance ?? 0;
@@ -215,17 +215,17 @@ class Account extends Model
                 "A withdrawal of " . number_format($amount, 2) . " has been processed. Total deduction including charges: " . number_format($totalAmount, 2)
             ));
 
-            \DB::commit();
+            DB::commit();
             return $transaction;
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
             throw $e;
         }
     }
 
     public function transfer($destinationAccount, $amount)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // Check minimum balance requirement for source account
             $minBalance = $this->accountType->min_balance ?? 0;
@@ -258,12 +258,12 @@ class Account extends Model
                 $appliedChargeDetails = [];
 
                 foreach ($charges as $charge) {
-                    $chargeAmount = $charge->is_percentage 
-                        ? ($amount * $charge->rate) / 100 
+                    $chargeAmount = $charge->is_percentage
+                        ? ($amount * $charge->rate) / 100
                         : $charge->rate;
-                        
+
                     $totalCharges += $chargeAmount;
-                    
+
                     $appliedChargeDetails[] = [
                         'name' => $charge->name,
                         'amount' => $chargeAmount,
@@ -313,7 +313,7 @@ class Account extends Model
 
             // Record transaction
             $reference = 'TRF' . time();
-            
+
             $transaction = $this->transactions()->create([
                 'type' => 'transfer',
                 'amount' => $amount,
@@ -343,10 +343,10 @@ class Account extends Model
                 "You have received " . number_format($amount, 2) . " from account " . $this->account_number
             ));
 
-            \DB::commit();
+            DB::commit();
             return $transaction;
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
             throw $e;
         }
     }

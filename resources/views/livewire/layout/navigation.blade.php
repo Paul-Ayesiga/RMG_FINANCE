@@ -3,6 +3,7 @@
 use App\Livewire\Actions\Logout;
 use Livewire\Volt\Component;
 use Livewire\Attributes\On;
+use Mary\Traits\Toast;
 
 new class extends Component
 {
@@ -19,19 +20,28 @@ new class extends Component
     public $notifications = [];
     public $unreadNotifications = 0;
 
-    public function mount()
+    #[On('new-notification')]
+    public function boot()
     {
         $this->loadNotifications();
     }
 
-    public function getListeners()
-    {
-        return [
-            "echo-private:App.Models.User.".auth()->id().",Illuminate\\Notifications\\Events\\BroadcastNotificationCreated" => 'handleBroadcastNotification',
-            'notification.sent' => 'loadNotifications'
-        ];
+    #[On('new-notification')]
+    public function newNotificationAlert(){
+       $this->toast(
+            type: 'success',
+            title: 'It is done!',
+            description: 'Your action was successful.',  // Description added
+            position: 'toast-top toast-right',
+            icon: 'o-information-circle',
+            css: 'alert alert-success rounded-lg shadow-lg p-4 flex items-center space-x-3',
+            timeout: 3000,
+            redirectTo: null
+        );
+
     }
 
+    #[On('new-notification')]
     public function loadNotifications()
     {
         cache()->forget('user_notifications_'.auth()->id());
@@ -41,22 +51,12 @@ new class extends Component
             ->latest()
             ->take(5)
             ->get();
-            
+
         $this->unreadNotifications = auth()->user()
             ->unreadNotifications
             ->count();
     }
 
-    #[On('notification-received')] 
-    public function handleNewNotification($notification)
-    {
-        $this->loadNotifications();
-        $this->dispatch('show-notification', [
-            'title' => $notification['title'] ?? 'New Notification',
-            'message' => $notification['message'] ?? '',
-            'type' => $notification['type'] ?? 'success'
-        ]);
-    }
 
     public function markAllAsRead()
     {
@@ -82,19 +82,6 @@ new class extends Component
         $this->loadNotifications();
     }
 
-    public function handleBroadcastNotification($event)
-    {
-        logger()->info('Broadcast notification received', ['event' => $event]);
-        
-        $this->loadNotifications();
-        
-        // Show toast notification
-        $this->dispatch('notify', [
-            'title' => data_get($event, 'notification.title', 'New Notification'),
-            'message' => data_get($event, 'notification.message', ''),
-            'type' => data_get($event, 'notification.type', 'info')
-        ]);
-    }
 }; ?>
 
 <div>
@@ -104,12 +91,12 @@ new class extends Component
         <!-- Notifications Dropdown -->
         <x-dropdown align="right" width="480">
             <x-slot name="trigger">
-                <button wire:poll.15s class="relative inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 hover:text-gray-700 focus:outline-none transition ease-in-out duration-150 dark:text-gray-400 dark:hover:text-white">
+                <button class="relative inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 hover:text-gray-700 focus:outline-none transition ease-in-out duration-150 dark:text-gray-400 dark:hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                     </svg>
                     @if($unreadNotifications > 0)
-                        <div wire:poll.5s class="absolute inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full -top-1 -right-1">
+                        <div class="absolute inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full -top-1 -right-1">
                             {{ $unreadNotifications }}
                         </div>
                     @endif
@@ -200,9 +187,9 @@ new class extends Component
                         @endif
                         <!-- Add role badge with dynamic colors -->
                         @foreach(auth()->user()->getRoleNames() as $role)
-                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset {{ $role === 'admin' 
+                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset {{ $role === 'admin'
                                 ? 'bg-red-50 text-red-700 ring-red-700/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30'
-                                : 'bg-green-50 text-green-700 ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30' 
+                                : 'bg-green-50 text-green-700 ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30'
                             }} mr-1">
                                 {{ ucfirst($role) }}
                             </span>

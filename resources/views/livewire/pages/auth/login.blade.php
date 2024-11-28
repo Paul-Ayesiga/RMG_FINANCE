@@ -24,11 +24,17 @@ new #[Layout('layouts.guest')] class extends Component
         // dd('User roles: ' . auth()->user()->getRoleNames());
         // dd(Auth::guard('admin')->check());
             // Default redirection to dashboard for other roles
-        if(Auth::user()->role === 'staff'){
-            $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
-        }else{
-            $this->redirectIntended(route('customer-dashboard', absolute: false), navigate: true);
+        // if(Auth::user()->role === 'admin'){
+        //     $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+        // }else{
+        //     $this->redirectIntended(route('customer-dashboard', absolute: false), navigate: true);
+        // }
+        if (Auth::user()->hasRole(['staff', 'super-admin','manager'])) {
+            $this->redirectIntended(route('dashboard', ['absolute' => false]), navigate: true);
+        } elseif(Auth::user()->hasRole('customer')) {
+            $this->redirectIntended(route('customer-dashboard', ['absolute' => false]), navigate: true);
         }
+
     }
 }; ?>
 
@@ -51,14 +57,14 @@ new #[Layout('layouts.guest')] class extends Component
                             <!-- Email Address -->
                             <div>
                                 <x-input-label for="email" :value="__('Email')" />
-                                <x-text-input wire:model="form.email" id="email" class="block mt-1 w-full py-2 px-2" type="email" name="email" required autofocus autocomplete="username" />
+                                <x-wireui-input wire:model="form.email" icon="envelope"  id="email" class="block mt-1 w-full py-2 px-2" type="email" name="email" required autofocus autocomplete="username" errorless/>
                                 <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
                             </div>
 
                             <!-- Password -->
                             <div class="mt-4">
                                 <x-input-label for="password" :value="__('Password')" />
-                                <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full py-2 px-2" type="password" name="password" required autocomplete="current-password" />
+                                <x-wireui-password wire:model="form.password" icon="key"   id="password" class="block mt-1 w-full py-2 px-2" type="password" name="password" required autocomplete="current-password" errorless/>
                                 <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
                             </div>
 

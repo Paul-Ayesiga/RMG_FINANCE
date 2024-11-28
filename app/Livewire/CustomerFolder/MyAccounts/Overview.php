@@ -21,6 +21,7 @@ use Illuminate\Support\Collection;
 use App\Models\Transaction;
 use Livewire\Attributes\Computed;
 
+
 #[Lazy()]
 class Overview extends Component
 {
@@ -34,7 +35,7 @@ class Overview extends Component
     public array $sortBy = ['column' => 'id', 'direction' => 'asc'];
     public $perPage = 5;
     public array $selected = [];
- 
+
     // receipt modal
     public bool $showReceiptModal = false;
     public $receiptData = null;
@@ -45,7 +46,7 @@ class Overview extends Component
     public bool $depositModal = false;
     public bool $withdrawalModal = false;
     public bool $transferModal = false;
-  
+
     public array $activeFilters = [];
 
     #[Computed]
@@ -221,7 +222,7 @@ class Overview extends Component
             ->merge($selectedAccount);
     }
 
-    
+
     public function headers()
     {
         return collect([
@@ -271,7 +272,7 @@ class Overview extends Component
     {
         // Get selected account type details
         $accountType = $this->filteredAccountTypes->firstWhere('id', $this->accountTypeId);
-        
+
         // Validate input fields
         $this->validate([
             'accountTypeId' => 'required',
@@ -312,17 +313,17 @@ class Overview extends Component
         $year = date('Y');
         $uniqueId = uniqid();
         $randomPart = mt_rand(1000, 9999);
-        
+
         // Combine all parts to create a unique account number
         $accountNumber = $prefix . $year . substr($uniqueId, -6) . $randomPart;
-        
+
         // Ensure the generated account number is unique
         while (Account::where('account_number', $accountNumber)->exists()) {
             $uniqueId = uniqid();
             $randomPart = mt_rand(1000, 9999);
             $accountNumber = $prefix . $year . substr($uniqueId, -6) . $randomPart;
         }
-        
+
         return $accountNumber;
     }
 
@@ -369,15 +370,15 @@ class Overview extends Component
     public function deposit($accountId)
     {
         $this->validate([
-            'depositAmount' => 'required|numeric|min:0.01',
+            'depositAmount' => 'required|numeric|min:1000',
         ]);
 
         $account = Account::findOrFail($accountId);
-        
+
         try {
             // Get the transaction object from deposit method
             $transaction = $account->deposit($this->depositAmount);
-            
+
             // Check if transaction was successful and is an object
             if (!$transaction || !is_object($transaction)) {
                 throw new \Exception('Transaction failed to process');
@@ -407,7 +408,7 @@ class Overview extends Component
                         'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
                     ];
                 });
-            
+
             // Set receipt data and show modal
             $this->receiptData = [
                 'date' => now()->format('Y-m-d H:i:s'),
@@ -428,6 +429,7 @@ class Overview extends Component
             $this->showReceiptModal = true;
 
         } catch (\Exception $e) {
+            dd($e->getMessage());
             $this->toast(
                 type: 'error',
                 title: $e->getMessage(),
@@ -451,7 +453,7 @@ class Overview extends Component
     public function withdraw($accountId)
     {
         $account = Account::findOrFail($accountId);
-        
+
         $this->validate([
             'withdrawalAmount' => [
                 'required',
@@ -468,7 +470,7 @@ class Overview extends Component
             ->where('type', 'withdrawal')
             ->whereDate('created_at', today())
             ->count();
-        
+
         if ($withdrawalCount >= 4) {
             $this->toast(
                 type: 'error',
@@ -479,11 +481,11 @@ class Overview extends Component
         }
 
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             // Get the transaction object from withdraw method
             $transaction = $account->withdraw($this->withdrawalAmount);
-            
+
             if (!$transaction || !is_object($transaction)) {
                 throw new \Exception('Transaction failed to process');
             }
@@ -527,15 +529,15 @@ class Overview extends Component
                 'balance' => $account->balance
             ];
 
-            \DB::commit();
-            
+            DB::commit();
+
             $this->receiptType = 'withdrawal';
             $this->withdrawalModal = false;
             $this->showReceiptModal = true;
             $this->withdrawalAmount = null;
 
         } catch (\Exception $e) {
-            \DB::rollBack();
+            DB::rollBack();
             $this->toast(
                 type: 'error',
                 title: $e->getMessage(),
@@ -547,7 +549,7 @@ class Overview extends Component
     public function transfer($id)
     {
         $sourceAccount = Account::findOrFail($id);
-        
+
         // Validate based on transfer type
         $this->validate([
             'transferAmount' => [
@@ -591,7 +593,7 @@ class Overview extends Component
         try {
             // Attempt the transfer
             $transaction = $sourceAccount->transfer($destinationAccount, $this->transferAmount);
-            
+
             if (!$transaction || !is_object($transaction)) {
                 throw new \Exception('Transfer failed to process');
             }

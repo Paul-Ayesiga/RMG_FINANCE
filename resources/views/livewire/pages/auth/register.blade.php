@@ -103,34 +103,34 @@ new #[Layout('layouts.guest')] class extends Component
                         <!-- Name -->
                         <div>
                             <x-input-label for="name" :value="__('Name')" />
-                            <x-text-input wire:model="name" id="name" class="block mt-1 w-full py-2 px-2" type="text" name="name" autofocus autocomplete="name" />
+                            <x-wireui-input wire:model="name"  icon="user"   id="name" class="block mt-1 w-full py-2 px-2" type="text" name="name" autofocus autocomplete="name" errorless/>
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
                         <!-- Email Address -->
                         <div class="mt-4">
                             <x-input-label for="email" :value="__('Email')" />
-                            <x-text-input wire:model="email" id="email" class="block mt-1 w-full py-2 px-2" type="email" name="email" autocomplete="username" />
+                            <x-wireui-input wire:model="email"  icon="envelope"   id="email" class="block mt-1 w-full py-2 px-2" type="email" name="email" autocomplete="username" errorless/>
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
 
                         <!-- Password -->
                         <div class="mt-4">
                             <x-input-label for="password" :value="__('Password')" />
-                            <x-text-input wire:model="password" id="password" class="block mt-1 w-full py-2 px-2" type="password" name="password" autocomplete="new-password" />
+                            <x-wireui-password wire:model="password"  icon="key"   id="password" class="block mt-1 w-full py-2 px-2" type="password" name="password" autocomplete="new-password" errorless/>
                             <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
 
                         <!-- Confirm Password -->
                         <div class="mt-4">
                             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-                            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full py-2 px-2" type="password" name="password_confirmation" autocomplete="new-password" />
+                            <x-wireui-password wire:model="password_confirmation"  icon="key"   id="password_confirmation" class="block mt-1 w-full py-2 px-2" type="password" name="password_confirmation" autocomplete="new-password" errorless/>
                             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                         </div>
 
                         <div class="mt-4">
                             <x-input-label for="identification" :value="__('Identification Number')" />
-                            <x-text-input wire:model="identification_number" id="identification_number" class="block mt-1 w-full py-2 px-2" type="text" name="identification_number" autocomplete="" />
+                            <x-wireui-input wire:model="identification_number" icon="hand-raised"  id="identification_number" class="block mt-1 w-full py-2 px-2" type="text" name="identification_number" autocomplete="" errorless/>
                             <x-input-error :messages="$errors->get('identification_number')" class="mt-2" />
                         </div>
 
