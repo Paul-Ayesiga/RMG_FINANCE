@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use App\Events\systemNotification;
 
 class SendNotification extends Component
 {
@@ -64,6 +65,7 @@ class SendNotification extends Component
         // Show success message
         session()->flash('success', 'Notification sent successfully!');
         $this->dispatch('new-notification');
+        systemNotification::dispatch();
     }
 
     public function getUsersProperty()

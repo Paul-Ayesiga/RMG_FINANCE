@@ -18,7 +18,7 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Deposits</h3>
                 <p class="text-3xl dark:text-white">
-                    ${{ $monthlyStats['deposits']['current'] >= 1000000000
+                    <small>UGX</small> {{ $monthlyStats['deposits']['current'] >= 1000000000
                         ? number_format($monthlyStats['deposits']['current'] / 1000000000, 1) . 'B'
                         : ($monthlyStats['deposits']['current'] >= 1000000
                             ? number_format($monthlyStats['deposits']['current'] / 1000000, 1) . 'M'
@@ -41,7 +41,7 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Withdrawals</h3>
                 <p class="text-3xl dark:text-white">
-                    ${{ $monthlyStats['withdrawals']['current'] >= 1000000000
+                     <small>UGX</small> {{ $monthlyStats['withdrawals']['current'] >= 1000000000
                         ? number_format($monthlyStats['withdrawals']['current'] / 1000000000, 1) . 'B'
                         : ($monthlyStats['withdrawals']['current'] >= 1000000
                             ? number_format($monthlyStats['withdrawals']['current'] / 1000000, 1) . 'M'
@@ -64,7 +64,7 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Transfers</h3>
                 <p class="text-3xl dark:text-white">
-                    ${{ $monthlyStats['transfers']['current'] >= 1000000000
+                     <small>UGX</small> {{ $monthlyStats['transfers']['current'] >= 1000000000
                         ? number_format($monthlyStats['transfers']['current'] / 1000000000, 1) . 'B'
                         : ($monthlyStats['transfers']['current'] >= 1000000
                             ? number_format($monthlyStats['transfers']['current'] / 1000000, 1) . 'M'
@@ -90,7 +90,7 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Wallet Balance</h3>
                 <p class="text-3xl dark:text-white">
-                    ${{ $monthlyStats['wallet_balance']['current'] >= 1000000000
+                     <small>UGX</small> {{ $monthlyStats['wallet_balance']['current'] >= 1000000000
                         ? number_format($monthlyStats['wallet_balance']['current'] / 1000000000, 1) . 'B'
                         : ($monthlyStats['wallet_balance']['current'] >= 1000000
                             ? number_format($monthlyStats['wallet_balance']['current'] / 1000000, 1) . 'M'
@@ -276,7 +276,7 @@
     </div>
 
     <!-- Monitoring Charts Section -->
-    <div class="mt-10 px-4 sm:px-8" wire:poll.30s>
+    <div class="mt-10 px-4 sm:px-8">
         <h2 class="text-2xl font-semibold mb-6 text-center dark:text-white">Performance Monitoring</h2>
 
         <!-- Transaction Monitoring -->

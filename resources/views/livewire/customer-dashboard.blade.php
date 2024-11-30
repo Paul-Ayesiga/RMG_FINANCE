@@ -125,12 +125,12 @@
         <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Deposits</h3>
             <p class="text-3xl dark:text-white">{{ $stats['deposits']['count'] }}</p>
-            <p class="text-sm dark:text-white">${{ 
-                $stats['deposits']['amount'] >= 1000000000 
+            <p class="text-sm dark:text-white"> <small>UGX</small> {{
+                $stats['deposits']['amount'] >= 1000000000
                     ? number_format($stats['deposits']['amount'] / 1000000000, 1) . 'B'
-                    : ($stats['deposits']['amount'] >= 1000000 
-                        ? number_format($stats['deposits']['amount'] / 1000000, 1) . 'M' 
-                        : number_format($stats['deposits']['amount'], 2)) 
+                    : ($stats['deposits']['amount'] >= 1000000
+                        ? number_format($stats['deposits']['amount'] / 1000000, 1) . 'M'
+                        : number_format($stats['deposits']['amount'], 2))
             }}</p>
         </div>
     </div>
@@ -143,12 +143,12 @@
         <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Withdrawals</h3>
             <p class="text-3xl dark:text-white">{{ $stats['withdrawals']['count'] }}</p>
-            <p class="text-sm dark:text-white">${{ 
-                $stats['withdrawals']['amount'] >= 1000000000 
+            <p class="text-sm dark:text-white"><small>UGX</small> {{
+                $stats['withdrawals']['amount'] >= 1000000000
                     ? number_format($stats['withdrawals']['amount'] / 1000000000, 1) . 'B'
-                    : ($stats['withdrawals']['amount'] >= 1000000 
-                        ? number_format($stats['withdrawals']['amount'] / 1000000, 1) . 'M' 
-                        : number_format($stats['withdrawals']['amount'], 2)) 
+                    : ($stats['withdrawals']['amount'] >= 1000000
+                        ? number_format($stats['withdrawals']['amount'] / 1000000, 1) . 'M'
+                        : number_format($stats['withdrawals']['amount'], 2))
             }}</p>
         </div>
     </div>
@@ -161,12 +161,12 @@
         <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Transfers</h3>
             <p class="text-3xl dark:text-white">{{ $stats['transfers']['count'] }}</p>
-            <p class="text-sm dark:text-white">${{ 
-                $stats['transfers']['amount'] >= 1000000000 
+            <p class="text-sm dark:text-white"><small>UGX</small> {{
+                $stats['transfers']['amount'] >= 1000000000
                     ? number_format($stats['transfers']['amount'] / 1000000000, 1) . 'B'
-                    : ($stats['transfers']['amount'] >= 1000000 
-                        ? number_format($stats['transfers']['amount'] / 1000000, 1) . 'M' 
-                        : number_format($stats['transfers']['amount'], 2)) 
+                    : ($stats['transfers']['amount'] >= 1000000
+                        ? number_format($stats['transfers']['amount'] / 1000000, 1) . 'M'
+                        : number_format($stats['transfers']['amount'], 2))
             }}</p>
         </div>
     </div>
@@ -178,12 +178,12 @@
         </div>
         <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Wallet Balance</h3>
-            <p class="text-3xl dark:text-white">${{ 
-                $stats['balance'] >= 1000000000 
+            <p class="text-3xl dark:text-white"><i>UGX</i> {{
+                $stats['balance'] >= 1000000000
                     ? number_format($stats['balance'] / 1000000000, 1) . 'B'
-                    : ($stats['balance'] >= 1000000 
-                        ? number_format($stats['balance'] / 1000000, 1) . 'M' 
-                        : number_format($stats['balance'], 2)) 
+                    : ($stats['balance'] >= 1000000
+                        ? number_format($stats['balance'] / 1000000, 1) . 'M'
+                        : number_format($stats['balance'], 2))
             }}</p>
         </div>
     </div>
@@ -204,12 +204,12 @@
             <h3 class="text-sm tracking-wider dark:text-white">Active Loans</h3>
             <p class="text-3xl dark:text-white">{{ $stats['loans']['active'] }}</p>
             <p class="text-sm dark:text-white">
-                ${{ 
-                $stats['loans']['total_amount'] >= 1000000000 
+                UGX{{
+                $stats['loans']['total_amount'] >= 1000000000
                     ? number_format($stats['loans']['total_amount'] / 1000000000, 1) . 'B'
-                    : ($stats['loans']['total_amount'] >= 1000000 
-                        ? number_format($stats['loans']['total_amount'] / 1000000, 1) . 'M' 
-                        : number_format($stats['loans']['total_amount'], 2)) 
+                    : ($stats['loans']['total_amount'] >= 1000000
+                        ? number_format($stats['loans']['total_amount'] / 1000000, 1) . 'M'
+                        : number_format($stats['loans']['total_amount'], 2))
             }}
             </p>
         </div>
@@ -289,11 +289,11 @@
     <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold dark:text-white">Financial Calendar</h3>
-            <x-mary-button 
-                label="Add Event" 
+            <x-mary-button
+                label="Add Event"
                 icon="o-plus"
-                wire:click="openEventModal" 
-                class="btn-primary" 
+                wire:click="openEventModal"
+                class="btn-primary"
                 spinner="openEventModal"
             />
         </div>
@@ -302,10 +302,10 @@
             <!-- Calendar -->
             <div class="md:col-span-3">
                 <div wire:poll.60s>
-                    <x-mary-calendar 
-                        :events="$events" 
-                        locale="en" 
-                        weekend-highlight 
+                    <x-mary-calendar
+                        :events="$events"
+                        locale="en"
+                        weekend-highlight
                     />
                 </div>
             </div>
@@ -321,7 +321,7 @@
                                     {{ $event['label'] }}
                                 </p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    {{ isset($event['date']) 
+                                    {{ isset($event['date'])
                                         ? Carbon\Carbon::parse($event['date'])->format('M d, Y h:i A')
                                         : Carbon\Carbon::parse($event['range'][0])->format('M d, Y h:i A') }}
                                 </p>
@@ -332,7 +332,7 @@
                                 @endif
                             </div>
                             @if(isset($event['id']))
-                                <x-mary-button 
+                                <x-mary-button
                                     icon="o-trash"
                                     wire:click="deleteEvent({{ $event['id'] }})"
                                     class="btn-error btn-sm"
@@ -352,14 +352,14 @@
     <form wire:submit="saveEvent" class="space-y-4">
         <!-- Event Label -->
         <div>
-            <x-mary-input 
-                label="Event Title" 
-                wire:model="eventLabel" 
+            <x-mary-input
+                label="Event Title"
+                wire:model="eventLabel"
                 placeholder="Enter event title"
-                
+
             />
-            @error('eventLabel') 
-                <span class="text-red-500 text-sm">{{ $message }}</span> 
+            @error('eventLabel')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
             @enderror
         </div>
 
@@ -372,7 +372,7 @@
                 :options="$eventTypeOptions"
                 option-label="name"
                 option-value="id"
-                
+
             >
                 <x-slot:option>
                     <div class="flex items-center gap-2">
@@ -381,61 +381,61 @@
                     </div>
                 </x-slot:option>
             </x-mary-select>
-            @error('eventType') 
-                <span class="text-red-500 text-sm">{{ $message }}</span> 
+            @error('eventType')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
             @enderror
         </div>
 
         <!-- Event Description -->
         <div>
-            <x-mary-textarea 
-                label="Event Description" 
-                wire:model="eventDescription" 
+            <x-mary-textarea
+                label="Event Description"
+                wire:model="eventDescription"
                 placeholder="Enter event description"
-                
+
             />
-            @error('eventDescription') 
-                <span class="text-red-500 text-sm">{{ $message }}</span> 
+            @error('eventDescription')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
             @enderror
         </div>
 
         <!-- Event Date -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <x-mary-input 
-                    type="datetime-local" 
-                    label="Start Date & Time" 
+                <x-mary-input
+                    type="datetime-local"
+                    label="Start Date & Time"
                     wire:model="eventDate"
-                    
+
                 />
-                @error('eventDate') 
-                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                @error('eventDate')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
             <div>
-                <x-mary-input 
-                    type="datetime-local" 
-                    label="End Date & Time (Optional)" 
+                <x-mary-input
+                    type="datetime-local"
+                    label="End Date & Time (Optional)"
                     wire:model="eventEndDate"
                 />
-                @error('eventEndDate') 
-                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                @error('eventEndDate')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
                 @enderror
             </div>
         </div>
 
         <!-- Modal Footer -->
         <div class="flex justify-end gap-x-4 mt-6">
-            <x-mary-button 
-                label="Cancel" 
+            <x-mary-button
+                label="Cancel"
                 wire:click="closeEventModal"
                 class="btn-outline"
                 spinner="closeEventModal"
             />
-            <x-mary-button 
-                type="submit" 
-                label="Save Event" 
+            <x-mary-button
+                type="submit"
+                label="Save Event"
                 class="btn-primary"
                 spinner="saveEvent"
             />

@@ -412,7 +412,7 @@ class Dashboard extends Component
             'approvedLoans' => Loan::where('status', 'approved')->count(),
             'activeLoans' => Loan::where('status', 'active')->count(),
             'totalLoans' => $totalLoans,
-            'loggedInUsers' => DB::table('sessions')->whereNotNull('user_id')->distinct()->count('user_id')
+            'loggedInUsers' => DB::table('sessions')->whereNotNull('user_id')->distinct()->count('user_id'),
         ]);
     }
 }

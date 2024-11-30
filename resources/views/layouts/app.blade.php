@@ -123,18 +123,6 @@
 
     {{--  TOAST area --}}
     <x-mary-toast />
-      @auth
-        <script>
-            window.userId = {{ auth()->id() }};
 
-            document.addEventListener('livewire:init', () => {
-                Echo.private(`App.Models.User.${window.userId}`)
-                    .notification((notification) => {
-                       alert('Notification received: ' + notification);
-                        Livewire.dispatch('notification.sent');
-                    });
-            });
-        </script>
-    @endauth
 </body>
 </html>
