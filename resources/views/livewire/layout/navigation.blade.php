@@ -7,6 +7,7 @@ use Mary\Traits\Toast;
 
 new class extends Component
 {
+    use Toast;
     /**
      * Log the current user out of the application.
      */
@@ -62,6 +63,12 @@ new class extends Component
     {
         auth()->user()->unreadNotifications->markAsRead();
         $this->loadNotifications();
+    }
+
+     #[On('echo:system-notification,systemNotification')]
+    public function notifyNewOrder()
+    {
+        $this->toast('success','you have a new notification');
     }
 
     public function markAsRead($notificationId)

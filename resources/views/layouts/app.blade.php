@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <wireui:scripts />
+    {{-- <link href="toastr.css" rel="stylesheet"/> --}}
 
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
@@ -123,6 +124,6 @@
 
     {{--  TOAST area --}}
     <x-mary-toast />
-
+    {{-- <script src="toastr.js"></script> --}}
 </body>
 </html>
