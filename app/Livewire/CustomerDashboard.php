@@ -94,7 +94,7 @@ class CustomerDashboard extends Component
 
     public $events = [];
     public $showEventModal = false;
-    
+
     // Form properties
     public $eventLabel;
     public $eventType;
@@ -137,32 +137,32 @@ class CustomerDashboard extends Component
     {
         $customer = Auth::user()->customer;
         $accountIds = $customer->accounts()->pluck('id');
-        
-        $depositStats = \DB::table('transactions')
+
+        $depositStats = DB::table('transactions')
             ->whereIn('account_id', $accountIds)
             ->where('type', 'deposit')
             ->selectRaw('COUNT(*) as count, SUM(amount) as total')
             ->first();
-            
-        $withdrawalStats = \DB::table('transactions')
+
+        $withdrawalStats = DB::table('transactions')
             ->whereIn('account_id', $accountIds)
             ->where('type', 'withdrawal')
             ->selectRaw('COUNT(*) as count, SUM(amount) as total')
             ->first();
-            
-        $transferStats = \DB::table('transactions')
+
+        $transferStats = DB::table('transactions')
             ->whereIn('account_id', $accountIds)
             ->where('type', 'transfer')
             ->selectRaw('COUNT(*) as count, SUM(amount) as total')
             ->first();
-        
+
         $loanStats = [
             'active' => $customer->loans()->where('status', 'active')->count(),
             'approved' => $customer->loans()->where('status', 'approved')->count(),
             'rejected' => $customer->loans()->where('status', 'rejected')->count(),
             'paid' => $customer->loans()->where('status', 'paid')->count(),
             'total_amount' => $customer->loans()
-                ->whereIn('status', ['active', 'approved'])
+                ->whereIn('status', ['active'])
                 ->sum('amount'),
             'paid_amount' => $customer->loans()
                 ->where('status', 'paid')
@@ -216,7 +216,7 @@ class CustomerDashboard extends Component
             $index = 5 - (Carbon::now()->startOfMonth()->diffInMonths(
                 Carbon::create($transaction->year, $transaction->month, 1)
             ));
-            
+
             if ($index >= 0 && $index < 6) {
                 switch ($transaction->type) {
                     case 'deposit':
@@ -277,7 +277,7 @@ class CustomerDashboard extends Component
             // Add loan disbursement date
             $this->events[] = [
                 'label' => 'Loan Disbursed: #' . $loan->reference_number,
-                'description' => "Amount: $" . number_format($loan->amount, 2) . 
+                'description' => "Amount: $" . number_format($loan->amount, 2) .
                                "\nDisbursed on: " . Carbon::parse($loan->disbursement_date)->format('M d, Y h:i A'),
                 'css' => '!bg-emerald-200',
                 'date' => Carbon::parse($loan->disbursement_date),
@@ -294,7 +294,7 @@ class CustomerDashboard extends Component
 
                 $this->events[] = [
                     'label' => $statusLabel . ' - Payment Due: #' . $loan->reference_number,
-                    'description' => "Amount Due: $" . number_format($schedule->total_amount, 2) . 
+                    'description' => "Amount Due: $" . number_format($schedule->total_amount, 2) .
                                    "\nLoan Type: " . ucwords(str_replace('_', ' ', $loan->loanProduct->name)),
                     'css' => $this->getPaymentScheduleColor($schedule->due_date),
                     'date' => Carbon::parse($schedule->due_date),
@@ -306,7 +306,7 @@ class CustomerDashboard extends Component
         $userEvents = $customer->events()->get();
         foreach ($userEvents as $event) {
             $typeConfig = $this->eventTypes[$event->type];
-            
+
             if ($event->end_date) {
                 $this->events[] = [
                     'id' => $event->id,
@@ -331,8 +331,8 @@ class CustomerDashboard extends Component
 
         // Sort events by date
         $this->events = collect($this->events)->sortBy(function($event) {
-            return isset($event['date']) 
-                ? Carbon::parse($event['date']) 
+            return isset($event['date'])
+                ? Carbon::parse($event['date'])
                 : Carbon::parse($event['range'][0]);
         })->values()->all();
     }
@@ -356,7 +356,7 @@ class CustomerDashboard extends Component
     protected function getPaymentScheduleColor($dueDate)
     {
         $status = $this->getPaymentDueStatus($dueDate);
-        
+
         return match($status) {
             'overdue' => '!bg-red-200',
             'upcoming' => '!bg-amber-200',
@@ -374,7 +374,7 @@ class CustomerDashboard extends Component
     {
         $this->showEventModal = false;
         $this->reset(['eventLabel', 'eventType', 'eventDescription', 'eventDate', 'eventEndDate']);
-        
+
         $this->toast(
             type: 'info',
             title: 'Event Creation Cancelled',
@@ -403,7 +403,7 @@ class CustomerDashboard extends Component
         ]);
 
         $typeConfig = $this->eventTypes[$this->eventType];
-        
+
         // Create event in database
         Event::create([
             'customer_id' => auth()->user()->customer->id,
@@ -437,10 +437,10 @@ class CustomerDashboard extends Component
     public function deleteEvent($eventId)
     {
         $event = Event::find($eventId);
-        
+
         if ($event && $event->customer_id === auth()->user()->customer->id) {
             $event->delete();
-            
+
             // Refresh events
             $this->loadEvents();
 

@@ -67,7 +67,6 @@ class SendNotification extends Component
 
         // Show success message
         session()->flash('success', 'Notification sent successfully!');
-        $this->dispatch('new-notification');
         systemNotification::dispatch();
     }
 

@@ -251,7 +251,15 @@
         <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Paid Loans</h3>
             <p class="text-3xl dark:text-white">{{ $stats['loans']['paid'] }}</p>
-            <p class="text-sm dark:text-white">${{ number_format($stats['loans']['paid_amount'], 2) }}</p>
+            <p class="text-sm dark:text-white">
+                UGX{{
+                $stats['loans']['total_amount'] >= 1000000000
+                    ? number_format($stats['loans']['paid_amount'] / 1000000000, 1) . 'B'
+                    : ($stats['loans']['total_amount'] >= 1000000
+                        ? number_format($stats['loans']['paid_amount'] / 1000000, 1) . 'M'
+                        : number_format($stats['loans']['paid_amount'], 2))
+            }}
+            </p>
         </div>
     </div>
 </div>

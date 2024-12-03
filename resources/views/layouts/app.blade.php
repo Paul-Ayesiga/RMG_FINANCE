@@ -52,7 +52,10 @@
                 @if($user = auth()->user())
                     <x-mary-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded sm:hidden">
                         <x-slot:actions>
-                            <x-mary-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate link="/logout" />
+                            <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <x-mary-button type="submit"   icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate />
+                            </form>
                         </x-slot:actions>
                     </x-mary-list-item>
 
