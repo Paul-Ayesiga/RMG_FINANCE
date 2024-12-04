@@ -1,6 +1,6 @@
 RMG FINANCE a MICROFINANCE SYSTEM
     This software is built on laravel 11 , livewire 3, tailwind, daisy ui and maryui.
-    It is completely designed for smoothness 
+    It is completely designed for smoothness. 
     
     Features of the software
     > Client Management
@@ -11,7 +11,7 @@ RMG FINANCE a MICROFINANCE SYSTEM
     > Roles and Permissions Management
 
     Requirements
-        php 8.2 >
+        php 8.2 or higher
 
     Installation
         > clone the project with [ git clone ]
