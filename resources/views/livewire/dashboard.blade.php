@@ -281,11 +281,11 @@
 
         <!-- Transaction Monitoring -->
         <div class="bg-white p-6 rounded-lg shadow mb-6 dark:bg-gray-800">
-            <x-mary-chart wire:model="transactionChart" />
+            <x-mary-chart wire:model="transactionChart"/>
         </div>
 
         <!-- Loan and Account Monitoring -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" wire:poll.30s>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
                 <x-mary-chart wire:model="loanChart" />
             </div>

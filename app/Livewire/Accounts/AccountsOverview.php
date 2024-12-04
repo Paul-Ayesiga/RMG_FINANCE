@@ -307,8 +307,6 @@ class AccountsOverview extends Component
                         'status' => $value
                     ]
                 };
-
-                AccountStatusUpdated::dispatch();// New event dispatched
                 // event(new AccountStatusUpdated('updated successfully'));
 
                 // Send notification
@@ -318,7 +316,9 @@ class AccountsOverview extends Component
                     $notificationData['message'],
                     $notificationData['status']
                 ));
-                $this->dispatch('notification.sent');
+
+                AccountStatusUpdated::dispatch();// New event dispatched
+
 
             }
 
@@ -353,11 +353,11 @@ class AccountsOverview extends Component
         }
     }
 
-    // #[On('echo:account-status,AccountStatusUpdated')]
-    // public function notifyNewOrder()
-    // {
-    //    dd('hello status update');
-    // }
+    #[On('echo:account-status,AccountStatusUpdated')]
+    public function notifyAccountStatusUpdated()
+    {
+        $this->toast('success', 'you have a new notification');
+    }
 
     private function generateAccountNumber(): string
     {

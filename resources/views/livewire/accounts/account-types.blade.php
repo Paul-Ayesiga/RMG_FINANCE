@@ -5,7 +5,7 @@
                 <x-mary-input
                     label=""
                     placeholder="Search account types.."
-                    wire:model.live.debounce="search"
+                    wire:model.live="search"
                     clearable
                     icon="o-magnifying-glass"
                     class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none"
@@ -212,7 +212,7 @@
                 ]"
                 class="w-full border-b-2 border-white shadow-lg focus:border-none focus:outline-none"
             />
-            
+
             <!-- Existing fields -->
             <x-mary-input label="Name" placeholder="Account Type Name" wire:model="name" class="w-full border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
             <x-mary-textarea label="Description" placeholder="Account Type Description" wire:model="description" class="w-full border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />

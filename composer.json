@@ -8,6 +8,7 @@
         "php": "^8.1",
         "algolia/algoliasearch-client-php": "^3.2",
         "barryvdh/laravel-dompdf": "^3.0",
+        "barryvdh/laravel-snappy": "^1.0",
         "flutterwavedev/flutterwave-v3": "^1.0",
         "infobip/infobip-api-php-client": "5.0.0",
         "laravel/framework": "^11.9",

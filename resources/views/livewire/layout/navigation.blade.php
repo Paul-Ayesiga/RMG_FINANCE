@@ -7,6 +7,7 @@ use Mary\Traits\Toast;
 
 new class extends Component
 {
+    use Toast;
     /**
      * Log the current user out of the application.
      */
@@ -62,6 +63,22 @@ new class extends Component
     {
         auth()->user()->unreadNotifications->markAsRead();
         $this->loadNotifications();
+    }
+
+     #[On('echo:system-notification,systemNotification')]
+     #[On('echo:account-status,AccountStatusUpdated')]
+    public function notifyNewNotification()
+    {
+        $this->toast(
+            type: 'success',
+            title: 'You have a new notification.',
+            description: '',  // Description added
+            position: 'toast-top toast-right',
+            icon: 'o-information-circle',
+            css: 'alert alert-success rounded-lg text-white shadow-lg p-1 flex items-center space-x-3',
+            timeout: 3000,
+            redirectTo: null
+        );
     }
 
     public function markAsRead($notificationId)
@@ -240,10 +257,10 @@ new class extends Component
     </div>
 
     <!-- Mobile view buttons -->
-    <div class="lg:hidden flex items-center gap-2">
+    {{-- <div class="lg:hidden flex items-center gap-2">
         <x-mary-button icon="o-bell" class="btn-circle btn-ghost btn-xs" tooltip-left="notifications"/>
         <x-mary-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" wire:click="logout"/>
-    </div>
+    </div> --}}
 </nav>
 
 </div>

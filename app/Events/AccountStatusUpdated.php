@@ -27,10 +27,8 @@ class AccountStatusUpdated implements ShouldBroadcast
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): array
+    public function broadcastOn()
     {
-        return [
-            new Channel('account-status'),
-        ];
+        return new Channel('account-status');
     }
 }

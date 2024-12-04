@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <wireui:scripts />
+    {{-- <link href="toastr.css" rel="stylesheet"/> --}}
 
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
@@ -51,7 +52,10 @@
                 @if($user = auth()->user())
                     <x-mary-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded sm:hidden">
                         <x-slot:actions>
-                            <x-mary-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate link="/logout" />
+                            <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <x-mary-button type="submit"   icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate />
+                            </form>
                         </x-slot:actions>
                     </x-mary-list-item>
 
@@ -123,6 +127,6 @@
 
     {{--  TOAST area --}}
     <x-mary-toast />
-
+    {{-- <script src="toastr.js"></script> --}}
 </body>
 </html>

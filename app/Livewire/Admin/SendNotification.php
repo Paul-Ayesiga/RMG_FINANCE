@@ -7,10 +7,13 @@ use Livewire\WithPagination;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Events\systemNotification;
+use Livewire\Attributes\On;
+use Mary\Traits\Toast;
 
 class SendNotification extends Component
 {
     use WithPagination;
+    use Toast;
 
     public $type = 'info';
     public $title = '';
@@ -64,7 +67,6 @@ class SendNotification extends Component
 
         // Show success message
         session()->flash('success', 'Notification sent successfully!');
-        $this->dispatch('new-notification');
         systemNotification::dispatch();
     }
 
@@ -81,6 +83,12 @@ class SendNotification extends Component
                 $query->role($this->roleFilter);
             })
             ->get();
+    }
+
+    #[On('echo:system-notification,systemNotification')]
+    public function notifyNewOrder()
+    {
+        $this->toast('success','you have a new notification');
     }
 
     public function render()
