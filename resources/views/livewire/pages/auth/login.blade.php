@@ -23,8 +23,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         // dd('User roles: ' . auth()->user()->getRoleNames());
         // dd(Auth::guard('admin')->check());
-        //     Default redirection to dashboard for other roles
-
+     
         // if(Auth::user()->role === 'admin'){
         //     $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
         // }else{
