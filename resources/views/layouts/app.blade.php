@@ -128,5 +128,6 @@
     {{--  TOAST area --}}
     <x-mary-toast />
     {{-- <script src="toastr.js"></script> --}}
+    
 </body>
 </html>

@@ -314,6 +314,7 @@
                         :events="$events"
                         locale="en"
                         weekend-highlight
+                        class="md:col-span-3"
                     />
                 </div>
             </div>
@@ -351,7 +352,11 @@
                     @endforeach
                 </div>
             </div>
+
         </div>
+
+        {{-- @livewire('chatbot') --}}
+
     </div>
 </div>
 
@@ -456,4 +461,5 @@
 
 @script
     <script src="https://cdn.jsdelivr.net/npm/vanilla-calendar-pro@2.9.6/build/vanilla-calendar.min.js"></script>
+
 @endscript

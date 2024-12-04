@@ -1,5 +1,5 @@
 import './bootstrap';
-// import CanvasJS from '@canvasjs/charts';
+import CanvasJS from '@canvasjs/charts';
 import '@fortawesome/fontawesome-free/js/all.js';
 
 import Echo from 'laravel-echo';

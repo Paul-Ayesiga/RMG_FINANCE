@@ -27,21 +27,7 @@ new class extends Component
         $this->loadNotifications();
     }
 
-    #[On('new-notification')]
-    public function newNotificationAlert(){
-       $this->toast(
-            type: 'success',
-            title: 'It is done!',
-            description: 'Your action was successful.',  // Description added
-            position: 'toast-top toast-right',
-            icon: 'o-information-circle',
-            css: 'alert alert-success rounded-lg shadow-lg p-4 flex items-center space-x-3',
-            timeout: 3000,
-            redirectTo: null
-        );
-
-    }
-
+  
     #[On('new-notification')]
     public function loadNotifications()
     {
