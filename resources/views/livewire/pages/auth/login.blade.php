@@ -23,16 +23,21 @@ new #[Layout('layouts.guest')] class extends Component
 
         // dd('User roles: ' . auth()->user()->getRoleNames());
         // dd(Auth::guard('admin')->check());
-            // Default redirection to dashboard for other roles
+     
         // if(Auth::user()->role === 'admin'){
         //     $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
         // }else{
         //     $this->redirectIntended(route('customer-dashboard', absolute: false), navigate: true);
         // }
-        if (Auth::user()->hasRole(['staff', 'super-admin','manager'])) {
-            $this->redirectIntended(route('dashboard', ['absolute' => false]), navigate: true);
-        } elseif(Auth::user()->hasRole('customer')) {
-            $this->redirectIntended(route('customer-dashboard', ['absolute' => false]), navigate: true);
+        auth()->user()->load('roles');
+
+        if (auth()->user()->hasRole(['staff', 'super-admin', 'manager'])) {
+            $this->redirect('/dashboard',navigate: true);
+        } elseif (auth()->user()->hasRole('customer')) {
+            $this->redirect('/customer-dashboard', navigate: true);
+        } else {
+            // Fallback or default redirect
+            $this->redirect('/',navigate:true);
         }
 
     }

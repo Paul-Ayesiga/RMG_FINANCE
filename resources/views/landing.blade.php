@@ -160,7 +160,7 @@
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="#" class="text-2xl font-bold text-blue-600 animate__animated animate__fadeIn">RMG FINANCE</a>
-                
+
                 <!-- Desktop Menu -->
                 <div class="desktop-menu space-x-8">
                     <a href="#home" class="nav-link text-gray-700 hover:text-blue-600 animate__animated animate__fadeInDown">Home</a>
@@ -203,7 +203,7 @@
                     <a href="#contact" class="bg-white text-blue-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition animate__animated animate__pulse animate__infinite">Get Started</a>
                 </div>
                 <div class="md:w-1/2 mt-8 md:mt-0 slide-in-right">
-                    <img src="https://placehold.co/600x400" alt="Microfinance" class="rounded-lg shadow-xl">
+                    <img src="{{asset('custom/Welcome.webp')}}" alt="Microfinance" class="rounded-lg shadow-xl" width="600" height="200">
                 </div>
             </div>
         </div>
@@ -238,7 +238,7 @@
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row items-center">
                 <div class="md:w-1/2 mb-8 md:mb-0 slide-in-left">
-                    <img src="https://placehold.co/600x400" alt="About Us" class="rounded-lg shadow-xl">
+                    <img src="{{asset('custom/aboutUs.webp')}}" alt="About Us" class="rounded-lg shadow-xl" width="600" height="400">
                 </div>
                 <div class="md:w-1/2 md:pl-12 slide-in-right">
                     <h2 class="text-3xl font-bold mb-6">About RMG Finance</h2>
@@ -388,7 +388,7 @@
 
         function setActiveLink() {
             let current = '';
-            
+
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.clientHeight;
@@ -411,12 +411,12 @@
                 e.preventDefault();
                 const targetId = this.getAttribute('href');
                 const targetSection = document.querySelector(targetId);
-                
+
                 if (targetSection) {
                     targetSection.scrollIntoView({
                         behavior: 'smooth'
                     });
-                    
+
                     // Close mobile menu if open
                     mobileMenu.classList.remove('active');
                     menuOverlay.classList.remove('active');

@@ -17,6 +17,7 @@
         "livewire/livewire": "^3.5",
         "livewire/volt": "^1.6",
         "maatwebsite/excel": "^3.1",
+        "openai-php/laravel": "^0.10.2",
         "pusher/pusher-php-server": "^7.2",
         "robsontenorio/mary": "^1.35",
         "spatie/laravel-activitylog": "^4.8",
