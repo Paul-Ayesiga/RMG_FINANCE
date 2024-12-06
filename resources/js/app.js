@@ -5,6 +5,8 @@ import '@fortawesome/fontawesome-free/js/all.js';
 import Echo from 'laravel-echo';
 
 import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+
 import Pusher from 'pusher-js';
 
 window.Pusher = Pusher;
@@ -16,13 +18,31 @@ window.Echo = new Echo({
     forceTLS: true,
 });
 
+toastr.options = {
+  "closeButton": false,
+  "debug": false,
+  "newestOnTop": false,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "300",
+  "hideDuration": "1000",
+  "timeOut": "5000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+}
+
 
 if (window.Echo) {
-    // window.Echo.channel('system-notification')
-    //     .listen('systemNotification', (e) => {
-    //         console.log('system-notification');
-    //         toastr.info('toastr');
-    //     });
+    window.Echo.channel('system-notification')
+        .listen('systemNotification', (e) => {
+            console.log('system-notification');
+            toastr["success"]("My name is Inigo Montoya. You killed my father. Prepare to die!")
+        });
 } else {
     console.log("Echo is not defined");
 }

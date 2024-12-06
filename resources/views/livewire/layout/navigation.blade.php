@@ -92,15 +92,15 @@ new class extends Component
     #[On('echo:system-notification,systemNotification')]
     public function notifyNewNotification()
     {
-        $this->notification()->send([
+        // $this->notification()->send([
 
-            'icon' => 'success',
+        //     'icon' => 'success',
 
-            'title' => 'new notification!',
+        //     'title' => 'new notification!',
 
-            'description' => 'This is a system notification',
+        //     'description' => 'This is a system notification',
 
-        ]);
+        // ]);
     }
 
     public function markAsRead($notificationId)

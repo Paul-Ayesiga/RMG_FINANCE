@@ -131,6 +131,7 @@
     <x-mary-toast />
     <x-wireui-notifications  z-index="z-50" />
     <wireui:scripts />
+
     {{-- <script src="toastr.js"></script> --}}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
