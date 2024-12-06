@@ -86,10 +86,18 @@ class SendNotification extends Component
     }
 
     #[On('echo:system-notification,systemNotification')]
-    public function notifyNewOrder()
-    {
-        $this->toast('success','you have a new notification');
-    }
+    // public function notifyNewOrder()
+    // {
+    //     $this->toast(
+    //         type: 'success',
+    //         title: 'It is done!',
+    //         description: null,
+    //         position: 'toast-top-right',
+    //         icon: 'o-information-circle',      // Optional icon, similar to Toastr's icon
+    //         css: 'alert-info',                  // DaisyUI classes
+    //         timeout: 5000,                      // Timeout in ms (same as Toastr's timeOut)
+    //     );
+    // }
 
     public function render()
     {

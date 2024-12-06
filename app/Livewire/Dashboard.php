@@ -13,6 +13,8 @@ use Carbon\Carbon;
 use Livewire\Attributes\Lazy;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+
 
 #[Lazy()]
 class Dashboard extends Component
@@ -399,6 +401,10 @@ class Dashboard extends Component
         $totalAccounts = Account::count();
         $totalLoans = Loan::count();
 
+        $loggedInUsers = Cache::remember('loggedInUsersCount', now()->addMinutes(5), function () {
+            return DB::table('sessions')->whereNotNull('user_id')->distinct()->count('user_id');
+        });
+
         return view('livewire.dashboard', [
             'customers' => User::where('role', 'customer')->count(),
             'staff' => User::where('role', 'staff')->count(),
@@ -412,7 +418,7 @@ class Dashboard extends Component
             'approvedLoans' => Loan::where('status', 'approved')->count(),
             'activeLoans' => Loan::where('status', 'active')->count(),
             'totalLoans' => $totalLoans,
-            'loggedInUsers' => DB::table('sessions')->whereNotNull('user_id')->distinct()->count('user_id'),
+            'loggedInUsers' => $loggedInUsers
         ]);
     }
 }

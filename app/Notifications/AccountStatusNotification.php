@@ -25,7 +25,7 @@ class AccountStatusNotification extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        return ['mail', 'database', 'broadcast'];
+        return ['mail', 'database'];
     }
 
     public function toMail($notifiable): MailMessage
@@ -61,30 +61,6 @@ class AccountStatusNotification extends Notification implements ShouldQueue
         };
     }
 
-    public function toBroadcast($notifiable): BroadcastMessage
-    {
-        return (new BroadcastMessage([
-            'notification' => [
-                'title' => $this->title,
-                'message' => $this->message,
-                'type' => $this->status,
-                'created_at' => now()->toIsoString(),
-            ]
-        ]))->onQueue('broadcasts');
-    }
-
-    // public function broadcastOn(): array
-    // {
-    //     // Access the notifiable model via $this->notifiable
-    //     return [
-    //         new PrivateChannel('App.Models.User.' . $this->notifiable->id)
-    //     ];
-    // }
-
-    public function broadcastAs()
-    {
-        return 'notification.received';
-    }
 
     public function toArray($notifiable): array
     {
@@ -93,9 +69,6 @@ class AccountStatusNotification extends Notification implements ShouldQueue
             'message' => $this->message,
             'type' => $this->status
         ];
-
-        // Dispatch Livewire event after notification is created
-        Livewire::dispatch('notification-received', $data);
 
         return $data;
     }

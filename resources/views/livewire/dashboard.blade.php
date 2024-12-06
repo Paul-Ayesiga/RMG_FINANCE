@@ -113,7 +113,7 @@
         <!-- Total Page Views -->
         <div class="stat dark:bg-inherit dark:text-white dark:shadow-white shadow p-4 bg-white rounded-lg">
             <div class="stat-title">Total Active Users</div>
-            <div class="stat-value text-primary dark:text-white" wire:poll.1s>
+            <div class="stat-value text-primary dark:text-white">
                 {{ $loggedInUsers }}
             </div>
             <div class="stat-desc dark:text-white">21% more than last month</div>
@@ -281,7 +281,7 @@
 
         <!-- Transaction Monitoring -->
         <div class="bg-white p-6 rounded-lg shadow mb-6 dark:bg-gray-800">
-            <x-mary-chart wire:model="transactionChart"/>
+            <x-mary-chart wire:model="transactionChart" />
         </div>
 
         <!-- Loan and Account Monitoring -->
@@ -296,3 +296,5 @@
     </div>
 
 </div>
+
+

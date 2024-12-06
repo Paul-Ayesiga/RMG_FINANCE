@@ -4,10 +4,16 @@ use App\Livewire\Actions\Logout;
 use Livewire\Volt\Component;
 use Livewire\Attributes\On;
 use Mary\Traits\Toast;
+use App\Models\User;
+use WireUi\Traits\WireUiActions;
+
 
 new class extends Component
 {
     use Toast;
+    use WireUiActions;
+
+    public $userId;
     /**
      * Log the current user out of the application.
      */
@@ -21,14 +27,46 @@ new class extends Component
     public $notifications = [];
     public $unreadNotifications = 0;
 
+
     #[On('new-notification')]
     public function boot()
     {
         $this->loadNotifications();
     }
 
-  
-    #[On('new-notification')]
+    public function getListeners()
+    {
+        $userId = auth()->id();
+        return [
+            "echo-private:private-notify.{$userId},PrivateNotify" => 'handlePrivateNotifications',
+        ];
+    }
+
+   public function handlePrivateNotifications($data)
+    {
+        // $data will contain the message sent from the event
+        // $this->toast(
+        //     type: 'success',
+        //     title: 'You have a new notification.',
+        //     description: "{$data['message']}", // Set the description to the message from the event
+        //     position: 'toast-top toast-right',
+        //     icon: 'o-information-circle',
+        //     css: 'alert alert-success rounded-lg text-white shadow-lg p-1 flex items-center space-x-3',
+        //     timeout: 5000,
+        // );
+
+         $this->notification()->send([
+
+            'icon' => 'success',
+
+            'title' => 'new notification!',
+
+            'description' =>  "{$data['message']}",
+
+        ]);
+    }
+
+
     public function loadNotifications()
     {
         cache()->forget('user_notifications_'.auth()->id());
@@ -51,20 +89,18 @@ new class extends Component
         $this->loadNotifications();
     }
 
-     #[On('echo:system-notification,systemNotification')]
-     #[On('echo:account-status,AccountStatusUpdated')]
+    #[On('echo:system-notification,systemNotification')]
     public function notifyNewNotification()
     {
-        $this->toast(
-            type: 'success',
-            title: 'You have a new notification.',
-            description: '',  // Description added
-            position: 'toast-top toast-right',
-            icon: 'o-information-circle',
-            css: 'alert alert-success rounded-lg text-white shadow-lg p-1 flex items-center space-x-3',
-            timeout: 3000,
-            redirectTo: null
-        );
+        $this->notification()->send([
+
+            'icon' => 'success',
+
+            'title' => 'new notification!',
+
+            'description' => 'This is a system notification',
+
+        ]);
     }
 
     public function markAsRead($notificationId)

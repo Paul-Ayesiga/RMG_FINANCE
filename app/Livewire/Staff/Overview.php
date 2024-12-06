@@ -26,12 +26,12 @@ class Overview extends Component
     public $perPage = 1;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
-    
+
     // Modals
     public bool $viewModal = false;
     public bool $createModal = false;
     public bool $editModal = false;
-    
+
     // Form Data
     public $selectedStaff = null;
     public $avatar;
@@ -165,7 +165,7 @@ class Overview extends Component
 
             $this->createModal = false;
             $this->reset(['name', 'email', 'staff_number', 'password', 'password_confirmation', 'avatar', 'role']);
-            
+
             $this->success('Staff member created successfully');
 
         } catch (\Exception $e) {
@@ -189,7 +189,7 @@ class Overview extends Component
     {
         // Get valid role names for validation
         $validRoles = collect($this->availableRoles)->pluck('id')->implode(',');
-        
+
         $validationRules = [
             'name' => 'required|min:3',
             'email' => 'required|email|unique:users,email,' . $this->selectedStaff->user_id,
@@ -250,14 +250,18 @@ class Overview extends Component
 
     public function delete(Staff $staff)
     {
+        // Update dependent records
+        \DB::table('loans')->where('approved_by', $staff->id)->update(['approved_by' => null]);
+
         if ($staff->user->avatar) {
             Storage::delete(str_replace('/storage/', 'public/', $staff->user->avatar));
         }
-        
-        $staff->user->delete(); // This will cascade delete the staff record
-        
-        $this->error('staff deleted successfully');
+
+        $staff->user->delete();
+
+        $this->error('Staff deleted successfully');
     }
+
 
     public function render()
     {
@@ -287,4 +291,4 @@ class Overview extends Component
             'roles' => $this->availableRoles
         ]);
     }
-} 
+}

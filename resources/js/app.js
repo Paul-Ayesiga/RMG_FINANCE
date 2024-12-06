@@ -18,10 +18,11 @@ window.Echo = new Echo({
 
 
 if (window.Echo) {
-    window.Echo.channel('system-notification')
-        .listen('systemNotification', (e) => {
-            console.log('system-notification');
-        });
+    // window.Echo.channel('system-notification')
+    //     .listen('systemNotification', (e) => {
+    //         console.log('system-notification');
+    //         toastr.info('toastr');
+    //     });
 } else {
     console.log("Echo is not defined");
 }

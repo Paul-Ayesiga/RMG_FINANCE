@@ -96,7 +96,7 @@
                     {{ ucfirst($account->status) }}
                 </span>
             @endscope
-            
+
             {{-- Special `actions` slot --}}
             @scope('actions', $account)
                 <div class="inline-flex">
@@ -252,14 +252,14 @@
                         <!-- Transfer Type Selector -->
                         <div class="mb-6">
                             <div class="flex justify-center space-x-4 mb-4">
-                                <button type="button" 
-                                    @click="transferType = 'my_accounts'; $wire.set('transferOtherAccountId', null)" 
+                                <button type="button"
+                                    @click="transferType = 'my_accounts'; $wire.set('transferOtherAccountId', null)"
                                     :class="{'bg-blue-500 text-white': transferType === 'my_accounts', 'bg-gray-100 text-gray-700': transferType !== 'my_accounts'}"
                                     class="px-6 py-2 rounded-full font-medium transition-colors duration-200">
                                     My Accounts
                                 </button>
-                                <button type="button" 
-                                    @click="transferType = 'other_accounts'; $wire.set('transferCustomerAccountId', null)" 
+                                <button type="button"
+                                    @click="transferType = 'other_accounts'; $wire.set('transferCustomerAccountId', null)"
                                     :class="{'bg-blue-500 text-white': transferType === 'other_accounts', 'bg-gray-100 text-gray-700': transferType !== 'other_accounts'}"
                                     class="px-6 py-2 rounded-full font-medium transition-colors duration-200">
                                     Other Accounts
@@ -268,12 +268,12 @@
 
                             <!-- My Accounts Selection -->
                             <div x-show="transferType === 'my_accounts'" class="space-y-4">
-                                <x-mary-choices 
-                                    label="Select Your Account" 
-                                    wire:model="transferCustomerAccountId" 
-                                    :options="$this->transferCustomerAccounts->where('id', '!=', $this->transferFromAccountId)" 
-                                    single 
-                                    searchable 
+                                <x-mary-choices
+                                    label="Select Your Account"
+                                    wire:model="transferCustomerAccountId"
+                                    :options="$this->transferCustomerAccounts->where('id', '!=', $this->transferFromAccountId)"
+                                    single
+                                    searchable
                                     class="border-none shadow-sm"
                                     search-function="searchTransferCustomerAccounts">
                                     @scope('item', $transferCustomerAccount)
@@ -286,7 +286,7 @@
                                             </x-slot:actions>
                                         </x-mary-list-item>
                                     @endscope
-                                    
+
                                     @scope('selection', $transferCustomerAccount)
                                         {{ $transferCustomerAccount->account_number }} ({{ $transferCustomerAccount->accountType->name }})
                                     @endscope
@@ -295,12 +295,12 @@
 
                             <!-- Other Accounts Selection -->
                             <div x-show="transferType === 'other_accounts'" class="space-y-4">
-                                <x-mary-choices 
-                                    label="Select Recipient Account" 
-                                    wire:model="transferOtherAccountId" 
-                                    :options="$this->transferOtherAccounts->where('id', '!=', $this->transferFromAccountId)" 
-                                    single 
-                                    searchable 
+                                <x-mary-choices
+                                    label="Select Recipient Account"
+                                    wire:model="transferOtherAccountId"
+                                    :options="$this->transferOtherAccounts->where('id', '!=', $this->transferFromAccountId)"
+                                    single
+                                    searchable
                                     class="border-none shadow-sm"
                                     search-function="searchTransferOtherAccounts">
                                     @scope('item', $transferOtherAccount)
@@ -310,35 +310,48 @@
                                             </x-slot:avatar>
                                         </x-mary-list-item>
                                     @endscope
-                                    
+
                                     @scope('selection', $transferOtherAccount)
-                                        {{ $transferOtherAccount->account_number }} ({{ $transferOtherAccount->accountType->name }})
+                                       <p style="color: blue"> {{ $transferOtherAccount->account_number }} ({{ $transferOtherAccount->accountType->name }})</p>
                                     @endscope
                                 </x-mary-choices>
+
+
+                                {{-- <x-wireui-select
+                                    label="Search an Account"
+                                    placeholder="Select some account"
+                                    wire:model="transferOtherAccountId"
+                                    :async-data="route('api.other-accounts')"
+                                    option-label="account_number"
+                                    option-value="id"
+                                    :async-params="['search', 'selected']"
+                                    :load-on="['search']"
+                                    class="w-full"
+                                /> --}}
                             </div>
                         </div>
 
                         <!-- Amount Input -->
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <x-mary-input 
-                                label="Transfer Amount" 
-                                wire:model="transferAmount" 
-                                type="number" 
-                                step="0.01" 
+                            <x-mary-input
+                                label="Transfer Amount"
+                                wire:model="transferAmount"
+                                type="number"
+                                step="0.01"
                                 placeholder="Enter amount to transfer"
                                 class="border-none shadow-sm" />
                         </div>
 
                         <x-slot:actions>
-                            <x-mary-button 
-                                icon="o-paper-airplane" 
-                                label="Transfer" 
-                                wire:click="transfer({{$this->transferFromAccountId}})" 
-                                class="bg-blue-500 hover:bg-blue-600 text-white" 
+                            <x-mary-button
+                                icon="o-paper-airplane"
+                                label="Transfer"
+                                wire:click="transfer({{$this->transferFromAccountId}})"
+                                class="bg-blue-500 hover:bg-blue-600 text-white"
                                 spinner="transfer"/>
-                            <x-mary-button 
-                                label="Cancel" 
-                                @click="$wire.transferModal = false" 
+                            <x-mary-button
+                                label="Cancel"
+                                @click="$wire.transferModal = false"
                                 class="bg-gray-200 hover:bg-gray-300 text-gray-700" />
                         </x-slot:actions>
                     </x-mary-form>
@@ -346,11 +359,11 @@
 
                 <!-- transaction history -->
                 <x-mary-modal wire:model="showTransactionHistory" title="Transfer Funds To" separator>
-               
+
                 </x-mary-modal>
 
             @endscope
-            
+
             <x-slot:empty>
                 <x-mary-icon name="o-cube" label="It is empty." />
             </x-slot:empty>
@@ -365,11 +378,11 @@
         <x-mary-menu-separator />
         <x-mary-form wire:submit="saveAccount">
             {{-- Category Selection --}}
-            <x-mary-choices 
-                label="Account Category" 
-                wire:model.live="selectedCategory" 
-                :options="$this->getCategories()" 
-                single 
+            <x-mary-choices
+                label="Account Category"
+                wire:model.live="selectedCategory"
+                :options="$this->getCategories()"
+                single
                 class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed mb-4"
             >
                 @scope('item', $category)
@@ -412,32 +425,32 @@
 
             {{-- Balance Input --}}
             <div class="grid grid-cols-2 gap-4">
-                <x-mary-input 
+                <x-mary-input
                     label="Balance"
-                    placeholder="e.g 15,000" 
-                    wire:model="balance" 
+                    placeholder="e.g 15,000"
+                    wire:model="balance"
                     class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed"
                 />
             </div>
 
             {{-- Form Actions --}}
             <div class="mt-4">
-                <x-mary-button 
-                    label="Add" 
-                    type="submit" 
-                    spinner="saveAccount" 
-                    icon="o-paper-airplane" 
-                    class="bg-blue-300 dark:text-white" 
+                <x-mary-button
+                    label="Add"
+                    type="submit"
+                    spinner="saveAccount"
+                    icon="o-paper-airplane"
+                    class="bg-blue-300 dark:text-white"
                 />
-                <x-mary-button 
-                    label="Cancel" 
-                    @click="$wire.addAccountModal = false;" 
+                <x-mary-button
+                    label="Cancel"
+                    @click="$wire.addAccountModal = false;"
                 />
             </div>
         </x-mary-form>
     </x-mary-modal>
     {{-- End of Add Account Type --}}
-    
+
     {{-- Add this section to your existing transaction-manager.blade.php --}}
 
     <!-- Add this near the end of your file -->
