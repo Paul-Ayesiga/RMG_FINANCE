@@ -26,7 +26,7 @@ toastr.options = {
   "positionClass": "toast-top-right",
   "preventDuplicates": false,
   "onclick": null,
-  "showDuration": "300",
+  "showDuration": "3000",
   "hideDuration": "1000",
   "timeOut": "5000",
   "extendedTimeOut": "1000",
@@ -43,6 +43,12 @@ if (window.Echo) {
             console.log('system-notification');
             toastr["success"]("My name is Inigo Montoya. You killed my father. Prepare to die!")
         });
+    window.Echo.private(`private-notify.${id}`)
+        .listen('PrivateNotify', (e) => {
+            console.log('private'); // Replace with your logic
+            toastr["success"]("private");
+        });
+
 } else {
     console.log("Echo is not defined");
 }
