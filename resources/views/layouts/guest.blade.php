@@ -13,8 +13,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <wireui:scripts />
-       
+
     </head>
  <body class="font-sans text-gray-900 antialiased">
 
@@ -26,6 +25,8 @@
             <div>
                 {{ $slot }}
             </div>
+
+        <wireui:scripts />
 </body>
 
 </html>

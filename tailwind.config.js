@@ -1,8 +1,9 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 
+
 /** @type {import('tailwindcss').Config} */
 export default {
-    
+  
     darkMode: 'class',
     content: [
 		'./vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
@@ -25,11 +26,16 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                primary: '#5c6ac4',
+                secondary: '#ecc94b',
+                // ...
+            }
         },
     },
 
     plugins: [
 		require("daisyui"),
-        require("./vendor/wireui/wireui/tailwind.config.js")
+        require("./vendor/wireui/wireui/tailwind.config.js"),
 	],
 };

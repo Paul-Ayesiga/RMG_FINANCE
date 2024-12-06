@@ -25,8 +25,10 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Collection;
 use App\Notifications\AccountStatusNotification;
 use App\Events\AccountStatusUpdated;
+use App\Events\PrivateNotify;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\NewAccountCreated;
 
 
 #[Lazy()]
@@ -165,10 +167,9 @@ class AccountsOverview extends Component
             ->with('user')
             ->when($value, function ($query) use ($value) {
                 return $query->whereHas('user', function ($subQuery) use ($value) {
-                    $subQuery->where('name', 'like', "%$value%");
+                    $subQuery->where('name', 'ilike', "%$value%");
                 });
             })
-            ->take(5)
             ->get()
             ->merge($selectedCustomer);
     }
@@ -240,7 +241,7 @@ class AccountsOverview extends Component
         }
 
         // Create the account
-        Account::create([
+        $account = Account::create([
             'customer_id' => $this->customerId,
             'account_type_id' => $this->accountTypeId,
             'balance' => $this->balance,
@@ -260,7 +261,11 @@ class AccountsOverview extends Component
 
         // Reset form and close modal
         $this->addAccountModal = false;
-    }
+        $user = Customer::find($this->customerId)->user; // Fetch the user from the customer_id
+        $user->notify(new NewAccountCreated('New Account', 'Your account has been successfully created! Your account number is ' . $account->account_number . '.'));
+        PrivateNotify::dispatch($user, 'A new account has been created for you!');
+        // event(new NewAccount(Auth::user()));
+     }
 
    // ... existing code ...
 
@@ -317,8 +322,7 @@ class AccountsOverview extends Component
                     $notificationData['status']
                 ));
 
-                AccountStatusUpdated::dispatch();// New event dispatched
-
+                PrivateNotify::dispatch($user, $notificationData['message']);
 
             }
 
@@ -353,7 +357,6 @@ class AccountsOverview extends Component
         }
     }
 
-    #[On('echo:account-status,AccountStatusUpdated')]
     public function notifyAccountStatusUpdated()
     {
         $this->toast('success', 'you have a new notification');

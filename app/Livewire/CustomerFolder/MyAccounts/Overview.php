@@ -14,12 +14,15 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\WithMediaSync;
 use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Lazy;
 use Illuminate\Support\Collection;
 use App\Models\Transaction;
 use Livewire\Attributes\Computed;
+use App\Notifications\NewAccountCreated;
+use App\Events\PrivateNotify;
 
 
 #[Lazy()]
@@ -285,7 +288,7 @@ class Overview extends Component
         ]);
 
         // Create the account
-        Account::create([
+       $account = Account::create([
             'customer_id' => Auth::user()->customer->id,
             'account_type_id' => $this->accountTypeId,
             'balance' => $this->balance,
@@ -305,6 +308,9 @@ class Overview extends Component
 
         // Reset form and close modal
         $this->addAccountModal = false;
+        $user = User::where('id', Auth::id())->first();
+        $user->notify(new NewAccountCreated('New Account', 'Your account has been successfully created! Your account number is ' . $account->account_number . '.'));
+        PrivateNotify::dispatch($user, 'A new account has been created for you!');
     }
 
     private function generateAccountNumber(): string

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Mary\Traits\Toast;
 use App\Notifications\TransactionNotification;
 use Illuminate\Support\Facades\DB;
+use App\Events\PrivateNotify;
 
 class Account extends Model
 {
@@ -141,11 +142,13 @@ class Account extends Model
             ]);
 
             // Send notification
-            // $this->customer->user->notify(new TransactionNotification(
-            //     $transaction,
-            //     'Deposit Successful',
-            //     "A deposit of " . number_format($amount, 2) . " has been processed. Net amount after charges: " . number_format($finalAmount, 2)
-            // ));
+            $this->customer->user->notify(new TransactionNotification(
+                $transaction,
+                'Deposit Successful',
+                "A deposit of " . number_format($amount, 2) . " has been processed. Net amount after charges: " . number_format($finalAmount, 2)
+            ));
+
+            PrivateNotify::dispatch($this->customer->user, 'Your deposit was successful!');
 
             DB::commit();
             return $transaction;
@@ -214,6 +217,8 @@ class Account extends Model
                 'Withdrawal Successful',
                 "A withdrawal of " . number_format($amount, 2) . " has been processed. Total deduction including charges: " . number_format($totalAmount, 2)
             ));
+
+            PrivateNotify::dispatch($this->customer->user, 'Your withdrawal was successful!');
 
             DB::commit();
             return $transaction;
@@ -336,12 +341,16 @@ class Account extends Model
                 "You have transferred " . number_format($amount, 2) . " to account " . $destinationAccount->account_number . ". Total deduction including charges: " . number_format($totalAmount, 2)
             ));
 
+            PrivateNotify::dispatch($this->customer->user, 'Your transfer was successful!');
+
             // Send notification to recipient
             $destinationAccount->customer->user->notify(new TransactionNotification(
                 $transaction,
                 'Transfer Received',
                 "You have received " . number_format($amount, 2) . " from account " . $this->account_number
             ));
+
+            PrivateNotify::dispatch($destinationAccount->customer->user, 'You have received funds!');
 
             DB::commit();
             return $transaction;

@@ -18,7 +18,8 @@
         {{-- Flatpickr  --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <wireui:scripts />
+
+
     {{-- <link href="toastr.css" rel="stylesheet"/> --}}
 
 </head>
@@ -67,11 +68,11 @@
                 <x-mary-menu-item title="Clients" icon="o-users" link="{{ route('clients')}}" />
                 <x-mary-menu-item title="Staff" icon="o-users" link="{{ route('staff')}}" />
 
-                <x-mary-menu-sub title="Accounts" icon="o-rectangle-group">
+                <x-mary-menu-sub title="Accounts" icon="o-credit-card">
                     <x-mary-menu-item title="Account_types" icon="o-tag" link="{{ route('account-types')}}" />
                     <x-mary-menu-item title="Accounts Overview" icon="o-eye" link="{{ route('accounts-overview')}}" />
                 </x-mary-menu-sub>
-                 <x-mary-menu-sub title="Loan Management" icon="o-rectangle-group">
+                 <x-mary-menu-sub title="Loan Management" icon="o-banknotes">
                     <x-mary-menu-item title="Loan Products" icon="o-tag" link="{{ route('loan-products')}}" />
                     <x-mary-menu-item title="loans" icon="o-eye" link="{{ route('loans')}}" />
                 </x-mary-menu-sub>
@@ -81,19 +82,20 @@
                 <x-mary-menu-sub title="Settings" icon="o-cog-6-tooth">
                     <x-mary-menu-item title="Bank Charges" icon="o-wifi" link="{{ route('bank-charges')}}" />
                     <x-mary-menu-item title="Taxes" icon="o-archive-box" link="{{ route('taxes')}}" />
+                    <x-mary-menu-item title="Roles & Permissions" icon="o-rectangle-group" link="{{ route('admin.roles')}}" />
                 </x-mary-menu-sub>
-                <x-mary-menu-item title="Roles & Permissions" icon="o-rectangle-group" link="{{ route('admin.roles')}}" />
-                <x-mary-menu-item title="Send Notification" icon="o-rectangle-group" link="{{ route('admin.notifications.send')}}" />
+
+                <x-mary-menu-item title="Send Notification" icon="o-bell-alert" link="{{ route('admin.notifications.send')}}" />
                 @endrole
 
                 @role('staff')
                 <x-mary-menu-item title="Dashboard" icon="o-home" link="{{ route('dashboard')}}" />
                 <x-mary-menu-item title="Clients" icon="o-users" link="{{ route('clients')}}" />
-                <x-mary-menu-sub title="Accounts" icon="o-rectangle-group">
+                <x-mary-menu-sub title="Accounts" icon="o-credit-card">
                     <x-mary-menu-item title="Account_types" icon="o-tag" link="{{ route('account-types')}}" />
                     <x-mary-menu-item title="Accounts Overview" icon="o-eye" link="{{ route('accounts-overview')}}" />
                 </x-mary-menu-sub>
-                 <x-mary-menu-sub title="Loan Management" icon="o-rectangle-group">
+                 <x-mary-menu-sub title="Loan Management" icon="o-banknotes">
                     <x-mary-menu-item title="Loan Products" icon="o-tag" link="{{ route('loan-products')}}" />
                     <x-mary-menu-item title="loans" icon="o-eye" link="{{ route('loans')}}" />
                 </x-mary-menu-sub>
@@ -111,8 +113,8 @@
                     @endphp
                         <x-mary-menu-item title="Dashboard" icon="o-home" link="{{ route('customer-dashboard')}}" />
                     @if(!$isCustomerIncomplete)
-                        <x-mary-menu-item title="My Accounts" icon="o-rectangle-group" link="{{ route('my-accounts')}}" />
-                        <x-mary-menu-item title="My Loans" icon="o-rectangle-group" link="{{ route('my-loans')}}" />
+                        <x-mary-menu-item title="My Accounts" icon="o-credit-card" link="{{ route('my-accounts')}}" />
+                        <x-mary-menu-item title="My Loans" icon="o-banknotes" link="{{ route('my-loans')}}" />
                         <x-mary-menu-item title="RMG PAY" icon="o-rectangle-group" link="{{ route('rmgpay')}}" badge="NEW" badge-classes="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-bold animate-pulse shadow-lg" class="mt-auto mb-4" />
                     @endif
                 @endrole
@@ -127,7 +129,11 @@
 
     {{--  TOAST area --}}
     <x-mary-toast />
+    <x-wireui-notifications  z-index="z-50" />
+    <wireui:scripts />
+
     {{-- <script src="toastr.js"></script> --}}
-    
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 </body>
 </html>
