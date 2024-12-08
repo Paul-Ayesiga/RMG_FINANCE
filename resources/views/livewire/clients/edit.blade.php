@@ -54,7 +54,7 @@
                                 <option>widowed</option>
                             </select>
                             <x-mary-datetime label="Birth Date" wire:model.defer="date_of_birth" icon="o-calendar" class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
-                            <x-mary-input label="Identification Number" wire:model.defer="identification_number" placeholder="National ID" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
+                            <x-mary-input label="Identification Number" wire:model.defer="identification_number" placeholder="National ID" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" readonly/>
                             <x-mary-input label="Occupation" wire:model.defer="occupation" placeholder="Occupation" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
                             <x-mary-input label="Employer" wire:model.defer="employer" placeholder="Employer" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
                             <x-mary-input label="Annual Income" wire:model.defer="annual_income" placeholder="Annual Income" type="number" step="0.01" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />

@@ -39,30 +39,17 @@ class Overview extends Component
     public $perPage = 5;
     public array $selected = [];
 
-    // receipt modal
-    public bool $showReceiptModal = false;
-    public $receiptData = null;
-    public $receiptType = null;
+
 
     public bool $addAccountModal = false;
     public bool $previewAccountModal = false;
-    public bool $depositModal = false;
-    public bool $withdrawalModal = false;
-    public bool $transferModal = false;
+
 
     public array $activeFilters = [];
 
     #[Computed]
     public $accountToPreview = null;
 
-    #[Computed]
-    public $accountToTransferFrom = null;
-
-    #[Computed]
-    public $depositToAccount = null;
-
-    #[Computed]
-    public $withdrawFromAccount = null;
 
     #[Validate('required')]
     public $balance;
@@ -80,31 +67,15 @@ class Overview extends Component
     #[Validate('required')]
     public ? int $accountTypeId = null;
 
-    #[Validate('required')]
-    public ? int $transferCustomerAccountId = null;
 
     #[Validate('required')]
     public ? int $transferOtherAccountId = null;
 
     public Collection $accountTypes;
 
-    public Collection $transferCustomerAccounts;
-
     public Collection $transferOtherAccounts;
 
     public $transferFromAccountId= null;
-
-    // deposit amount
-    #[Validate('required')]
-    public $depositAmount;
-
-    // withdrawal amount
-    #[Validate('required')]
-    public $withdrawalAmount;
-
-    // trnasfer amount
-    #[Validate('required')]
-    public $transferAmount;
 
     public $selectedCategory = null;
     public Collection $filteredAccountTypes;
@@ -155,8 +126,6 @@ class Overview extends Component
         $this->accountTypes = collect([]);
         $this->filteredAccountTypes = collect([]);
         $this->searchAccountType();
-        $this->searchTransferCustomerAccounts();
-        $this->searchTransferOtherAccounts();
     }
 
     public function searchAccountType(string $value = '')
@@ -177,34 +146,6 @@ class Overview extends Component
         $account = Account::findOrFail($id);
         $this->accountToPreview = $account;
         $this->previewAccountModal = true;
-    }
-
-    public function openTransferModal($id){
-
-        $account = Account::findOrFail($id);
-        $this->accountToTransferFrom = $account;
-        $this->transferModal = true;
-
-        $this->transferFromAccountId  = $id;
-
-    }
-
-    public function searchTransferCustomerAccounts(string $value = '')
-    {
-        $customerId = Auth::user()->customer->id;
-        $this->transferCustomerAccounts = Account::query()
-            ->where('customer_id', $customerId)
-            ->where('status', 'active')
-            ->whereNot('id', $this->transferFromAccountId)  // Exclude the current account
-            ->where(function ($query) use ($value) {
-                $query->where('account_number', 'ilike', "%$value%")
-                    ->orWhereHas('accountType', function ($subQuery) use ($value) {
-                        $subQuery->where('name', 'ilike', "%$value%");
-                    });
-            })
-            ->take(5)
-            ->orderBy('account_number')
-            ->get();
     }
 
     public function searchTransferOtherAccounts(string $value = '')
@@ -263,13 +204,6 @@ class Overview extends Component
             ->paginate($this->perPage);
     }
 
-    #[On('reset')]
-    public function resetForm()
-    {
-        $this->transferAmount = null;
-        $this->transferCustomerAccountId = null;
-        $this->transferOtherAccountId = null;
-    }
 
     public function saveAccount()
     {
@@ -365,318 +299,6 @@ class Overview extends Component
     }
 
 
-    public function openDepositModal($id)
-    {
-        $account = Account::find($id);
-        $this->depositToAccount = $account;
-        $this->depositModal = true;
-    }
-
-    // deposit transaction
-    public function deposit($accountId)
-    {
-        $this->validate([
-            'depositAmount' => 'required|numeric|min:1000',
-        ]);
-
-        $account = Account::findOrFail($accountId);
-
-        try {
-            // Get the transaction object from deposit method
-            $transaction = $account->deposit($this->depositAmount);
-
-            // Check if transaction was successful and is an object
-            if (!$transaction || !is_object($transaction)) {
-                throw new \Exception('Transaction failed to process');
-            }
-
-            // Get breakdowns of charges and taxes
-            $charges = $account->appliedCharges()
-                ->where('created_at', $transaction->created_at)
-                ->with('bankCharge:id,name')
-                ->get()
-                ->map(function ($charge) {
-                    return [
-                        'name' => $charge->bankCharge->name,
-                        'amount' => $charge->amount,
-                        'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
-                    ];
-                });
-
-            $taxes = $account->appliedTaxes()
-                ->where('created_at', $transaction->created_at)
-                ->with('tax:id,name')
-                ->get()
-                ->map(function ($tax) {
-                    return [
-                        'name' => $tax->tax->name,
-                        'amount' => $tax->amount,
-                        'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
-                    ];
-                });
-
-            // Set receipt data and show modal
-            $this->receiptData = [
-                'date' => now()->format('Y-m-d H:i:s'),
-                'account_number' => $account->account_number,
-                'amount' => $this->depositAmount,
-                'charges' => $charges->toArray(),
-                'total_charges' => $transaction->charges,
-                'taxes' => $taxes->toArray(),
-                'total_taxes' => $transaction->taxes,
-                'total_amount' => $transaction->total_amount,
-                'reference' => $transaction->reference_number ?? 'DEP' . time(),
-                'balance' => $account->balance
-            ];
-
-            $this->receiptType = 'deposit';
-            $this->depositAmount = null;
-            $this->depositModal = false;
-            $this->showReceiptModal = true;
-
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-            $this->toast(
-                type: 'error',
-                title: $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
-        }
-    }
-
-
-    public function openWithdrawModal($id)
-    {
-        $account = Account::find($id);
-        $this->withdrawFromAccount = $account;
-        // dd($this->withdrawFromAccount);
-        $this->withdrawalModal = true;
-    }
-
-    public function withdraw($accountId)
-    {
-        $account = Account::findOrFail($accountId);
-
-        $this->validate([
-            'withdrawalAmount' => [
-                'required',
-                'numeric',
-                'min:0.01',
-                'max:' . ($account->accountType->max_withdrawal ?? PHP_FLOAT_MAX),
-            ],
-        ], [
-            'withdrawalAmount.max' => 'Maximum withdrawal limit is ' . number_format($account->accountType->max_withdrawal ?? PHP_FLOAT_MAX, 2),
-        ]);
-
-        // Check withdrawal limit
-        $withdrawalCount = $account->transactions()
-            ->where('type', 'withdrawal')
-            ->whereDate('created_at', today())
-            ->count();
-
-        if ($withdrawalCount >= 4) {
-            $this->toast(
-                type: 'error',
-                title: 'Withdrawal limit reached',
-                position: 'toast-top toast-end'
-            );
-            return;
-        }
-
-        try {
-            DB::beginTransaction();
-
-            // Get the transaction object from withdraw method
-            $transaction = $account->withdraw($this->withdrawalAmount);
-
-            if (!$transaction || !is_object($transaction)) {
-                throw new \Exception('Transaction failed to process');
-            }
-
-            // Get breakdowns of charges and taxes
-            $charges = $account->appliedCharges()
-                ->where('created_at', $transaction->created_at)
-                ->with('bankCharge:id,name')
-                ->get()
-                ->map(function ($charge) {
-                    return [
-                        'name' => $charge->bankCharge->name,
-                        'amount' => $charge->amount,
-                        'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
-                    ];
-                });
-
-            $taxes = $account->appliedTaxes()
-                ->where('created_at', $transaction->created_at)
-                ->with('tax:id,name')
-                ->get()
-                ->map(function ($tax) {
-                    return [
-                        'name' => $tax->tax->name,
-                        'amount' => $tax->amount,
-                        'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
-                    ];
-                });
-
-            // Set receipt data
-            $this->receiptData = [
-                'date' => now()->format('Y-m-d H:i:s'),
-                'account_number' => $account->account_number,
-                'amount' => $this->withdrawalAmount,
-                'charges' => $charges->toArray(),
-                'total_charges' => $transaction->charges,
-                'taxes' => $taxes->toArray(),
-                'total_taxes' => $transaction->taxes,
-                'total_amount' => $transaction->total_amount,
-                'reference' => $transaction->reference_number ?? 'WTH' . time(),
-                'balance' => $account->balance
-            ];
-
-            DB::commit();
-
-            $this->receiptType = 'withdrawal';
-            $this->withdrawalModal = false;
-            $this->showReceiptModal = true;
-            $this->withdrawalAmount = null;
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->toast(
-                type: 'error',
-                title: $e->getMessage(),
-                position: 'toast-top toast-end'
-            );
-        }
-    }
-
-    public function transfer($id)
-    {
-        $sourceAccount = Account::findOrFail($id);
-
-        // Validate based on transfer type
-        $this->validate([
-            'transferAmount' => [
-                'required',
-                'numeric',
-                'min:0.01',
-                'max:' . ($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX),
-            ],
-        ], [
-            'transferAmount.max' => 'Maximum transfer limit is ' . number_format($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX, 2),
-        ]);
-
-        // Get the destination account based on the selected type
-        $destinationAccountId = $this->transferCustomerAccountId ?? $this->transferOtherAccountId;
-        if (!$destinationAccountId) {
-            $this->toast(
-                type: 'error',
-                title: 'Please select a destination account',
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
-            return;
-        }
-
-        $destinationAccount = Account::findOrFail($destinationAccountId);
-
-        if ($sourceAccount->id === $destinationAccount->id) {
-            $this->toast(
-                type: 'error',
-                title: 'Cannot transfer to same account',
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
-            return;
-        }
-
-        try {
-            // Attempt the transfer
-            $transaction = $sourceAccount->transfer($destinationAccount, $this->transferAmount);
-
-            if (!$transaction || !is_object($transaction)) {
-                throw new \Exception('Transfer failed to process');
-            }
-
-            // Determine if it's an internal transfer
-            $isInternalTransfer = $sourceAccount->customer_id === $destinationAccount->customer_id;
-
-            // Get charges breakdown
-            $charges = $sourceAccount->appliedCharges()
-                ->where('created_at', $transaction->created_at)
-                ->with('bankCharge:id,name')
-                ->get()
-                ->map(function ($charge) {
-                    return [
-                        'name' => $charge->bankCharge->name,
-                        'amount' => $charge->amount,
-                        'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
-                    ];
-                });
-
-            // Get taxes breakdown (only for external transfers)
-            $taxes = $isInternalTransfer ? collect([]) : $sourceAccount->appliedTaxes()
-                ->where('created_at', $transaction->created_at)
-                ->with('tax:id,name')
-                ->get()
-                ->map(function ($tax) {
-                    return [
-                        'name' => $tax->tax->name,
-                        'amount' => $tax->amount,
-                        'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
-                    ];
-                });
-
-            // Set receipt data and show modal
-            $this->receiptData = [
-                'date' => now()->format('Y-m-d H:i:s'),
-                'from_account' => $sourceAccount->account_number,
-                'to_account' => $destinationAccount->account_number,
-                'amount' => $this->transferAmount,
-                'charges' => $charges->toArray(),
-                'total_charges' => $transaction->charges,
-                'taxes' => $taxes->toArray(),
-                'total_taxes' => $transaction->taxes,
-                'total_amount' => $transaction->total_amount,
-                'reference' => $transaction->reference_number ?? 'TRF' . time(),
-                'balance' => $sourceAccount->balance,
-                'is_internal' => $isInternalTransfer
-            ];
-
-            $this->receiptType = 'transfer';
-            $this->showReceiptModal = true;
-            $this->transferModal = false;
-            $this->resetForm();
-
-        } catch (\Exception $e) {
-            $this->toast(
-                type: 'error',
-                title: $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
-        }
-    }
-
-    public function render()
-    {
-        return view('livewire.customer-folder.my-accounts.overview',[
-            'accounts' => $this->accounts(),
-            'headers' => $this->headers(),
-            'selected' => $this->selected,
-            'activeFiltersCount' => $this->activeFiltersCount(),
-            'transferFromAccountId' => $this->transferFromAccountId
-        ]);
-    }
-
     public function getCategories()
     {
         return [
@@ -725,7 +347,7 @@ class Overview extends Component
         if ($value) {
             $this->filteredAccountTypes = AccountType::where('category', $value)
                 ->get()
-                ->map(function($accountType) {
+                ->map(function ($accountType) {
                     return [
                         'id' => $accountType->id,
                         'name' => $accountType->name . ' (' . $accountType->interest_rate . '% interest)',
@@ -737,4 +359,16 @@ class Overview extends Component
             $this->filteredAccountTypes = collect([]);
         }
     }
+
+    public function render()
+    {
+        return view('livewire.customer-folder.my-accounts.overview',[
+            'accounts' => $this->accounts(),
+            'headers' => $this->headers(),
+            'selected' => $this->selected,
+            'activeFiltersCount' => $this->activeFiltersCount(),
+        ]);
+    }
+
+
 }

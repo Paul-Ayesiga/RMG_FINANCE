@@ -26,7 +26,7 @@
 <body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
 
     {{-- NAVBAR mobile only --}}
-    <x-mary-nav  sticky full-width class="bg-white shadow-lg rounded-lg dark:bg-gray-900">
+    <x-mary-nav  sticky full-width class="bg-white shadow-lg rounded-lg dark:bg-gray-900 z-50">
         <x-slot:brand>
             <a href="{{route('dashboard')}}" wire:navigate>
             <x-app-brand />
@@ -131,6 +131,9 @@
     <x-mary-toast />
     <x-wireui-notifications  z-index="z-50" />
     <wireui:scripts />
+    <script>
+        window.userId = @json(auth()->id()); // Pass the logged-in user's ID to JavaScript
+    </script>
 
     {{-- <script src="toastr.js"></script> --}}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

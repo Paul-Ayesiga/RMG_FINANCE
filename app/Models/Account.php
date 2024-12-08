@@ -359,4 +359,10 @@ class Account extends Model
             throw $e;
         }
     }
+
+    public function beneficiaries()
+    {
+        return $this->hasMany(Beneficiary::class);
+    }
+
 }
