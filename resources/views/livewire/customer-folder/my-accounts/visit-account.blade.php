@@ -510,6 +510,63 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    {{-- transfer to beneficiaries --}}
+                                    <div x-data="{ id: $id('beneficiaries') }" :class="{ 'border-neutral-200/60 text-neutral-800 dark:text-white' : activeAccordion==id, 'border-transparent text-neutral-600 hover:text-neutral-800 dark:hover:text-yellow-100' : activeAccordion!=id }" class="duration-200 ease-out bg-white border rounded-md cursor-pointer group dark:bg-inherit dark:text-white" x-cloak>
+                                        <button @click="setActiveAccordion(id)" class="flex items-center justify-between w-full px-5 py-4 font-semibold text-left select-none">
+                                            <span>Transfer to Beneficiary Accounts</span>
+                                            <div :class="{ 'rotate-90': activeAccordion==id }" class="relative flex items-center justify-center w-2.5 h-2.5 duration-300 ease-out">
+                                                <div class="absolute w-0.5 h-full bg-neutral-500 group-hover:bg-neutral-800 rounded-full"></div>
+                                                <div :class="{ 'rotate-90': activeAccordion==id }" class="absolute w-full h-0.5 ease duration-500 bg-neutral-500 group-hover:bg-neutral-800 rounded-full dark:bg-white"></div>
+                                            </div>
+                                        </button>
+                                        <div x-show="activeAccordion==id" x-collapse x-cloak>
+                                            <div class="p-5 pt-0 opacity-70 overflow-y-scroll">
+                                                <form wire:submit.prevent="transfer({{ $account->id }})" class="space-y-4">
+                                                    <div class="w-[300px] mx-auto px-4 py-5 bg-white flex flex-col gap-3 rounded-md shadow-[0px_0px_15px_rgba(0,0,0,0.09)]">
+                                                        <legend class="text-xl font-semibold mb-3 select-none">Choose One</legend>
+
+                                                       @foreach ($beneficiaries as $index => $beneficiary)
+                                                            <label for="beneficiary_{{ $index }}" class="font-medium h-14 relative hover:bg-zinc-100 flex items-center px-3 gap-3 rounded-lg">
+                                                                <div class="w-5">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                                                        <path d="M12 21c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z"></path>
+                                                                    </svg>
+                                                                </div>
+                                                                {{ $beneficiary['nickname'] }} ({{ $beneficiary['account_number'] }})
+                                                                <input
+                                                                    type="radio"
+                                                                    name="beneficiary"
+                                                                    class="peer/html w-4 h-4 absolute accent-blue-500 right-3"
+                                                                    id="beneficiary_{{ $index }}"
+                                                                    value="{{ $index }}"
+                                                                    wire:model.live="beneficiarySelectedIndex"
+
+                                                                />
+                                                                @error('beneficiarySelectedIndex')
+                                                                    <p class="text-red-500 italic">{{ $message }}</p>
+                                                                @enderror
+                                                            </label>
+                                                        @endforeach
+
+
+                                                    </div>
+
+                                                    <div>
+                                                        <label for="amount" class="block text-gray-700 dark:text-white">Amount</label>
+                                                        <input type="number" id="amount" wire:model="transferAmount" class="mt-1 block w-full px-4 py-2 border rounded-md">
+                                                        @error('transferAmount') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                                    </div>
+
+
+                                                    <div>
+                                                        <x-wireui-button wire:click="transfer({{$account->id}})" spinner.longest="transfer({{$account->id}})" class="bg-blue-500 text-white px-4 py-2 rounded-md" label="Transfer"/>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
 

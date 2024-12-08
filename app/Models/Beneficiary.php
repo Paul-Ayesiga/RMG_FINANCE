@@ -9,12 +9,12 @@ class Beneficiary extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['account_id', 'user_id', 'nickname','bank_name'];
+    protected $fillable = ['account_id', 'user_id', 'nickname','bank_name','account_number'];
 
     // Relationship with the Account model
     public function account()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo(Account::class, 'account_id');
     }
 
     // Relationship with the User model

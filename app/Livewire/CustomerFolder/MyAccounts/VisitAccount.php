@@ -72,6 +72,10 @@ class VisitAccount extends Component
 
     public $saveBeneficiary = false;
 
+    public $beneficiaries=[];
+
+    public $beneficiarySelectedIndex = null;
+
 
     // history
     public $sortField = 'created_at';
@@ -84,6 +88,18 @@ class VisitAccount extends Component
         $this->MyAccounts = Auth::user()->customer->accounts()->where('id', '!=', $account->id)->get();
         $this->searchTransferCustomerAccounts();
         $this->history = Transaction::where('account_id',$account->id)->get();
+        $this->beneficiaries = Beneficiary::all()->map(function ($beneficiary) {
+            $accountDetails = $beneficiary->account ? $beneficiary->account->account_number : $beneficiary->account_number;
+            $bankName = $beneficiary->bank_name;
+
+            return [
+                'id' => $beneficiary->id,
+                'nickname' => $beneficiary->nickname,
+                'account_number' => $accountDetails,
+                'bank_name' => $bankName,
+            ];
+        });;
+        // dd($this->beneficiaries);
     }
 
     public function deposit($accountId)
@@ -281,41 +297,229 @@ class VisitAccount extends Component
             ->get();
     }
 
+    // public function transfer($id)
+    // {
+    //     $sourceAccount = Account::findOrFail($id);
+
+    //     // Check if both forms are filled
+    //     if ($this->transferCustomerAccountId && $this->accountNumber) {
+    //         $this->notification()->send([
+
+    //             'icon' => 'error',
+
+    //             'title' => 'Multiple Accounts Selected!',
+
+    //             'description' =>  'Please provide only one account: either a Customer Account ID or Other Account Number.',
+
+    //             'css' =>'alert alert-warning text-white shadow-lg rounded-sm p-3',
+
+    //         ]);
+    //         return;
+    //     }
+
+    //     $this->transferOtherAccountId = Account::where('account_number', $this->accountNumber)->first()->id ?? null;
+
+    //     $this->validate([
+    //         'transferCustomerAccountId' => 'required_without:transferOtherAccountId',
+    //         'accountNumber' => 'required_without:transferCustomerAccountId',
+    //         'transferAmount' => [
+    //             'required',
+    //             'numeric',
+    //             'min:1000',
+    //             'max:' . ($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX),
+    //         ],
+    //     ], [
+    //         'transferCustomerAccountId.required_without' => 'Please select either transfer to account ',
+    //         'accountNumber.required_without' => 'Please provide transfer to account number.',
+    //         'transferAmount.required' => 'The transfer amount is required.',
+    //         'transferAmount.numeric' => 'The transfer amount must be a valid number.',
+    //         'transferAmount.min' => 'The transfer amount must be at least 1000.',
+    //         'transferAmount.max' => 'The transfer amount exceeds the maximum limit of ' . number_format($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX, 2) . '.',
+    //     ]);
+
+
+    //     $destinationAccount = Account::find($this->transferCustomerAccountId ?? $this->transferOtherAccountId);
+
+
+
+    //     if ($sourceAccount->id === $destinationAccount->id) {
+    //         $this->toast(
+    //             type: 'error',
+    //             title: 'Cannot transfer to same account',
+    //             position: 'toast-top toast-end',
+    //             icon: 'o-x-circle',
+    //             css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
+    //             timeout: 3000
+    //         );
+    //         return;
+    //     }
+
+    //     try {
+    //         // Attempt the transfer
+    //         $transaction = $sourceAccount->transfer($destinationAccount, $this->transferAmount);
+
+    //         if (!$transaction || !is_object($transaction)) {
+    //             throw new \Exception('Transfer failed to process');
+    //         }
+
+    //         // Determine if it's an internal transfer
+    //         $isInternalTransfer = $sourceAccount->customer_id === $destinationAccount->customer_id;
+
+    //         // Get charges breakdown
+    //         $charges = $sourceAccount->appliedCharges()
+    //             ->where('created_at', $transaction->created_at)
+    //             ->with('bankCharge:id,name')
+    //             ->get()
+    //             ->map(function ($charge) {
+    //                 return [
+    //                     'name' => $charge->bankCharge->name,
+    //                     'amount' => $charge->amount,
+    //                     'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
+    //                 ];
+    //             });
+
+    //         // Get taxes breakdown (only for external transfers)
+    //         $taxes = $isInternalTransfer ? collect([]) : $sourceAccount->appliedTaxes()
+    //             ->where('created_at', $transaction->created_at)
+    //             ->with('tax:id,name')
+    //             ->get()
+    //             ->map(function ($tax) {
+    //                 return [
+    //                     'name' => $tax->tax->name,
+    //                     'amount' => $tax->amount,
+    //                     'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
+    //                 ];
+    //             });
+
+    //         // Set receipt data and show modal
+    //         $this->receiptData = [
+    //             'date' => now()->format('Y-m-d H:i:s'),
+    //             'from_account' => $sourceAccount->account_number,
+    //             'to_account' => $destinationAccount->account_number,
+    //             'amount' => $this->transferAmount,
+    //             'charges' => $charges->toArray(),
+    //             'total_charges' => $transaction->charges,
+    //             'taxes' => $taxes->toArray(),
+    //             'total_taxes' => $transaction->taxes,
+    //             'total_amount' => $transaction->total_amount,
+    //             'reference' => $transaction->reference_number ?? 'TRF' . time(),
+    //             'balance' => $sourceAccount->balance,
+    //             'is_internal' => $isInternalTransfer
+    //         ];
+
+    //         $this->receiptType = 'transfer';
+    //         $this->showReceiptModal = true;
+
+    //     } catch (\Exception $e) {
+    //         $this->toast(
+    //             type: 'error',
+    //             title: $e->getMessage(),
+    //             position: 'toast-top toast-end',
+    //             icon: 'o-x-circle',
+    //             css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
+    //             timeout: 3000
+    //         );
+    //     }
+
+    //     // Optionally save the beneficiary
+    //     if ($this->saveBeneficiary) {
+    //         // dd('saving');
+    //         $validatedData = $this->validate(
+    //             [
+    //                 'beneficiaryName' => 'required|string|max:255',
+    //                 'bankName' => 'nullable|string|max:255',
+    //                 'accountNumber' => 'required|string|max:50',
+    //             ],
+    //             // [
+    //             //     'account_id.required_without' => 'The account ID is required when an account number is not provided.',
+    //             //     'account_number.required_without' => 'The account number is required when an account ID is not provided.',
+    //             // ]
+    //         );
+
+
+    //         $beneficiary = Beneficiary::create([
+    //             'user_id' => Auth::id(),
+    //             'nickname' => $validatedData['beneficiaryName'],
+    //             'account_id' => $this->transferOtherAccountId,
+    //             'bank_name' => $validatedData['bankName'] ?? 'RMGBANK',
+    //             'account_number' => $validatedData['accountNumber']
+    //         ]);
+
+    //         $this->toast(
+    //             type: 'success',
+    //             title: 'Beneficiary Saved',
+    //             description: 'Beneficiary information has been successfully saved.',
+    //             position: 'toast-top toast-end',
+    //             icon: 'o-check-circle',
+    //             css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
+    //             timeout: 9000
+    //         );
+    //         $this->resetForm();
+    //     }
+
+    // }
+
     public function transfer($id)
     {
         $sourceAccount = Account::findOrFail($id);
 
-        // $this->validate();
+        // dd($this->beneficiarySelectedIndex);
+
+        // Check if both forms are filled
+        if (($this->transferCustomerAccountId && $this->accountNumber) || ($this->transferCustomerAccountId && $this->beneficiarySelectedIndex != null) || ($this->accountNumber && $this->beneficiarySelectedIndex != null)) {
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Multiple Accounts Selected!',
+                'description' => 'Please provide only one account: either a Customer Account ID, Other Account Number, or Select a Beneficiary.',
+                'css' => 'alert alert-warning text-white shadow-lg rounded-sm p-3',
+            ]);
+            return;
+        }
 
         $this->transferOtherAccountId = Account::where('account_number', $this->accountNumber)->first()->id ?? null;
 
-        // Validate based on transfer type
-
-        if($this->transferCustomerAccountId == null){
-            $this->validate(['transferCustomerAccountId' => 'required' ]);
-        }
-
-        if($this->transferOtherAccountId == null){
-            $this->validate(['accountNumber' => 'required']);
-        }
-
+        // Validate transfer data, including beneficiary selection
         $this->validate([
+            // Make sure at least one of these fields is provided
+            'transferCustomerAccountId' => 'required_without_all:accountNumber,beneficiarySelectedIndex',
+            'accountNumber' => 'required_without_all:transferCustomerAccountId,beneficiarySelectedIndex',
+            'beneficiarySelectedIndex' => 'required_without_all:transferCustomerAccountId,accountNumber',
 
+            // Transfer amount validation
             'transferAmount' => [
                 'required',
                 'numeric',
-                'min:0.01',
+                'min:1000',
                 'max:' . ($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX),
             ],
         ], [
-            'transferAmount.max' => 'Maximum transfer limit is ' . number_format($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX, 2),
+            'transferCustomerAccountId.required_without_all' => 'Please select either transfer to account.',
+            'accountNumber.required_without_all' => 'Please provide transfer to account number.',
+            'beneficiarySelectedIndex.required_without_all' => 'Please select a beneficiary.',
+            'transferAmount.required' => 'The transfer amount is required.',
+            'transferAmount.numeric' => 'The transfer amount must be a valid number.',
+            'transferAmount.min' => 'The transfer amount must be at least 1000.',
+            'transferAmount.max' => 'The transfer amount exceeds the maximum limit of ' . number_format($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX, 2) . '.',
         ]);
 
 
-        $destinationAccount = Account::find($this->transferCustomerAccountId ?? $this->transferOtherAccountId);
+
+        // Determine if beneficiary selection is used
+        // Determine if beneficiary selection is used
+        if ($this->beneficiarySelectedIndex !== null) {
+            // Get the selected beneficiary from the list
+            $selectedBeneficiary = $this->beneficiaries[$this->beneficiarySelectedIndex];
+
+            // You can now use $selectedBeneficiary['account_number'] and other info
+            $destinationAccount = Account::where('account_number', $selectedBeneficiary['account_number'])->first();
+
+            // dd($destinationAccount);
+        }else {
+            $destinationAccount = Account::find($this->transferCustomerAccountId ?? $this->transferOtherAccountId);
+        }
 
 
-
+        // Check if the transfer is to the same account
         if ($sourceAccount->id === $destinationAccount->id) {
             $this->toast(
                 type: 'error',
@@ -328,86 +532,88 @@ class VisitAccount extends Component
             return;
         }
 
-        // try {
-        //     // Attempt the transfer
-        //     $transaction = $sourceAccount->transfer($destinationAccount, $this->transferAmount);
+        try {
+            // Attempt the transfer
+            $transaction = $sourceAccount->transfer($destinationAccount, $this->transferAmount);
 
-        //     if (!$transaction || !is_object($transaction)) {
-        //         throw new \Exception('Transfer failed to process');
-        //     }
+            if (!$transaction || !is_object($transaction)) {
+                throw new \Exception('Transfer failed to process');
+            }
 
-        //     // Determine if it's an internal transfer
-        //     $isInternalTransfer = $sourceAccount->customer_id === $destinationAccount->customer_id;
+            // Determine if it's an internal transfer
+            $isInternalTransfer = $sourceAccount->customer_id === $destinationAccount->customer_id;
 
-        //     // Get charges breakdown
-        //     $charges = $sourceAccount->appliedCharges()
-        //         ->where('created_at', $transaction->created_at)
-        //         ->with('bankCharge:id,name')
-        //         ->get()
-        //         ->map(function ($charge) {
-        //             return [
-        //                 'name' => $charge->bankCharge->name,
-        //                 'amount' => $charge->amount,
-        //                 'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
-        //             ];
-        //         });
+            // Get charges breakdown
+            $charges = $sourceAccount->appliedCharges()
+                ->where('created_at', $transaction->created_at)
+                ->with('bankCharge:id,name')
+                ->get()
+                ->map(function ($charge) {
+                    return [
+                        'name' => $charge->bankCharge->name,
+                        'amount' => $charge->amount,
+                        'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
+                    ];
+                });
 
-        //     // Get taxes breakdown (only for external transfers)
-        //     $taxes = $isInternalTransfer ? collect([]) : $sourceAccount->appliedTaxes()
-        //         ->where('created_at', $transaction->created_at)
-        //         ->with('tax:id,name')
-        //         ->get()
-        //         ->map(function ($tax) {
-        //             return [
-        //                 'name' => $tax->tax->name,
-        //                 'amount' => $tax->amount,
-        //                 'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
-        //             ];
-        //         });
+            // Get taxes breakdown (only for external transfers)
+            $taxes = $isInternalTransfer ? collect([]) : $sourceAccount->appliedTaxes()
+                ->where('created_at', $transaction->created_at)
+                ->with('tax:id,name')
+                ->get()
+                ->map(function ($tax) {
+                    return [
+                        'name' => $tax->tax->name,
+                        'amount' => $tax->amount,
+                        'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
+                    ];
+                });
 
-        //     // Set receipt data and show modal
-        //     $this->receiptData = [
-        //         'date' => now()->format('Y-m-d H:i:s'),
-        //         'from_account' => $sourceAccount->account_number,
-        //         'to_account' => $destinationAccount->account_number,
-        //         'amount' => $this->transferAmount,
-        //         'charges' => $charges->toArray(),
-        //         'total_charges' => $transaction->charges,
-        //         'taxes' => $taxes->toArray(),
-        //         'total_taxes' => $transaction->taxes,
-        //         'total_amount' => $transaction->total_amount,
-        //         'reference' => $transaction->reference_number ?? 'TRF' . time(),
-        //         'balance' => $sourceAccount->balance,
-        //         'is_internal' => $isInternalTransfer
-        //     ];
+            // Set receipt data and show modal
+            $this->receiptData = [
+                'date' => now()->format('Y-m-d H:i:s'),
+                'from_account' => $sourceAccount->account_number,
+                'to_account' => $destinationAccount->account_number,
+                'amount' => $this->transferAmount,
+                'charges' => $charges->toArray(),
+                'total_charges' => $transaction->charges,
+                'taxes' => $taxes->toArray(),
+                'total_taxes' => $transaction->taxes,
+                'total_amount' => $transaction->total_amount,
+                'reference' => $transaction->reference_number ?? 'TRF' . time(),
+                'balance' => $sourceAccount->balance,
+                'is_internal' => $isInternalTransfer
+            ];
 
-        //     $this->receiptType = 'transfer';
-        //     $this->showReceiptModal = true;
-        //     $this->resetForm();
-        // } catch (\Exception $e) {
-        //     $this->toast(
-        //         type: 'error',
-        //         title: $e->getMessage(),
-        //         position: 'toast-top toast-end',
-        //         icon: 'o-x-circle',
-        //         css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-        //         timeout: 3000
-        //     );
-        // }
+            $this->receiptType = 'transfer';
+            $this->showReceiptModal = true;
+        } catch (\Exception $e) {
+            $this->toast(
+                type: 'error',
+                title: $e->getMessage(),
+                position: 'toast-top toast-end',
+                icon: 'o-x-circle',
+                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
+                timeout: 3000
+            );
+        }
 
         // Optionally save the beneficiary
         if ($this->saveBeneficiary) {
-            // dd('saving');
-            $validatedData = $this->validate([
-                'beneficiaryName' => 'required|string|max:255',
-                'bankName' => 'nullable|string|max:255',
-            ]);
+            $validatedData = $this->validate(
+                [
+                    'beneficiaryName' => 'required|string|max:255',
+                    'bankName' => 'nullable|string|max:255',
+                    'accountNumber' => 'required|string|max:50',
+                ]
+            );
 
             $beneficiary = Beneficiary::create([
                 'user_id' => Auth::id(),
                 'nickname' => $validatedData['beneficiaryName'],
                 'account_id' => $this->transferOtherAccountId,
                 'bank_name' => $validatedData['bankName'] ?? 'RMGBANK',
+                'account_number' => $validatedData['accountNumber']
             ]);
 
             $this->toast(
@@ -421,7 +627,10 @@ class VisitAccount extends Component
             );
 
         }
+        $this->resetForm();
     }
+
+
 
     public function transferToOtherLocalBank($id){
         $this->validate([
@@ -440,6 +649,7 @@ class VisitAccount extends Component
         $this->transferCustomerAccountId = null;
         $this->transferOtherAccountId = null;
         $this->beneficiaryName = null;
+        $this->beneficiarySelectedIndex = null;
     }
 
 

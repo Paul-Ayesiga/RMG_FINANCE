@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('beneficiaries', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('account_id'); // References the account being saved as a beneficiary
+            $table->unsignedBigInteger('account_id')->nullable(); // References the account being saved as a beneficiary
             $table->unsignedBigInteger('user_id'); // References the user who saved the beneficiary
             $table->string('nickname')->nullable(); // Optional nickname for the beneficiary
             $table->string('bank_name')->nullable(); // Optional nickname for the beneficiary
+            $table->string('account_number')->nullable(); // Optional nickname for the beneficiary
             $table->timestamps();
 
             // Foreign key constraints
