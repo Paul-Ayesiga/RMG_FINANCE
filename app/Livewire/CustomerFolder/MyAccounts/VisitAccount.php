@@ -16,10 +16,16 @@ use App\Models\Transaction;
 use Livewire\Attributes\Lazy;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
+use Livewire\WithPagination;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Route;
+
+
 
 #[Lazy()]
 class VisitAccount extends Component
 {
+    use WithPagination;
     use Toast;
     use WireUiActions;
     public ?Account $account;
@@ -46,8 +52,6 @@ class VisitAccount extends Component
     public $transferFromAccountId = null;
 
     public $MyAccounts;
-
-    public $history;
 
     #[Validate('required')]
     public ?int $transferCustomerAccountId = null;
@@ -76,10 +80,21 @@ class VisitAccount extends Component
 
     public $beneficiarySelectedIndex = null;
 
-
     // history
+    public $search = '';
+    public $type = '';
+    public $status = '';
+    public $dateRange = '';
+    public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
+    public bool $viewModal = false;
+    public ?Transaction $selectedTransaction = null;
+
+    public $selectedTransactions = [];
+    public $selectAll = false;
+
+    public $accountTransactions;
 
     public function mount(Account $account): void
     {
@@ -87,8 +102,9 @@ class VisitAccount extends Component
         $this->withdrawFromAccount = $account;
         $this->MyAccounts = Auth::user()->customer->accounts()->where('id', '!=', $account->id)->get();
         $this->searchTransferCustomerAccounts();
-        $this->history = Transaction::where('account_id',$account->id)->get();
-        $this->beneficiaries = Beneficiary::all()->map(function ($beneficiary) {
+
+        $this->beneficiaries = Beneficiary::where('user_id',Auth::id())->get()
+        ->map(function ($beneficiary) {
             $accountDetails = $beneficiary->account ? $beneficiary->account->account_number : $beneficiary->account_number;
             $bankName = $beneficiary->bank_name;
 
@@ -98,7 +114,7 @@ class VisitAccount extends Component
                 'account_number' => $accountDetails,
                 'bank_name' => $bankName,
             ];
-        });;
+        });
         // dd($this->beneficiaries);
     }
 
@@ -652,11 +668,36 @@ class VisitAccount extends Component
         $this->beneficiarySelectedIndex = null;
     }
 
-
     // account history
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters()
+    {
+        $this->reset(['search', 'type', 'status', 'dateRange']);
+        $this->resetPage();
+
+        // Emit an event to Alpine.js to show the tooltip
+        $this->dispatch('showTooltip');
+    }
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+
     public function export()
     {
         $fileName = 'transactions_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        $selectedTransactions = $this->selectedTransactions; // Get the selected IDs
 
         return Excel::download(new TransactionsExport(
             search: $this->search,
@@ -664,9 +705,12 @@ class VisitAccount extends Component
             status: $this->status,
             dateRange: $this->dateRange,
             sortField: $this->sortField,
-            sortDirection: $this->sortDirection
+            sortDirection: $this->sortDirection,
+            selectedIds: $selectedTransactions // Pass selected IDs
         ), $fileName);
     }
+
+
     public function copyToClipboard($value)
     {
         $this->js("navigator.clipboard.writeText('$value')");
@@ -680,10 +724,59 @@ class VisitAccount extends Component
         ]);
     }
 
+      public function viewTransaction(Transaction $transaction)
+    {
+        $this->selectedTransaction = $transaction;
+        $this->viewModal = true;
+    }
+
+    public function toggleSelectAll()
+    {
+        if ($this->selectAll) {
+            // Use array_column to extract the 'id' values from the array
+            $this->selectedTransactions = array_column($this->accountTransactions, 'id');
+        } else {
+            $this->selectedTransactions = [];
+        }
+    }
+
 
 
     public function render()
     {
-        return view('livewire.customer-folder.my-accounts.visit-account');
+
+        $accounttransactions = Transaction::query()
+            ->where('account_id', $this->account->id)
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('reference_number', 'like', '%' . $this->search . '%')
+                        ->orWhere('amount', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('account', function ($accountQuery) {
+                            $accountQuery->where('account_number', 'like', '%' . $this->search . '%');
+                        });
+                });
+            })
+            ->when($this->type, function ($query) {
+                $query->where('type', $this->type);
+            })
+            ->when($this->status, function ($query) {
+                $query->where('status', $this->status);
+            })
+            ->when($this->dateRange, function ($query) {
+                if (str_contains($this->dateRange, ' to ')) {
+                    [$startDate, $endDate] = explode(' to ', $this->dateRange);
+                    $query->whereDate('created_at', '>=', $startDate)
+                        ->whereDate('created_at', '<=', $endDate);
+                }
+            })
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->latest()
+            ->paginate($this->perPage);
+
+            $this->accountTransactions = $accounttransactions->items();
+
+        return view('livewire.customer-folder.my-accounts.visit-account',[
+            'accountTransactionsBlade' => $accounttransactions
+        ]);
     }
 }

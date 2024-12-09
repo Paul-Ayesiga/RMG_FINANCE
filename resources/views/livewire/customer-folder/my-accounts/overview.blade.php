@@ -77,7 +77,7 @@
         </x-mary-card>
         {{-- end of datatable options --}}
 
-        <x-mary-table :headers="$headers" :rows="$accounts" link="/customer/my-account/{id}/do-something" :sort-by="$sortBy" with-pagination per-page="perPage"
+        <x-mary-table :headers="$headers" :rows="$accounts" link="/customer/my-accounts/{id}/do-something" :sort-by="$sortBy" with-pagination per-page="perPage"
             :per-page-values="[1,3, 5, 10]"  wire:model="selected" selectable striped wire:poll.30s>
            @scope('cell_status', $account)
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium

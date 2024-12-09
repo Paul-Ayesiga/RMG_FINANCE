@@ -113,8 +113,8 @@
                     @endphp
                         <x-mary-menu-item title="Dashboard" icon="o-home" link="{{ route('customer-dashboard')}}" />
                     @if(!$isCustomerIncomplete)
-                        <x-mary-menu-item title="My Accounts" icon="o-credit-card" link="{{ route('my-accounts')}}" />
-                        <x-mary-menu-item title="My Loans" icon="o-banknotes" link="{{ route('my-loans')}}" />
+                        <x-mary-menu-item title="My Accounts" icon="o-credit-card" link="{{ route('my-accounts')}}" wire:current="bg-gradient-to-r from-blue-300 to-blue-100 text-white font-bold shadow-lg" />
+                        <x-mary-menu-item title="My Loans" icon="o-banknotes" link="{{ route('my-loans')}}" wire:current="bg-gradient-to-r from-blue-300 to-blue-100 text-white font-bold shadow-lg" />
                         <x-mary-menu-item title="RMG PAY" icon="o-rectangle-group" link="{{ route('rmgpay')}}" badge="NEW" badge-classes="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-bold animate-pulse shadow-lg" class="mt-auto mb-4" />
                     @endif
                 @endrole

@@ -3,11 +3,11 @@
     <div class="text-sm breadcrumbs mb-7">
         <ul>
             <li><a href="{{route('customer-dashboard')}}" wire:navigate>Home</a></li>
-            <li><a href="{{ route('my-accounts')}}" wire:navigate>MyAccounts</a></li>
+            <li><a href="{{ route('my-accounts')}}" wire:navigate>MyLoans</a></li>
             {{-- <li><a></a></li> --}}
         </ul>
     </div>
-@if($account->status === 'active')
+{{-- @if($account->status === 'active') --}}
 <div
     x-data="{
         tabSelected: 1,
@@ -523,15 +523,10 @@
                                         <div x-show="activeAccordion==id" x-collapse x-cloak>
                                             <div class="p-5 pt-0 opacity-70 overflow-y-scroll">
                                                 <form wire:submit.prevent="transfer({{ $account->id }})" class="space-y-4">
-                                                    <x-wireui-select  wire:model.live="beneficiarySelectedIndex" label="Beneficiaries" placeholder="Select one beneficiary"  min-items-for-search  without-items-count >
-                                                        @foreach ($beneficiaries as $index => $beneficiary)
-                                                            <x-wireui-select.option label="{{ $beneficiary['nickname'] }} ({{ $beneficiary['account_number'] }})" value="{{ $index }}" />
-                                                        @endforeach
-                                                    </x-select>
-
                                                     <div class="w-[300px] mx-auto px-4 py-5 bg-white flex flex-col gap-3 rounded-md shadow-[0px_0px_15px_rgba(0,0,0,0.09)]">
                                                         <legend class="text-xl font-semibold mb-3 select-none">Choose One</legend>
-                                                        @foreach ($beneficiaries as $index => $beneficiary)
+
+                                                       @foreach ($beneficiaries as $index => $beneficiary)
                                                             <label for="beneficiary_{{ $index }}" class="font-medium h-10 relative hover:bg-zinc-100 flex items-center px-3 gap-3 rounded-lg dark:hover:bg-blue-200">
                                                                 <div class="w-5">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
@@ -541,7 +536,7 @@
                                                                 {{ $beneficiary['nickname'] }} ({{ $beneficiary['account_number'] }})
                                                                 <input
                                                                     type="radio"
-                                                                    name="beneficiary"
+                                                                    name="{{$index}}"
                                                                     class="peer/html w-4 h-4 absolute accent-blue-500 right-3 rounded-full"
                                                                     id="beneficiary_{{ $index }}"
                                                                     value="{{ $index }}"
@@ -636,179 +631,23 @@
             x-cloak
             >
             <div class="p-6 bg-white border rounded-lg shadow-sm">
-                <h3 class="text-lg font-semibold">Account History</h3>
+                <h3 class="text-lg font-semibold">History</h3>
                 <p class="text-gray-600">Review your account history here.</p>
+
+
+                <!-- Export Button -->
+                <x-wireui-button
+                    icon="arrow-down-tray"
+                    label="Export"
+                    class="bg-primary w-full sm:w-auto mt-3 mb-3"
+                    wire:click="export"
+                />
             </div>
 
-            <!-- Filters Section -->
-            <div class="space-y-6 mt-4">
-                {{-- search and export --}}
-                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                    <!-- Search Input -->
-                    <div class="w-full md:w-1/2 lg:w-1/3">
-                        <x-mary-input
-                            icon="o-magnifying-glass"
-                            placeholder="Search reference number..."
-                            wire:model.live.debounce.300ms="search"
-                            class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
-                        />
-                    </div>
-                    <!-- Export Button -->
-                    <x-wireui-button
-                        icon="arrow-down-tray"
-                        label="Export"
-                        class="bg-primary w-full sm:w-auto"
-                        wire:click="export"
-                        spinner="export"
-                    />
-                </div>
-
-                <!-- Filters Grid -->
-                <div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Type Filter -->
-                        <div>
-                            @php
-                                $types = [
-                                    ['id' => '', 'name' => 'All Types'],
-                                    ['id' => 'deposit', 'name' => 'Deposit'],
-                                    ['id' => 'withdrawal', 'name' => 'Withdrawal'],
-                                    ['id' => 'transfer', 'name' => 'Transfer']
-                                ];
-                            @endphp
-
-                            <x-mary-select
-                                wire:model.live="type"
-                                :options="$types"
-                                placeholder="Filter by type"
-                                class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
-                            />
-                        </div>
-
-                        <!-- Status Filter -->
-                        <div>
-                            @php
-                                $statuses = [
-                                    ['id' => '', 'name' => 'All Status'],
-                                    ['id' => 'completed', 'name' => 'Completed'],
-                                    ['id' => 'pending', 'name' => 'Pending'],
-                                    ['id' => 'failed', 'name' => 'Failed']
-                                ];
-                            @endphp
-
-                            <x-mary-select
-                                wire:model.live="status"
-                                :options="$statuses"
-                                placeholder="Filter by status"
-                                class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
-                            />
-                        </div>
-
-                        <!-- Date Range -->
-                        <div>
-                            @php
-                                $dateConfig = [
-                                    'mode' => 'range',
-                                    'dateFormat' => 'Y-m-d',
-                                    'altFormat' => 'M j, Y',
-                                    'enableTime' => false,
-                                ];
-                            @endphp
-
-                            <x-mary-datepicker
-                                wire:model.live="dateRange"
-                                icon="o-calendar"
-                                :config="$dateConfig"
-                                placeholder="Select date range"
-                                class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reset Filters Button -->
-                <div x-data="{
-                        tooltipVisible: false,
-                        tooltipText: 'Filters reset successfully!',
-                        tooltipArrow: true,
-                        tooltipPosition: 'left', // Set position to 'left'
-                        showTooltip() {
-                            this.tooltipVisible = true;
-                            setTimeout(() => {
-                                this.tooltipVisible = false;
-                            }, 2000);
-                        }
-                    }"
-                    class="relative mt-4 flex justify-end"
-                    x-init="
-                        @this.on('showTooltip', () => showTooltip())  <!-- Listen for the Livewire event -->
-                    ">
-
-                    <!-- Tooltip -->
-                    <div x-show="tooltipVisible"
-                        :class="{
-                            'top-0 left-1/2 -translate-x-1/2 -mt-0.5 -translate-y-full': tooltipPosition == 'top',
-                            'top-1/2 -translate-y-1/2 left-0 -translate-x-[13px]': tooltipPosition == 'left',
-                            'bottom-0 left-1/2 -translate-x-1/2 -mb-0.5 translate-y-full': tooltipPosition == 'bottom',
-                            'top-1/2 -translate-y-1/2 -mr-0.5 right-0 translate-x-full': tooltipPosition == 'right'
-                        }"
-                        class="absolute w-auto text-sm" x-cloak>
-                        <div x-show="tooltipVisible"
-                            x-transition:enter="transition ease-out duration-300"
-                            x-transition:enter-start="opacity-0 scale-90 -translate-x-2"
-                            x-transition:enter-end="opacity-100 scale-100 translate-x-0"
-                            x-transition:leave="transition ease-in duration-300"
-                            x-transition:leave-start="opacity-100 scale-100 translate-x-0"
-                            x-transition:leave-end="opacity-0 scale-90 -translate-x-2"
-                            class="relative px-2 py-1 text-white rounded bg-gradient-to-t from-blue-600 to-purple-600 bg-opacity-90">
-                            <p x-text="tooltipText" class="flex-shrink-0 block text-xs whitespace-nowrap"></p>
-                        </div>
-                    </div>
-
-                    <!-- Reset Button -->
-                    <x-mary-button
-                        label="Reset Filters"
-                        icon="o-arrow-path-rounded-square"
-                        class="bg-red-500 text-white hover:bg-red-600"
-                        wire:click="resetFilters"
-                        spinner="resetFilters"
-                    />
-                </div>
-
-
-
-
-                <!-- Pagination Options -->
-                <div class="flex items-center space-x-4">
-                    @php
-                        $perPageOptions = [
-                            ['id' => 10, 'name' => '10'],
-                            ['id' => 25, 'name' => '25'],
-                            ['id' => 50, 'name' => '50'],
-                            ['id' => 100, 'name' => '100']
-                        ];
-                    @endphp
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Show</span>
-                    <x-mary-select
-                        wire:model.live="perPage"
-                        :options="$perPageOptions"
-                        class="w-20 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
-                    />
-                    <span class="text-sm text-gray-600 dark:text-gray-400">entries</span>
-                </div>
-            </div>
-
-           <div class="overflow-x-scroll">
+            <div class=" overflow-x-scroll">
                 <table class="w-full min-w-[800px] text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <!-- Master Checkbox -->
-                            <th class="px-4 py-3">
-                                <input type="checkbox"
-                                    class="form-checkbox"
-                                    wire:model="selectAll"
-                                    wire:click="toggleSelectAll" />
-                            </th>
                             <th wire:click="sortBy('reference')" class="px-4 py-3 cursor-pointer">
                                 Reference
                                 @if($sortField === 'reference')
@@ -843,15 +682,8 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                        @forelse($accountTransactionsBlade as $transaction)
+                        @forelse($this->history as $transaction)
                             <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <!-- Row Checkbox -->
-                                <td class="px-4 py-3">
-                                    <input type="checkbox"
-                                        class="form-checkbox"
-                                        wire:model="selectedTransactions"
-                                        value="{{ $transaction->id }}" />
-                                </td>
                                 <td class="px-4 py-3">{{ $transaction->reference_number }}</td>
                                 <td class="px-4 py-3">
                                     <span class="px-2 py-0.5 font-semibold text-sm rounded-sm text-white
@@ -868,6 +700,14 @@
                                         {{ ucfirst($transaction->status) }}
                                     </span>
                                 </td>
+                                {{-- @if($transaction->source_account_id && $transaction->destination_account_id != null)
+                                    <td>
+                                        <span>{{$transaction->account->}}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{$transaction->account->account_number}}</span>
+                                    </td>
+                                @endif --}}
                                 <td class="px-4 py-3">{{ $transaction->created_at->format('M d, Y H:i') }}</td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center space-x-2">
@@ -887,7 +727,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="6" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                                     No transactions found
                                 </td>
                             </tr>
@@ -895,77 +735,9 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination Links -->
-            <div>
-                {{ $accountTransactionsBlade->links() }}  <!-- Pagination controls -->
+            <div class="mt-4">
+                {{-- {{ $this->history->links() }} --}}
             </div>
-
-             <!-- Transaction View Modal -->
-                <x-mary-modal wire:model="viewModal">
-                    @if($selectedTransaction)
-                        <div class="p-4">
-                            <h2 class="text-lg font-semibold mb-4">Transaction Details</h2>
-
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Reference</label>
-                                        <p class="font-medium">{{ $selectedTransaction->reference_number }}</p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Type</label>
-                                        <p>
-                                            <span class="px-2 py-0.5 font-semibold text-sm rounded-sm text-white
-                                                {{ $selectedTransaction->type === 'deposit' ? 'bg-green-500' :
-                                                ($selectedTransaction->type === 'withdrawal' ? 'bg-yellow-500' : 'bg-blue-500') }}">
-                                                {{ ucfirst($selectedTransaction->type) }}
-                                            </span>
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Amount</label>
-                                        <p class="font-medium">UGX {{ number_format($selectedTransaction->amount, 2) }}</p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Status</label>
-                                        <p>
-                                            <span class="px-2 py-0.5 font-semibold text-sm rounded-sm text-white
-                                                {{ $selectedTransaction->status === 'completed' ? 'bg-green-500' :
-                                                ($selectedTransaction->status === 'pending' ? 'bg-yellow-500' : 'bg-red-500') }}">
-                                                {{ ucfirst($selectedTransaction->status) }}
-                                            </span>
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Account Number</label>
-                                        <p class="font-medium">{{ $selectedTransaction->account->account_number }}</p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Date</label>
-                                        <p class="font-medium">{{ $selectedTransaction->created_at->format('M d, Y H:i') }}</p>
-                                    </div>
-                                </div>
-
-                                @if($selectedTransaction->description)
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Description</label>
-                                        <p class="font-medium">{{ $selectedTransaction->description }}</p>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="mt-6 flex justify-end">
-                                <x-mary-button label="Close" @click="$wire.viewModal = false" />
-                            </div>
-                        </div>
-                    @endif
-                </x-mary-modal>
             </div>
         </div>
     </div>
@@ -1098,3 +870,4 @@
 @endif
 
 </div>
+

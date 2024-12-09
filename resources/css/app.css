@@ -40,3 +40,55 @@
     50% { border-color: black; }
 }
 
+
+@layer components {
+    /* Default text color in dark mode */
+    div.text-secondary-600.dark:text-secondary-200 {
+        color: #e5e7eb; /* Light text color for dark mode */
+    }
+
+    /* Hover text color and background color for the div */
+    div:hover.text-secondary-600:hover {
+        color: #1a202c; /* Dark text on hover */
+        background-color: #f3f4f6; /* Light background on hover */
+    }
+
+    /* Focus background color */
+    div:focus.bg-primary-100:focus {
+        background-color: #e5e7eb; /* Light background when focused */
+    }
+
+    /* Custom hover background color */
+    div:hover.bg-primary-500:hover {
+        background-color: #3b82f6; /* Visible hover background color */
+    }
+
+    /* Dark mode: Custom hover background for dark theme */
+    div.dark:hover.bg-secondary-700:hover {
+        background-color: #dadfe8; /* Darker background for dark mode */
+    }
+
+    /* Dark mode: Custom focus background for dark theme */
+    div.dark:focus.bg-secondary-700:focus {
+        background-color: #151718; /* Ensure focus background is visible in dark mode */
+    }
+
+
+    /* Ensuring dark text remains visible in dark mode */
+    div.dark.text-secondary-400 {
+        color: #0a42a2; /* Lighter text color for dark mode */
+    }
+}
+
+
+ @keyframes marquee {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+    .animate-marquee {
+        animation: marquee 20s linear infinite;
+    }

@@ -64,7 +64,7 @@ Route::middleware(['auth','verified','role:super-admin|staff'])->group(function(
 Route::middleware(['auth','verified','role:customer'])->group(function(){
     Route::get('/customer-dashboard',CustomerDashboard::class)->name('customer-dashboard');
     Route::get('/customer/my-accounts',MyAccounts::class)->name('my-accounts');
-    Route::get('/customer/my-account/{account}/do-something', VisitAccount::class)->name('visit-account')->middleware('protectUserAccount');
+    Route::get('/customer/my-accounts/{account}/do-something', VisitAccount::class)->name('visit-account')->middleware('protectUserAccount');
     Route::get('/customer/my-loans',MyLoans::class)->name('my-loans');
     Route::get('/rmgpay',RMGPAY::class)->name('rmgpay');
 });

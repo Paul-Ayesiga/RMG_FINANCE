@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
+use App\Helpers\BreadcrumbHelper;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,5 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        view()->composer('*', function ($view) {
+            $view->with('breadcrumbs', (new BreadcrumbHelper())->generateBreadcrumbs());
+        });
     }
 }
