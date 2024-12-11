@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Account;
+use App\Models\Beneficiary;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -13,9 +14,10 @@ Route::supportBubble();
 
 
 
-Route::get('/accounts/exclude-current', function (Request $request) {
+Route::get('/accounts', function (Request $request) {
     $userId = Auth::id();
-    $query = Account::where('customer_id', '!=', $userId);
+    $customer = Auth::user()->customer;
+    $query = Account::where('customer_id', $customer->id);
 
     if ($request->search) {
         $query->where('account_number', 'ilike', "%{$request->search}%");
@@ -26,9 +28,29 @@ Route::get('/accounts/exclude-current', function (Request $request) {
     }
 
     // Apply the limit here, before calling get()
-    $accounts = $query->limit(10)->get(['id', 'account_number', 'customer_id']);
+    $accounts = $query->get(['id', 'account_number', 'customer_id']);
 
     return response()->json($accounts->toArray());
-})->name('api.other-accounts');
+
+})->name('api.accounts')->middleware('web');
+Route::get('/beneficiaries', function (Request $request) {
+    $userId = Auth::id();
+
+    $query = Beneficiary::where('user_id', $userId);
+
+    if ($request->search) {
+        $query->where('account_number', 'ilike', "%{$request->search}%");
+    }
+
+    if ($request->exists('selected')) {
+        $query->whereIn('id', $request->input('selected', []));
+    }
+
+    // Apply the limit here, before calling get()
+    $beneficiaries = $query->get(['id', 'account_number', 'nickname']);
+
+    return response()->json($beneficiaries->toArray());
+
+})->name('api.beneficiaries')->middleware('web');
 
 

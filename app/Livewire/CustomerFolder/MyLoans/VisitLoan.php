@@ -13,12 +13,14 @@ use Illuminate\Support\Collection;
 use App\Models\Account;
 use App\Notifications\TransactionNotification;
 use Livewire\Attributes\Lazy;
+use Mary\Traits\Toast;
 
 
 #[Lazy()]
 class VisitLoan extends Component
 {
     use WireUiActions;
+    use Toast;
 
     public ?Loan $loan;
 
@@ -294,6 +296,7 @@ class VisitLoan extends Component
         } catch (\Exception $e) {
             DB::rollBack();
 
+            dd($e->getMessage());
             $this->toast(
                 type: 'error',
                 title: 'Failed to process payment: ' . $e->getMessage(),

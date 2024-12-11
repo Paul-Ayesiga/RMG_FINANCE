@@ -49,23 +49,25 @@
 
     /* Hover text color and background color for the div */
     div:hover.text-secondary-600:hover {
-        color: #1a202c; /* Dark text on hover */
-        background-color: #f3f4f6; /* Light background on hover */
+        color: #e3e5eb; /* Dark text on hover */
+        background-color: #073ba4; /* Light background on hover */
     }
 
     /* Focus background color */
     div:focus.bg-primary-100:focus {
-        background-color: #e5e7eb; /* Light background when focused */
+        color: #e3e5eb;
+        background-color: #073ba4; /* Light background when focused */
     }
 
     /* Custom hover background color */
     div:hover.bg-primary-500:hover {
-        background-color: #3b82f6; /* Visible hover background color */
+        color: #e3e5eb;
+        background-color: #073ba4; /* Visible hover background color */
     }
 
     /* Dark mode: Custom hover background for dark theme */
     div.dark:hover.bg-secondary-700:hover {
-        background-color: #dadfe8; /* Darker background for dark mode */
+         background-color: #073ba4; /* Darker background for dark mode */
     }
 
     /* Dark mode: Custom focus background for dark theme */

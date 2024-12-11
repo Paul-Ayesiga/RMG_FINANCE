@@ -29,7 +29,7 @@
     }"
     x-init="tabRepositionMarker($refs.tabButtons.firstElementChild);"
     class="relative w-full max-w-3xl mx-auto z-10"
->
+    >
     <!-- Tab Buttons -->
     <div
         x-ref="tabButtons"
@@ -70,7 +70,7 @@
     </div>
 
     <!-- Tab Content -->
-    <div class="relative w-full mt-4 content"> 
+    <div class="relative w-full mt-4 content">
         <!-- Loan Details Tab -->
         <div
             :id="$id(tabId + '-content')"
