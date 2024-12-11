@@ -26,7 +26,7 @@
 <body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
 
     {{-- NAVBAR mobile only --}}
-    <x-mary-nav  sticky full-width class="bg-white shadow-lg rounded-lg dark:bg-gray-900 z-50">
+    <x-mary-nav  sticky full-width class="bg-white shadow-lg rounded-lg dark:bg-gray-900 z-20">
         <x-slot:brand>
             <a href="{{route('dashboard')}}" wire:navigate>
             <x-app-brand />
@@ -44,14 +44,14 @@
     {{-- MAIN --}}
     <x-mary-main  with-nav full-width>
         {{-- SIDEBAR --}}
-        <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
+        <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit z-50">
 
             {{-- MENU --}}
             <x-mary-menu activate-by-route  active-bg-color="bg-gradient-to-r from-blue-300 to-blue-100 text-white font-bold shadow-lg">
 
                 {{-- User --}}
                 @if($user = auth()->user())
-                    <x-mary-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded sm:hidden">
+                    <x-mary-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded sm:hidden"  link="{{ route('profile')}}">
                         <x-slot:actions>
                             <form method="POST" action="{{ route('logout') }}">
                             @csrf

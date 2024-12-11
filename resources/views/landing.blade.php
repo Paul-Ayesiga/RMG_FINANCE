@@ -159,7 +159,51 @@
     <nav class="bg-white shadow-lg fixed w-full z-50">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <a href="#" class="text-2xl font-bold text-blue-600 animate__animated animate__fadeIn">RMG FINANCE</a>
+
+
+            {{-- <h1 x-data="{
+                startingAnimation: { opacity: 0, scale: 4 },
+                endingAnimation: { opacity: 1, scale: 1, stagger: 0.07, duration: 1, ease: 'expo.out' },
+                addCNDScript: true,
+                animateText() {
+                    $el.classList.remove('invisible');
+                    gsap.fromTo($el.children, this.startingAnimation, this.endingAnimation);
+                },
+                splitCharactersIntoSpans(element) {
+                    text = element.innerHTML;
+                    modifiedHTML = [];
+                    for (var i = 0; i < text.length; i++) {
+                        attributes = '';
+                        if(text[i].trim()){ attributes = 'class=\'inline-block\''; }
+                        modifiedHTML.push('<span ' + attributes + '>' + text[i] + '</span>');
+                    }
+                    element.innerHTML = modifiedHTML.join('');
+                },
+                addScriptToHead(url) {
+                    script = document.createElement('script');
+                    script.src = url;
+                    document.head.appendChild(script);
+                }
+                }"
+                x-init="
+                    splitCharactersIntoSpans($el);
+                    if(addCNDScript){
+                        addScriptToHead('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js');
+                    }
+                    gsapInterval = setInterval(function(){
+                        if(typeof gsap !== 'undefined'){
+                            animateText();
+                            clearInterval(gsapInterval);
+                        }
+                    }, 5);
+                "
+                class="invisible block text-3xl font-bold custom-font"
+                > --}}
+            <a href="#" class="text-2xl font-bold text-blue-600 animate__animated animate__fadeIn">RMG FINANCE</a>
+        {{-- </h1> --}}
+
+
+
 
                 <!-- Desktop Menu -->
                 <div class="desktop-menu space-x-8">
@@ -197,13 +241,13 @@
     <section id="home" class="pt-24 pb-12 bg-gradient-to-r from-blue-600 to-blue-800">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 text-white slide-in-left">
+                <div class="md:w-2/3 text-white slide-in-left">
                     <h1 class="text-4xl md:text-6xl font-bold mb-6">Empowering Communities Through Microfinance</h1>
                     <p class="text-xl mb-8">RMG Finance provides accessible financial solutions to help small businesses and individuals achieve their dreams.</p>
                     <a href="#contact" class="bg-white text-blue-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition animate__animated animate__pulse animate__infinite">Get Started</a>
                 </div>
                 <div class="md:w-1/2 mt-8 md:mt-0 slide-in-right">
-                    <img src="{{asset('custom/Welcome.webp')}}" alt="Microfinance" class="rounded-lg shadow-xl" width="600" height="200">
+                    <img src="{{asset('custom/Welcome.webp')}}" alt="Microfinance" class="rounded-lg shadow-xl" width="500" height="100">
                 </div>
             </div>
         </div>
@@ -233,6 +277,7 @@
         </div>
     </section>
 
+    {{-- slider show for partners --}}
     <div
         x-data
         x-init="
@@ -261,15 +306,16 @@
             </div>
         </div>
     </div>
+    {{--  slider show for partners --}}
 
     <!-- About Section -->
     <section id="about" class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row items-center">
                 <div class="md:w-1/2 mb-8 md:mb-0 slide-in-left">
-                    <img src="{{asset('custom/aboutUs.webp')}}" alt="About Us" class="rounded-lg shadow-xl" width="600" height="400">
+                    <img src="{{asset('custom/aboutUs.webp')}}" alt="About Us" class="rounded-lg shadow-xl" width="500" height="400">
                 </div>
-                <div class="md:w-1/2 md:pl-12 slide-in-right">
+                <div class="md:w-2/3 md:pl-12 slide-in-right">
                     <h2 class="text-3xl font-bold mb-6">About RMG Finance</h2>
                     <p class="mb-4">RMG Finance is dedicated to promoting financial inclusion and economic empowerment in underserved communities. With over 10 years of experience, we've helped thousands of individuals and small businesses achieve their financial goals.</p>
                     <p>Our mission is to provide accessible financial services while fostering sustainable economic growth in the communities we serve.</p>
@@ -286,7 +332,7 @@
                 <div class="bg-white p-6 rounded-lg shadow-lg scale-in">
                     <h3 class="text-xl font-bold mb-4">Business Loans</h3>
                     <ul class="list-disc list-inside mb-4">
-                        <li>Up to $10,000</li>
+                        <li>Up to UGX 180M</li>
                         <li>Flexible repayment terms</li>
                         <li>Low interest rates</li>
                         <li>Quick approval process</li>

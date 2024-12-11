@@ -18,7 +18,8 @@ use App\Livewire\BankCharges\Overview as BankCharge;
 use App\Livewire\Taxes\Overview as BTax;
 use App\Livewire\Admin\RolePermissionManager;
 use App\Livewire\Admin\SendNotification;
-use App\Livewire\CustomerFolder\MyAccounts\VisitAccount;;
+use App\Livewire\CustomerFolder\MyAccounts\VisitAccount;
+use App\Livewire\CustomerFolder\MyLoans\VisitLoan;
 
 
 
@@ -66,6 +67,7 @@ Route::middleware(['auth','verified','role:customer'])->group(function(){
     Route::get('/customer/my-accounts',MyAccounts::class)->name('my-accounts');
     Route::get('/customer/my-accounts/{account}/do-something', VisitAccount::class)->name('visit-account')->middleware('protectUserAccount');
     Route::get('/customer/my-loans',MyLoans::class)->name('my-loans');
+    Route::get('/customer/my-loans/{loan}/do-something', VisitLoan::class)->name('visit-loan')->middleware('protectCustomerLoan');
     Route::get('/rmgpay',RMGPAY::class)->name('rmgpay');
 });
 

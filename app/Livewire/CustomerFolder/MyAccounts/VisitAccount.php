@@ -17,9 +17,6 @@ use Livewire\Attributes\Lazy;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
 use Livewire\WithPagination;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Route;
-
 
 
 #[Lazy()]

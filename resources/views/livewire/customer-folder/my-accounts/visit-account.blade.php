@@ -29,7 +29,7 @@
         }
     }"
     x-init="tabRepositionMarker($refs.tabButtons.firstElementChild);"
-    class="relative w-full max-w-3xl mx-auto"
+    class="relative w-full max-w-3xl mx-auto z-10"
 >
     <!-- Tab Buttons -->
     <div
@@ -103,7 +103,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Customer Information -->
                     <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Customer</h3>
+                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Full Name</h3>
                         <p class="text-gray-600 dark:text-slate-100">{{$account->customer->user->name}}</p>
                     </div>
 
@@ -163,7 +163,7 @@
                 <h3 class="text-lg font-semibold">Withdrawals</h3>
                 <p class="text-gray-600 dark:text-white">View your withdrawal details here.</p>
                 <x-mary-form wire:submit="withdraw" x-data="{ withdrawalMethod: 'default' }">
-                    <div class="p-4">
+                    <div class="p-2">
                         <div class="mb-4 text-center dark:text-yellow-100">
                             <label class="block text-sm font-medium text-gray-700 dark:text-yellow-100">Withdrawal Method</label>
                             <div class="mt-2 flex justify-center space-x-4">
@@ -171,7 +171,7 @@
                                 <button type="button" @click="withdrawalMethod = 'default'" :class="{
                                     'bg-blue-500 text-white': withdrawalMethod === 'default',
                                     'bg-gray-200 text-gray-700': withdrawalMethod !== 'default'
-                                }" class="px-4 py-2 rounded-md">Default</button>
+                                }" class="px-4 py-2 rounded-md">Cash</button>
 
                                 <!-- Card Method Button -->
                                 <button type="button" @click="withdrawalMethod = 'card'" :class="{
@@ -212,7 +212,7 @@
 
                     <x-slot:actions>
                         {{-- @if($this->withdrawFromAccount) --}}
-                            <x-wireui-button icon="arrow-left" label="Withdraw" wire:click="withdraw({{$account->id}})" class="bg-red-500 text-white text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-400" spinner="withdraw({{$account->id}})" />
+                            <x-wireui-button icon="arrow-left" label="Withdraw" wire:click="withdraw({{$account->id}})" class="bg-red-500 text-white text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-400 " spinner="withdraw({{$account->id}})" />
                         {{-- @endif --}}
                     </x-slot:actions>
                 </x-mary-form>
@@ -242,7 +242,7 @@
                                     @click="depositMethod = 'default'"
                                     :class="{'bg-blue-500 text-white ring-2 ring-blue-400': depositMethod === 'default', 'bg-gray-200 text-gray-700': depositMethod !== 'default'}"
                                     class="px-4 py-2 rounded-md focus:outline-none">
-                                    Default
+                                    Cash
                                 </button>
                                 <button
                                     type="button"
@@ -261,7 +261,7 @@
                             </div>
                         </div>
 
-                        <!-- Default Deposit Method -->
+                        <!-- default Deposit Method -->
                         <div x-show="depositMethod === 'default'" class="text-center" x-cloak>
                             <x-wireui-input
                                 label="Amount"
@@ -337,8 +337,8 @@
             class="relative"
             x-cloak
             >
-            <div class="p-6 bg-white border rounded-lg shadow-sm dark:bg-inherit">
-                <h3 class="text-lg font-semibold mb-3">Transfers</h3>
+            <div class="p-1 bg-white border rounded-lg shadow-sm dark:bg-inherit">
+                <h3 class="text-lg font-semibold mb-3 p-5">Transfers</h3>
                 <div x-data="{ activeTab: 'local-rgmbank', isTabOpen: true }" class="flex flex-col lg:flex-row">
                     <!-- Left Side Tabs (Vertical) on Large Screens, Horizontal on Mobile -->
                     <div :class="isTabOpen ? 'w-64' : 'w-16'" class="transition-all duration-300 flex-shrink-0 lg:w-64 lg:block w-full">
@@ -361,7 +361,7 @@
                                 @click="activeTab = 'local-bank'"
                                 :class="activeTab === 'local-bank' ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-300'"
                                 class="w-full text-left px-4 py-2 rounded-md flex items-center">
-                                <i class="fas fa-building mr-2"></i> Other Local Bank Account
+                                <i class="fas fa-building mr-2"></i> Other LocalBank Account
                             </button>
                             <button
                                 @click="activeTab = 'international'"
@@ -529,32 +529,6 @@
                                                         @endforeach
                                                     </x-select>
 
-                                                    <div class="w-[300px] mx-auto px-4 py-5 bg-white flex flex-col gap-3 rounded-md shadow-[0px_0px_15px_rgba(0,0,0,0.09)]">
-                                                        <legend class="text-xl font-semibold mb-3 select-none">Choose One</legend>
-                                                        @foreach ($beneficiaries as $index => $beneficiary)
-                                                            <label for="beneficiary_{{ $index }}" class="font-medium h-10 relative hover:bg-zinc-100 flex items-center px-3 gap-3 rounded-lg dark:hover:bg-blue-200">
-                                                                <div class="w-5">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                                                        <path d="M12 21c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z"></path>
-                                                                    </svg>
-                                                                </div>
-                                                                {{ $beneficiary['nickname'] }} ({{ $beneficiary['account_number'] }})
-                                                                <input
-                                                                    type="radio"
-                                                                    name="beneficiary"
-                                                                    class="peer/html w-4 h-4 absolute accent-blue-500 right-3 rounded-full"
-                                                                    id="beneficiary_{{ $index }}"
-                                                                    value="{{ $index }}"
-                                                                    wire:model.live="beneficiarySelectedIndex"
-                                                                />
-                                                                @error('beneficiarySelectedIndex')
-                                                                    <p class="text-red-500 italic">{{ $message }}</p>
-                                                                @enderror
-                                                            </label>
-                                                        @endforeach
-
-
-                                                    </div>
 
                                                     <div>
                                                         <label for="amount" class="block text-gray-700 dark:text-white">Amount</label>
@@ -776,8 +750,6 @@
                 </div>
 
 
-
-
                 <!-- Pagination Options -->
                 <div class="flex items-center space-x-4">
                     @php
@@ -897,7 +869,7 @@
             </div>
 
             <!-- Pagination Links -->
-            <div>
+            <div class="mt-4">
                 {{ $accountTransactionsBlade->links() }}  <!-- Pagination controls -->
             </div>
 
@@ -908,7 +880,7 @@
                             <h2 class="text-lg font-semibold mb-4">Transaction Details</h2>
 
                             <div class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="grid lg:grid-cols-2 md:grid-cols-1 gap-4">
                                     <div>
                                         <label class="text-sm text-gray-600 dark:text-gray-400">Reference</label>
                                         <p class="font-medium">{{ $selectedTransaction->reference_number }}</p>
@@ -943,7 +915,7 @@
 
                                     <div>
                                         <label class="text-sm text-gray-600 dark:text-gray-400">Account Number</label>
-                                        <p class="font-medium">{{ $selectedTransaction->account->account_number }}</p>
+                                        <p class="font-medium text-wrap">{{ $selectedTransaction->account->account_number }}</p>
                                     </div>
 
                                     <div>
