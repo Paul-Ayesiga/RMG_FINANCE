@@ -12,6 +12,8 @@ use Livewire\Attributes\On;
 use App\Notifications\LoanApproved;
 use App\Notifications\LoanDisbursed;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Events\PrivateNotify;
 
 class Overview extends Component
 {
@@ -130,7 +132,7 @@ class Overview extends Component
         try {
             DB::beginTransaction();
 
-            $this->selectedLoan->approve(auth()->id());
+            $this->selectedLoan->approve(Auth::id());
 
             $this->selectedLoan->customer->user->notify(new LoanApproved($this->selectedLoan));
 
@@ -143,7 +145,10 @@ class Overview extends Component
             );
 
             $this->approveLoanModal = false;
+            $user = $this->selectedLoan->customer->user;
+            PrivateNotify::dispatch($user, 'loan approved');
             $this->selectedLoan = null;
+
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -156,11 +161,7 @@ class Overview extends Component
         }
     }
 
-    #[On('echo:loan-approved,LoanApproved')]
-    public function notifyNewOrder()
-    {
-        dd('hello loan update');
-    }
+
     public function openDisbursementModal($loanId)
     {
         $this->selectedLoan = Loan::with(['customer', 'loanProduct', 'account'])
@@ -204,6 +205,8 @@ class Overview extends Component
             );
 
             $this->disburseLoanModal = false;
+            $user = $this->selectedLoan->customer->user;
+            PrivateNotify::dispatch($user, 'loan disbursed');
             $this->selectedLoan = null;
             $this->disbursementNote = '';
 
@@ -241,7 +244,7 @@ class Overview extends Component
         try {
             $this->selectedLoan->update([
                 'status' => 'rejected',
-                'rejected_by' => auth()->id(),
+                'rejected_by' => Auth::id(),
                 'rejected_at' => now(),
                 'rejection_reason' => $this->rejectionReason
             ]);

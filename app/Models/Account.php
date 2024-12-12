@@ -359,4 +359,15 @@ class Account extends Model
             throw $e;
         }
     }
+
+    public function beneficiaries()
+    {
+        return $this->hasMany(Beneficiary::class);
+    }
+
+    public function standingOrders()
+    {
+        return $this->belongsToMany(StandingOrder::class, 'account_standing_order');
+    }
+
 }

@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'check.pending.loans' => \App\Http\Middleware\CheckPendingLoans::class,
+            'protectUserAccount' => \App\Http\Middleware\ProtectUserAccount::class,
+            'protectCustomerLoan' => \App\Http\Middleware\ProtectCustomerLoan::class
 
         ]);
     })

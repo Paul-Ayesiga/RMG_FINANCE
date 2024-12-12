@@ -77,4 +77,10 @@ class User extends Authenticatable
         return $this->email;
     }
 
+    public function beneficiaries()
+    {
+        return $this->hasMany(Beneficiary::class);
+    }
+
+
 }

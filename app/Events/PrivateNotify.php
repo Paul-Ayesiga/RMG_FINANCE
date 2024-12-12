@@ -13,7 +13,7 @@ class PrivateNotify implements ShouldBroadcast
 {
 use Dispatchable, InteractsWithSockets, SerializesModels;
 
-public  $user; // This will hold the user data to broadcast to
+public $user; // This will hold the user data to broadcast to
 public $message; // This will hold the message to be broadcasted
 
 /**

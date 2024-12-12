@@ -18,10 +18,9 @@ use App\Livewire\BankCharges\Overview as BankCharge;
 use App\Livewire\Taxes\Overview as BTax;
 use App\Livewire\Admin\RolePermissionManager;
 use App\Livewire\Admin\SendNotification;
-
-
-
-
+use App\Livewire\CustomerFolder\MyAccounts\VisitAccount;
+use App\Livewire\CustomerFolder\MyLoans\VisitLoan;
+use App\Livewire\CustomerFolder\StandingOrders;
 use Spatie\Permission\Models\Role;
 
 Route::get('/roles', function () {
@@ -38,6 +37,7 @@ Route::middleware(['auth','verified','role:super-admin'])->group(function(){
     Route::get('/clients/{customer}/edit',ClientEdit::class)->name('edit-client');
     Route::get('/account_types', AccountTypes::class)->name('account-types');
     Route::get('accounts-overview', AccountsOverview::class)->name('accounts-overview');
+    Route::get('/my-account/{account}/do-something', VisitAccount::class)->name('visit-account');
     Route::get('/loan-products', LoanProducts::class)->name('loan-products');
     Route::get('/loans',Loans::class)->name('loans');
     Route::get('/transactions-overview',TransactionsOverview::class)->name('transactions-overview');
@@ -62,8 +62,11 @@ Route::middleware(['auth','verified','role:super-admin|staff'])->group(function(
 Route::middleware(['auth','verified','role:customer'])->group(function(){
     Route::get('/customer-dashboard',CustomerDashboard::class)->name('customer-dashboard');
     Route::get('/customer/my-accounts',MyAccounts::class)->name('my-accounts');
+    Route::get('/customer/my-accounts/{account}/do-something', VisitAccount::class)->name('visit-account')->middleware('protectUserAccount');
     Route::get('/customer/my-loans',MyLoans::class)->name('my-loans');
+    Route::get('/customer/my-loans/{loan}/do-something', VisitLoan::class)->name('visit-loan')->middleware('protectCustomerLoan');
     Route::get('/rmgpay',RMGPAY::class)->name('rmgpay');
+    Route::get('/standing-order',StandingOrders::class)->name('standing-order');
 });
 
 Route::view('profile', 'profile')

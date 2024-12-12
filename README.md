@@ -64,6 +64,13 @@ RMG FINANCE a MICROFINANCE SYSTEM
     Then the rest will be customers 
 
 
+    This system uses laravel schedule tasks
+    so for production:
+    
+        * * * * * php /path-to-your-project/artisan schedule:run >> /dev/null 2>&1
+
+        This runs the Laravel scheduler every minute, and Laravel will execute the registered tasks based on their defined schedules.
+
     Start the servers
         php artisan serve
         npm run dev

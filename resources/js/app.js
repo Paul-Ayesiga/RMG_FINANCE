@@ -26,7 +26,7 @@ toastr.options = {
   "positionClass": "toast-top-right",
   "preventDuplicates": false,
   "onclick": null,
-  "showDuration": "300",
+  "showDuration": "3000",
   "hideDuration": "1000",
   "timeOut": "5000",
   "extendedTimeOut": "1000",
@@ -43,6 +43,16 @@ if (window.Echo) {
             console.log('system-notification');
             toastr["success"]("My name is Inigo Montoya. You killed my father. Prepare to die!")
         });
+
+     // Listen for private notifications using the logged-in user's ID
+    if (window.userId) {
+        window.Echo.private(`private-notify.${window.userId}`)
+            .listen('PrivateNotify', (e) => {
+                console.log('Private notification received');
+                toastr["success"]("You have a new private notification!");
+            });
+    }
+
 } else {
     console.log("Echo is not defined");
 }
