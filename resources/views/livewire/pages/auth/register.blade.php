@@ -31,34 +31,54 @@ new #[Layout('layouts.guest')] class extends Component
      */
     public function register(): void
     {
-        $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-            'avatar' => ['nullable','image','max:1024'],
-            'identification_number' => 'required',
-            'userRole' => ['required'],
-            'accepted' => ['required'] // Validate the acceptance of terms
-        ]);
+        try {
 
-        $validated['password'] = Hash::make($validated['password']);
+            DB::beginTransaction();
 
-        event(new Registered($user = User::create($validated)));
+                $validated = $this->validate([
+                    'name' => ['required', 'string', 'max:255'],
+                    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+                    'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+                    'avatar' => ['nullable','image','max:1024'],
+                    'identification_number' => 'required',
+                    'userRole' => ['required'],
+                    'accepted' => ['required'] // Validate the acceptance of terms
+                ]);
 
-        $customer = new Customer();
+                $validated['password'] = Hash::make($validated['password']);
 
-        $customer->user_id = $user->id;
-        $customer->customer_number = $this->generateCustomerNumber();
-        $customer->identification_number = $this->identification_number;
-        $customer->save();
+                event(new Registered($user = User::create($validated)));
 
-        $user->assignRole('customer');
+                $customer = new Customer();
 
-        // Auth::login($user);
+                $customer->user_id = $user->id;
+                $customer->customer_number = $this->generateCustomerNumber();
+                $customer->identification_number = $this->identification_number;
+                $customer->save();
 
-        $status = 'Account created successfully, log in with your credentials';
-        $this->redirectRoute('login', navigate: true);
-        Session::flash('status', __($status));
+                $user->assignRole('customer');
+
+            DB::commit();
+
+            // Auth::login($user);
+
+                $status = 'Account created successfully, log in with your credentials';
+                $this->redirectRoute('login', navigate: true);
+                Session::flash('status', __($status));
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            $this->toast(
+                type: 'error',
+                title: 'Failed to register, please try again',
+                position: 'toast-top toast-end',
+                icon: 'o-x-circle',
+                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
+                timeout: 3000
+            );
+        }
 
     }
 

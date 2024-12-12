@@ -32,6 +32,7 @@ Route::middleware('guest')->group(function(){
 
 });
 
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', function () {
         Auth::logout();
@@ -39,6 +40,72 @@ Route::middleware('auth')->group(function () {
         request()->session()->regenerateToken();
         return redirect('/login');
     })->name('logout');
+
+    Route::get('/logout', function () {
+        return response("
+        <!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Page Not Found</title>
+            <style>
+                body {
+                    background-color: #f4f4f9;
+                    font-family: 'Arial', sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    color: #333;
+                }
+                .error-container {
+                    text-align: center;
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                    width: 80%;
+                    max-width: 500px;
+                }
+                .error-container h1 {
+                    color: #e74c3c;
+                    font-size: 2.5rem;
+                    margin-bottom: 20px;
+                }
+                .error-container p {
+                    color: #555;
+                    font-size: 1.1rem;
+                }
+                .home-link {
+                    display: inline-block;
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background-color: #3498db;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-weight: bold;
+                }
+                .home-link:hover {
+                    background-color: #2980b9;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='error-container'>
+                <h1>404 - Not Found</h1>
+                <p>You cannot directly access the logout route.</p>
+                <a href='/' class='home-link'>Return to Home</a>
+            </div>
+        </body>
+        </html>
+    ", 404);
+    });
+
+
+
 
     Volt::route('verify-email', 'pages.auth.verify-email')
         ->name('verification.notice');

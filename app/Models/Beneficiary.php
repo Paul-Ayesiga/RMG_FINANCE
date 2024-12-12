@@ -22,4 +22,9 @@ class Beneficiary extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function standingOrders()
+    {
+        return $this->belongsToMany(StandingOrder::class, 'account_standing_order');
+    }
 }

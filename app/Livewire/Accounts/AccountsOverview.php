@@ -213,118 +213,131 @@ class AccountsOverview extends Component
             ->paginate($this->perPage);
     }
 
-    #[On('reset')]
-    public function resetForm()
-    {
-
-    }
-
     public function saveAccount()
     {
-        // Validate input fields
-        $this->validate();
+        try {
+            DB::beginTransaction();
+                // Validate input fields
+                $this->validate();
 
-        // Get the selected account type
-        $accountType = AccountType::findOrFail($this->accountTypeId);
+                // Get the selected account type
+                $accountType = AccountType::findOrFail($this->accountTypeId);
 
-        // Check if initial balance meets minimum balance requirement
-        if ($this->balance < $accountType->min_balance) {
+                // Check if initial balance meets minimum balance requirement
+                if ($this->balance < $accountType->min_balance) {
+                    $this->toast(
+                        type: 'error',
+                        title: "Initial balance must be at least $" . number_format($accountType->min_balance, 2),
+                        position: 'toast-top toast-end',
+                        icon: 'o-x-circle',
+                        css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
+                        timeout: 3000
+                    );
+                    return;
+                }
+
+                // Create the account
+                $account = Account::create([
+                    'customer_id' => $this->customerId,
+                    'account_type_id' => $this->accountTypeId,
+                    'balance' => $this->balance,
+                    'status' => $this->status,
+                    'account_number' => $this->generateAccountNumber(),
+                ]);
+
+                // Show success message
+                $this->toast(
+                    type: 'success',
+                    title: 'Account created successfully',
+                    position: 'toast-top toast-end',
+                    icon: 'o-check-badge',
+                    css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
+                    timeout: 3000
+                );
+
+            DB::commit();
+
+                // Reset form and close modal
+                $this->addAccountModal = false;
+                $user = Customer::find($this->customerId)->user; // Fetch the user from the customer_id
+                $user->notify(new NewAccountCreated('New Account', 'Your account has been successfully created! Your account number is ' . $account->account_number . '.'));
+                PrivateNotify::dispatch($user, 'A new account has been created for you!');
+            // event(new NewAccount(Auth::user()));
+
+
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Log the error
+            // \Log::error('Failed to update account status: ' . $e->getMessage());
             $this->toast(
                 type: 'error',
-                title: "Initial balance must be at least $" . number_format($accountType->min_balance, 2),
+                title: 'Failed to create account,'.$e->getMessage(),
                 position: 'toast-top toast-end',
                 icon: 'o-x-circle',
                 css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
                 timeout: 3000
             );
-            return;
         }
-
-        // Create the account
-        $account = Account::create([
-            'customer_id' => $this->customerId,
-            'account_type_id' => $this->accountTypeId,
-            'balance' => $this->balance,
-            'status' => $this->status,
-            'account_number' => $this->generateAccountNumber(),
-        ]);
-
-        // Show success message
-        $this->toast(
-            type: 'success',
-            title: 'Account created successfully',
-            position: 'toast-top toast-end',
-            icon: 'o-check-badge',
-            css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-            timeout: 3000
-        );
-
-        // Reset form and close modal
-        $this->addAccountModal = false;
-        $user = Customer::find($this->customerId)->user; // Fetch the user from the customer_id
-        $user->notify(new NewAccountCreated('New Account', 'Your account has been successfully created! Your account number is ' . $account->account_number . '.'));
-        PrivateNotify::dispatch($user, 'A new account has been created for you!');
-        // event(new NewAccount(Auth::user()));
-     }
-
-   // ... existing code ...
+    }
 
     public function updateStatus($accountId, $value)
     {
         try {
             DB::beginTransaction();
 
-            $account = Account::with(['customer.user'])->findOrFail($accountId);
-            $oldStatus = $account->status;
+                $account = Account::with(['customer.user'])->findOrFail($accountId);
+                $oldStatus = $account->status;
 
-            // Update the status
-            $account->update([
-                'status' => $value
-            ]);
+                // Update the status
+                $account->update([
+                    'status' => $value
+                ]);
 
-            // Update the local status
-            $this->accountStatuses[$accountId] = $value;
+                // Update the local status
+                $this->accountStatuses[$accountId] = $value;
 
-            // Send notification if status has changed
-            if ($oldStatus !== $value) {
-                $user = $account->customer->user;
+                // Send notification if status has changed
+                if ($oldStatus !== $value) {
+                    $user = $account->customer->user;
 
-                // Determine notification data based on new status
-                $notificationData = match($value) {
-                    'active' => [
-                        'title' => 'Account Activated',
-                        'message' => "Your account {$account->account_number} has been successfully activated.",
-                        'status' => $value
-                    ],
-                    'inactive' => [
-                        'title' => 'Account Suspended',
-                        'message' => "Your account {$account->account_number} has been suspended. Please contact support for assistance.",
-                        'status' => $value
-                    ],
-                    'closed' => [
-                        'title' => 'Account Closed',
-                        'message' => "Your account {$account->account_number} has been closed.",
-                        'status' => $value
-                    ],
-                    default => [
-                        'title' => 'Account Status Update',
-                        'message' => "Your account {$account->account_number} status has been changed to {$value}.",
-                        'status' => $value
-                    ]
-                };
-                // event(new AccountStatusUpdated('updated successfully'));
+                    // Determine notification data based on new status
+                    $notificationData = match($value) {
+                        'active' => [
+                            'title' => 'Account Activated',
+                            'message' => "Your account {$account->account_number} has been successfully activated.",
+                            'status' => $value
+                        ],
+                        'inactive' => [
+                            'title' => 'Account Suspended',
+                            'message' => "Your account {$account->account_number} has been suspended. Please contact support for assistance.",
+                            'status' => $value
+                        ],
+                        'closed' => [
+                            'title' => 'Account Closed',
+                            'message' => "Your account {$account->account_number} has been closed.",
+                            'status' => $value
+                        ],
+                        default => [
+                            'title' => 'Account Status Update',
+                            'message' => "Your account {$account->account_number} status has been changed to {$value}.",
+                            'status' => $value
+                        ]
+                    };
+                    // event(new AccountStatusUpdated('updated successfully'));
 
-                // Send notification
-                $user->notify(new AccountStatusNotification(
-                    $account,
-                    $notificationData['title'],
-                    $notificationData['message'],
-                    $notificationData['status']
-                ));
+                    // Send notification
+                    $user->notify(new AccountStatusNotification(
+                        $account,
+                        $notificationData['title'],
+                        $notificationData['message'],
+                        $notificationData['status']
+                    ));
 
-                PrivateNotify::dispatch($user, $notificationData['message']);
+                    PrivateNotify::dispatch($user, $notificationData['message']);
 
-            }
+                }
 
             DB::commit();
 
@@ -343,9 +356,6 @@ class AccountsOverview extends Component
 
             // Log the error
             // \Log::error('Failed to update account status: ' . $e->getMessage());
-
-            dd($e->getMessage());
-            // Show error toast to admin
             $this->toast(
                 type: 'error',
                 title: 'Failed to update status',
@@ -355,11 +365,6 @@ class AccountsOverview extends Component
                 timeout: 3000
             );
         }
-    }
-
-    public function notifyAccountStatusUpdated()
-    {
-        $this->toast('success', 'you have a new notification');
     }
 
     private function generateAccountNumber(): string

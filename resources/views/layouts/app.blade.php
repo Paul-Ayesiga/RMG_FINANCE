@@ -21,6 +21,15 @@
 
 
     {{-- <link href="toastr.css" rel="stylesheet"/> --}}
+   <style>
+    .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    </style>
+
+
 
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
@@ -51,14 +60,32 @@
 
                 {{-- User --}}
                 @if($user = auth()->user())
-                    <x-mary-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded sm:hidden"  link="{{ route('profile')}}">
-                        <x-slot:actions>
-                            <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-mary-button type="submit"   icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate />
+                        <!-- Profile Link -->
+                        <x-mary-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded sm:hidden"  link="{{ route('profile')}}">
+                        </x-mary-list-item>
+
+
+                       <div class="lg:hidden flex justify-center items-center mt-5">
+                            <x-mary-menu-separator />
+                            <!-- Logout Button -->
+                            <form method="POST" action="{{ route('logout') }}" class="mr-2">
+                                @csrf
+                                <x-mary-button type="submit" icon="o-power" class="bg-red-600 hover:bg-red-700 text-white btn-sm pt-1" tooltip-left="logoff" no-wire-navigate />
                             </form>
-                        </x-slot:actions>
-                    </x-mary-list-item>
+
+                            <!-- Border Between Buttons -->
+                            <div class="border-r-2 border-blue-900 h-6 mx-2"></div>
+
+                            <!-- Notification Button with Count and Drawer Toggle -->
+                            <livewire:notifications-drawer />
+
+                            <div class="border-r-2 border-blue-900 h-6 mx-2"></div>
+
+                            <!-- Settings Button -->
+                            <x-mary-button icon="o-wrench" class="bg-gray-600 text-white btn-sm dark:bg-emerald-600 dark:text-white" tooltip-left="settings"  link="{{ route('profile')}}" wire-navigate label="Settings" />
+                        </div>
+
+
 
                     <x-mary-menu-separator />
                 @endif
@@ -138,6 +165,11 @@
 
     {{-- <script src="toastr.js"></script> --}}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/gesture" defer></script>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.plugin(Gesture)
+    })
+</script>
 </body>
 </html>

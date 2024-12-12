@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('account_standing_order', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('account_id')->constrained('accounts')->onDelete('cascade');
-            $table->string('account_number')->nullable()->after('account_id');
+            $table->foreignId('account_id')->nullable()->constrained('accounts')->onDelete('cascade');
+            $table->string('account_number')->nullable();
             $table->foreignId('standing_order_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
