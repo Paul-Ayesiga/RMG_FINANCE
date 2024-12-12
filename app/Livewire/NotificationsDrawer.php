@@ -7,8 +7,9 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationsDrawer extends Component
 {
-    public $notifications = [];
+    public $notifications;
     public $unreadNotifications = 0;
+    public $readNotifications = 0;
 
 
     #[On('new-notification')]
@@ -57,8 +58,10 @@ class NotificationsDrawer extends Component
 
         $this->notifications = Auth::user()->notifications()
             ->latest()
-            ->take(5)
             ->get();
+
+        $this->readNotifications = Auth::user()->notifications()
+            ->count();
 
         $this->unreadNotifications = Auth::user()
             ->unreadNotifications

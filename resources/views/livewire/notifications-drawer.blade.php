@@ -11,20 +11,31 @@
 
     <!-- Drawer -->
     <div x-show="open" x-transition class="fixed inset-0 z-50 flex justify-end items-start bg-gray-800 bg-opacity-50">
-        <div @click.away="open = false" class="bg-white w-[500px] h-full p-5 overflow-y-auto">
-            <h3 class="text-lg font-semibold mb-4">Notifications</h3>
+        <div @click.away="open = false" class="bg-white w-[500px] h-full p-5 overflow-y-clip">
+
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Notifications</h3>
+                <!-- Close Drawer -->
+                <x-wireui-button @click="open = false"  class="absolute top-4 right-4 bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700 transition-transform transform hover:scale-110" icon="x-mark" />
+            </div>
 
             <!-- Mark All as Read Button -->
-            @if ($unreadNotifications > 0)
-                <button wire:click="markAllAsRead"
-                    class="w-full bg-blue-600 text-white py-2 rounded-lg mb-4">
-                    Mark All as Read
-                </button>
-            @endif
+
+                <div class="flex justify-between">
+                    @if ($unreadNotifications > 0)
+                        <x-wireui-button wire:click="markAllAsRead"
+                            class="bg-blue-600 text-white py-2 rounded-lg mb-4 w-1/2 mr-2" icon="eye"/>
+                    @endif
+                    @if ($readNotifications > 0)
+                        <x-wireui-button wire:click="clearAll"
+                            class="bg-red-600 text-white py-2 rounded-lg mb-4 w-1/2 ml-2" icon="trash"/>
+                    @endif
+                </div>
+
 
             <!-- Notifications List -->
-            <ul>
-                @foreach ($notifications as $notification)
+            <ul class="h-full overflow-y-auto"">
+                @forelse($notifications as $notification)
                     <li x-data="{ swiped: false }"
                         @keydown.window="
                             if ($event.key === 'ArrowLeft') swiped = true;
@@ -85,15 +96,12 @@
                         </div>
 
                     </li>
-                @endforeach
+                @empty
+                <div class="flex items-center justify-center w-full h-full text-center">
+                    No notifications found
+                </div>
+                @endforelse
             </ul>
-
-            <!-- Close Drawer -->
-            <div class="mt-4">
-                <button @click="open = false" class="w-full bg-red-600 text-white py-2 rounded-lg">
-                    Close
-                </button>
-            </div>
         </div>
     </div>
 </div>
