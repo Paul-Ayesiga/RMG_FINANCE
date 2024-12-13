@@ -1,17 +1,10 @@
-@php
-    $customer = Auth::user()->customer;
-    // Check if any required field is empty
-    $isCustomerIncomplete = !$customer || empty($customer->date_of_birth) || empty($customer->gender) || empty($customer->phone_number) || empty($customer->address) ||
-                            empty($customer->occupation) || empty($customer->employer) || empty($customer->annual_income) || empty($customer->marital_status);
-@endphp
-
-<div class="">
-@if($isCustomerIncomplete)
+<div>
+@if (isProfileIncomplete(Auth::user()))
 
 {{-- Show message if any of the fields are incomplete --}}
 <x-mary-alert title="Complete Your Registration" description="Ensure your account is fully operational by completing your profile details." icon="o-exclamation-triangle"  shadow class="mb-5 dark:shadow-lg dark:shadow-slate-300">
     <x-slot:actions>
-        <x-mary-button icon="o-user" label="Go to Profile" link="/profile" class="bg-blue-100 hover:bg-blue-400 text-gray-700 font-medium" />
+        <x-mary-button icon="o-user" label="Go to Profile" link="/profile" class="bg-blue-100 hover:bg-blue-400 text-gray-700 font-medium animate-emphasis" />
     </x-slot:actions>
 </x-mary-alert>
 
@@ -394,7 +387,7 @@
                 <h4 class="font-semibold mb-4 dark:text-white">Upcoming Events</h4>
                 <div class="space-y-3 max-h-[300px] overflow-y-auto">
                     @foreach($events as $event)
-                    {{-- <div class="!bg-emerald-200">{{ $event['label'] }}</div> --}}
+                    {{-- <div class="$event['css']">{{ $event['label'] }}</div> --}}
 
                         <div class="flex items-center justify-between p-2 bg-base-200 rounded-lg hover:bg-base-300 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600">
                             <div class="flex-1 min-w-0">

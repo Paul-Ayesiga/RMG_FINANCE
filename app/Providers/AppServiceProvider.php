@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use App\Helpers\BreadcrumbHelper;
+use App\Helpers\isProfileIncomplete as InCompleteProfile;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // $this->app->bind('isProfileIncomplete', function () {
+        //     return new InCompleteProfile();
+        // });
     }
 
     /**
@@ -24,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
         // view()->composer('*', function ($view) {
         //     $view->with('breadcrumbs', (new BreadcrumbHelper())->generateBreadcrumbs());
         // });
+
     }
 }

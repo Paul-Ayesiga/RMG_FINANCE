@@ -37,7 +37,8 @@
     },
     "autoload": {
         "files": [
-            "app/Helpers/BreadcrumbHelper.php"
+            "app/Helpers/BreadcrumbHelper.php",
+            "app/Helpers/isProfileIncomplete.php"
         ],
         "psr-4": {
             "App\\": "app/",

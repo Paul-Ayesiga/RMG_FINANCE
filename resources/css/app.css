@@ -99,3 +99,35 @@
     .animate-marquee {
         animation: marquee 20s linear infinite;
     }
+
+
+/* #toast-container>.toast {
+    background-image: none !important;
+}
+
+#toast-container>.toast:before {
+    position: fixed;
+    font-family: FontAwesome;
+    font-size: 24px;
+    line-height: 18px;
+    float: left;
+    color: #FFF;
+    padding-right: 0.5em;
+    margin: auto 0.5em auto -1.5em;
+}
+
+#toast-container>.toast-warning:before {
+    content: "\f003";
+}
+
+#toast-container>.toast-error:before {
+    content: "\f001";
+}
+
+#toast-container>.toast-info:before {
+    content: "\f005";
+} */
+
+/* #toast-container>.toast-success:before {
+    content: "\f002";
+} */
