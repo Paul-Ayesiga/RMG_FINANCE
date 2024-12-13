@@ -11,9 +11,11 @@ use Spatie\Permission\Models\Role;
 use Livewire\Volt\Component;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Session;
+use Mary\Traits\Toast;
 
 new #[Layout('layouts.guest')] class extends Component
 {
+    use Toast;
     #[Computed]
     public bool $accepted = false;
 
@@ -31,20 +33,19 @@ new #[Layout('layouts.guest')] class extends Component
      */
     public function register(): void
     {
+        $validated = $this->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'avatar' => ['nullable','image','max:1024'],
+            'identification_number' => ['required','unique:'.Customer::class],
+            'userRole' => ['required'],
+            'accepted' => ['required'] // Validate the acceptance of terms
+        ]);
+
         try {
 
             DB::beginTransaction();
-
-                $validated = $this->validate([
-                    'name' => ['required', 'string', 'max:255'],
-                    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-                    'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-                    'avatar' => ['nullable','image','max:1024'],
-                    'identification_number' => ['required','unique:'.Customer::class],
-                    'userRole' => ['required'],
-                    'accepted' => ['required'] // Validate the acceptance of terms
-                ]);
-
                 $validated['password'] = Hash::make($validated['password']);
 
                 event(new Registered($user = User::create($validated)));
@@ -78,6 +79,8 @@ new #[Layout('layouts.guest')] class extends Component
                 css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
                 timeout: 3000
             );
+
+            // dd('failed');
         }
 
     }
