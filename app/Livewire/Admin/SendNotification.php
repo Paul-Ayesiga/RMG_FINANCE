@@ -62,12 +62,13 @@ class SendNotification extends Component
             ));
         }
 
+        systemNotification::dispatch($this->title, $this->message);
         // Reset form
         $this->reset(['title', 'message', 'selectedUsers', 'notifyAll']);
 
         // Show success message
         session()->flash('success', 'Notification sent successfully!');
-        systemNotification::dispatch();
+
     }
 
     public function getUsersProperty()

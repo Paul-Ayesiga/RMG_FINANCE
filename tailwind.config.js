@@ -5,7 +5,7 @@ const colors = require('tailwindcss/colors');
 export default {
     // important: true,
     darkMode: 'class',
-    content: [
+    purge: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
@@ -32,6 +32,15 @@ export default {
             },
             colors: {
 
+            },
+            animation: {
+                emphasis: 'emphasis 1s ease-in-out infinite',
+            },
+            keyframes: {
+                emphasis: {
+                    '0%, 100%': { transform: 'scale(1)' },
+                    '50%': { transform: 'scale(1.1)' },
+                },
             },
         },
     },

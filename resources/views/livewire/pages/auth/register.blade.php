@@ -40,7 +40,7 @@ new #[Layout('layouts.guest')] class extends Component
                     'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
                     'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
                     'avatar' => ['nullable','image','max:1024'],
-                    'identification_number' => 'required',
+                    'identification_number' => ['required','unique:'.Customer::class]
                     'userRole' => ['required'],
                     'accepted' => ['required'] // Validate the acceptance of terms
                 ]);

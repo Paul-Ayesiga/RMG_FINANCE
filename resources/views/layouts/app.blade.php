@@ -18,19 +18,7 @@
         {{-- Flatpickr  --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-
-    {{-- <link href="toastr.css" rel="stylesheet"/> --}}
-   <style>
-    .truncate {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    </style>
-
-
-
+  {{-- <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet" /> --}}
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
 
@@ -62,6 +50,18 @@
                 @if($user = auth()->user())
                         <!-- Profile Link -->
                         <x-mary-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded sm:hidden"  link="{{ route('profile')}}">
+                            <x-slot:actions>
+                                @if (isProfileIncomplete(Auth::user()))
+                                    <x-heroicon-o-shield-exclamation class="h-6 w-6 text-red-600 animate-emphasis" solid/>
+                                @else
+                                    @if(Auth::user()->customer)
+                                        <x-heroicon-o-check-badge class="h-6 w-6 text-blue-600" solid/>
+                                    @else
+                                        <x-heroicon-o-check-badge class="h-6 w-6 text-amber-600" solid/>
+                                    @endif
+                                @endif
+
+                            </x-slot:actions>
                         </x-mary-list-item>
 
 
@@ -70,14 +70,19 @@
                             <!-- Logout Button -->
                             <form method="POST" action="{{ route('logout') }}" class="mr-2">
                                 @csrf
-                                <x-mary-button type="submit" icon="o-power" class="bg-red-600 hover:bg-red-700 text-white btn-sm pt-1" tooltip-left="logoff" no-wire-navigate />
+                                <x-mary-button type="submit" icon="o-power" class="bg-red-600 hover:bg-red-700 text-white btn-sm " tooltip-left="logoff" no-wire-navigate />
                             </form>
 
                             <!-- Border Between Buttons -->
-                            <div class="border-r-2 border-blue-900 h-6 mx-2"></div>
+                            @if (isProfileIncomplete(Auth::user()))
+                                <div class="border-r-2 border-blue-900 h-6 mx-2"></div>
+                                <x-heroicon-o-exclamation-triangle class="h-6 w-6 text-red-600" solid/>
+                            @else
+                                <div class="border-r-2 border-blue-900 h-6 mx-2"></div>
+                                <!-- Notification Button with Count and Drawer Toggle -->
+                                <livewire:notifications-drawer />
+                            @endif
 
-                            <!-- Notification Button with Count and Drawer Toggle -->
-                            <livewire:notifications-drawer />
 
                             <div class="border-r-2 border-blue-900 h-6 mx-2"></div>
 
@@ -164,7 +169,7 @@
     </script>
 
     {{-- <script src="toastr.js"></script> --}}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@alpinejs/gesture" defer></script>
 <script>
     document.addEventListener('alpine:init', () => {

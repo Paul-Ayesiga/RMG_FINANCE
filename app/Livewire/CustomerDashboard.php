@@ -311,7 +311,7 @@ class CustomerDashboard extends Component
         foreach ($userEvents as $event) {
             // Get the configuration for the event type
             $typeConfig = $this->eventTypes[$event->type];
-
+            
             // Check if the event has an end date
             if ($event->end_date) {
                 $this->events[] = [

@@ -14,11 +14,16 @@ class systemNotification implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $title;
+    public $message;
+
     /**
      * Create a new event instance.
      */
-    public function __construct(){
-
+    public function __construct($title, $message)
+    {
+        $this->title = $title;
+        $this->message = $message;
     }
 
     /**

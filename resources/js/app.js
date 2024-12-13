@@ -24,6 +24,7 @@ toastr.options = {
   "newestOnTop": false,
   "progressBar": true,
   "positionClass": "toast-top-right",
+  "iconClass":"toast-custom-icon",
   "preventDuplicates": false,
   "onclick": null,
   "showDuration": "3000",
@@ -39,16 +40,20 @@ toastr.options = {
 
 if (window.Echo) {
     window.Echo.channel('system-notification')
-        .listen('systemNotification', (e) => {
-            console.log('system-notification');
-            toastr["success"]("My name is Inigo Montoya. You killed my father. Prepare to die!")
-        });
+    .listen('systemNotification', (e) => {
+        const audio = new Audio('/sounds/preview.mp3'); // Path to your sound file in the public folder
+        audio.play();
+        toastr["success"](e.title);
+    });
 
      // Listen for private notifications using the logged-in user's ID
     if (window.userId) {
         window.Echo.private(`private-notify.${window.userId}`)
             .listen('PrivateNotify', (e) => {
-                console.log('Private notification received');
+                // console.log('Private notification received');
+                const audio = new Audio('/sounds/preview.mp3'); // Path to your sound file in the public folder
+                audio.play();
+
                 toastr["success"]("You have a new private notification!");
             });
     }

@@ -4,9 +4,12 @@ namespace App\Livewire;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use WireUi\Traits\WireUiActions;
 
 class NotificationsDrawer extends Component
 {
+
+    use WireUiActions;
     public $notifications;
     public $unreadNotifications = 0;
     public $readNotifications = 0;
