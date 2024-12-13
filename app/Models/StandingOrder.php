@@ -27,7 +27,12 @@ class StandingOrder extends Model
     public function accounts()
     {
         return $this->belongsToMany(Account::class, 'account_standing_order')
-        ->withPivot('account_number'); // Include account number for beneficiaries
+        ->withPivot('account_number', 'standing_order_id'); // Include account number for beneficiaries
+    }
+    public function beneficiaries()
+    {
+        return $this->belongsToMany(Beneficiary::class, 'account_standing_order')
+        ->withPivot('account_number', 'standing_order_id'); // Include account number for beneficiaries
     }
 
     public function user()

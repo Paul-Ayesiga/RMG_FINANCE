@@ -30,12 +30,8 @@
      <div class="mb-6">
         <div class="overflow-x-auto">
             <!-- Loading Spinner: Displayed globally while any request is loading -->
-            <div wire:loading.delay class="flex justify-center py-6">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><g><circle cx="4" cy="12" r="3" fill="currentColor"/><circle cx="20" cy="12" r="3" fill="currentColor"/><animateTransform attributeName="transform" calcMode="spline" dur="1s" keySplines=".36,.6,.31,1;.36,.6,.31,1" repeatCount="indefinite" type="rotate" values="0 12 12;180 12 12;360 12 12"/></g></svg>
-            </div>
-
             <!-- Table -->
-            <table class="min-w-full table-auto border-separate border-spacing-0 shadow-lg rounded-lg">
+            <table class="min-w-full table-auto border-separate border-spacing-0 shadow-lg rounded-lg dark:bg-inherit">
                 <thead>
                     <tr class="bg-gray-200 text-left">
                         <th class="py-2 px-4 border-b text-sm font-semibold text-gray-700">#</th>
@@ -45,39 +41,55 @@
                         <th class="py-2 px-4 border-b text-sm font-semibold text-gray-700">End Date</th>
                         <th class="py-2 px-4 border-b text-sm font-semibold text-gray-700">Frequency</th>
                         <th class="py-2 px-4 border-b text-sm font-semibold text-gray-700">Status</th>
+                        <th class="py-2 px-4 border-b text-sm font-semibold text-gray-700">Receiver</th>
                         <th class="py-2 px-4 border-b text-sm font-semibold text-gray-700 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody wire:loading.target="standingOrders" wire:loading.remove> <!-- This will remove rows while loading -->
-                    @forelse($standingOrders as $order)
-                        <tr class="hover:bg-gray-100">
-                            <td class="py-2 px-4 border-b text-sm text-gray-800">{{ $loop->iteration }}</td>
-                            <td class="py-2 px-4 border-b text-sm text-gray-800">{{ $order->host_account->name }}</td>
-                            <td class="py-2 px-4 border-b text-sm text-gray-800">UGX {{ number_format($order->amount, 2) }}</td>
-                            <td class="py-2 px-4 border-b text-sm text-gray-800">{{ $order->start_date->format('Y-m-d') }}</td>
-                            <td class="py-2 px-4 border-b text-sm text-gray-800">{{ $order->end_date ? $order->end_date->format('Y-m-d') : 'N/A' }}</td>
-                            <td class="py-2 px-4 border-b text-sm text-gray-800 capitalize">{{ $order->frequency }}</td>
-                            <td class="py-2 px-4 border-b text-sm text-gray-800 capitalize">{{ $order->status }}</td>
-                            <td class="py-2 px-4 border-b text-sm text-center">
+                {{-- <tbody wire:loading.delay class="">
+                    <td>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><g><circle cx="4" cy="12" r="3" fill="currentColor"/><circle cx="20" cy="12" r="3" fill="currentColor"/><animateTransform attributeName="transform" calcMode="spline" dur="1s" keySplines=".36,.6,.31,1;.36,.6,.31,1" repeatCount="indefinite" type="rotate" values="0 12 12;180 12 12;360 12 12"/></g></svg>
+                    </td>
+                </tbody> --}}
+
+                <tbody > <!-- This will remove rows while loading -->
+                    @forelse($this->standingOrders as $order)
+                        <tr class="hover:bg-gray-100 dark:hover:bg-black">
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $loop->iteration }}</td>
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $order->host_account->account_number}}</td>
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">UGX {{ number_format($order->amount, 2) }}</td>
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $order->start_date->format('Y-m-d') }}</td>
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $order->end_date ? $order->end_date->format('Y-m-d') : 'N/A' }}</td>
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white capitalize">{{ $order->frequency }}</td>
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white capitalize">{{ $order->status }}</td>
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">
+                                @foreach ($order->accounts as $record)
+                                    {{ $record->pivot->account_id ? 'RMGbank' : 'BeneficiaryOtherBank' }} ({{ $record->pivot->account_id ? $record->account_number : $record->pivot->account_number }})
+                                    {{ $record->pivot->account_id }}
+                                @endforeach
+                            </td>
+                            <td class="py-2 px-2 border-b text-sm text-center">
                                 <!-- Edit Button with Loading Spinner -->
                                 <x-wireui-button
                                     wire:click="editStandingOrder({{ $order->id }})"
                                     wire:loading.target="editStandingOrder({{ $order->id }})"
                                     wire:loading.attr="disabled"
                                     wire:loading.class="opacity-50 cursor-not-allowed"
-                                    spinner="editStandingOrder"
+                                    spinner="editStandingOrder({{ $order->id }})"
                                     icon="pencil"
+                                    class="bg-orange-500 text-white mb-2"
                                     flat label="Edit"
                                 />
 
                                 <!-- Delete Button with Loading Spinner -->
                                 <x-wireui-button
+                                    wire:confirm
                                     wire:click="deleteStandingOrder({{ $order->id }})"
                                     wire:loading.target="deleteStandingOrder({{ $order->id }})"
                                     wire:loading.attr="disabled"
                                     wire:loading.class="opacity-50 cursor-not-allowed"
-                                    spinner="deleteStandingOrder"
+                                    spinner="deleteStandingOrder({{ $order->id }})"
                                     icon="trash"
+                                    class="bg-red-900 text-white"
                                     flat label="Delete"
                                 />
                             </td>
@@ -100,19 +112,25 @@
          <!-- Add edit and delete actions -->
         <div class="mb-4">
             @isset($standingOrderId)
-                <button type="button" wire:click="deleteStandingOrder({{ $standingOrderId }})" class="bg-red-500 text-white rounded py-2 px-4 mt-4">Delete Standing Order</button>
+                <button type="button" wire:confirm="deleteStandingOrder({{ $standingOrderId }})" class="bg-red-500 text-white rounded py-2 px-4 mt-4">Delete Standing Order</button>
             @endisset
         </div>
 
         <!-- Tabs for Account or Beneficiary Selection -->
-        <div x-ref="tabButtons" class="relative inline-flex items-center justify-center w-full h-12 grid-cols-2 p-1 bg-gray-100 rounded-lg select-none shadow-sm mx-auto">
-            <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" class="relative z-20 inline-flex items-center justify-center w-full h-10 px-3 text-sm font-semibold text-gray-700 transition-all rounded-md cursor-pointer whitespace-nowrap hover:bg-gray-200 focus:outline-none">Accounts</button>
+        <div x-ref="tabButtons" class="relative inline-flex items-center justify-center w-full h-12 grid-cols-2 p-1 bg-gray-100 rounded-lg select-none shadow-sm mx-auto  dark:bg-inherit">
+            <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" class="relative z-20 flex items-center justify-center w-full h-10 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap dark:text-white">
+                Your Accounts
+            </button>
             <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" class="relative z-20 flex items-center justify-center w-full h-10 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap dark:text-white">
                 Beneficiaries
             </button>
-            <div x-ref="tabMarker" class="absolute left-0 z-10 w-1/2 h-full duration-300 ease-out" x-cloak>
-                <div class="w-full h-full bg-white rounded-md shadow-sm"></div>
-            </div>
+           <div
+                x-ref="tabMarker"
+                class="absolute left-0 top-0 z-10 h-10 duration-300 ease-out"
+                x-cloak
+            >
+            <div class="w-full h-full bg-white rounded-md shadow-sm dark:bg-blue-700"></div>
+        </div>
         </div>
 
            <!-- Host Account -->
@@ -194,7 +212,7 @@
                 wire:model="frequency"
                 label="Select frequency ( monthly - default)"
                 placeholder="Select one frequency"
-                :options="['Daily', 'Weekly', 'monthly', 'Yearly']"
+                :options="['daily', 'weekly', 'monthly', 'yearly']"
                 errorless
             />
             @error('frequency') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror

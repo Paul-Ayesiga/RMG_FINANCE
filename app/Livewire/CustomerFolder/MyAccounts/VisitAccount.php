@@ -671,6 +671,10 @@ class VisitAccount extends Component
     {
         $this->resetPage();
     }
+    public function updatingType()
+    {
+        $this->resetPage();
+    }
 
     public function resetFilters()
     {

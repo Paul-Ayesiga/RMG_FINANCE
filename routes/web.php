@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\NotificationsDrawer;
 use App\Livewire\Accounts\AccountsOverview;
 use App\Livewire\Accounts\AccountTypes;
 use App\Livewire\Clients\Edit as ClientEdit;
@@ -67,6 +68,7 @@ Route::middleware(['auth','verified','role:customer'])->group(function(){
     Route::get('/customer/my-loans/{loan}/do-something', VisitLoan::class)->name('visit-loan')->middleware('protectCustomerLoan');
     Route::get('/rmgpay',RMGPAY::class)->name('rmgpay');
     Route::get('/standing-order',StandingOrders::class)->name('standing-order');
+    Route::get('/not', NotificationsDrawer::class )->name('not');
 });
 
 Route::view('profile', 'profile')
@@ -80,6 +82,5 @@ Route::supportBubble();
 Route::middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/admin/notifications/send', SendNotification::class)->name('admin.notifications.send');
 });
-
 
 

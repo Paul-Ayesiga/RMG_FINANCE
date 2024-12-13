@@ -645,9 +645,10 @@
                             @php
                                 $types = [
                                     ['id' => '', 'name' => 'All Types'],
-                                    ['id' => 'deposit', 'name' => 'Deposit'],
-                                    ['id' => 'withdrawal', 'name' => 'Withdrawal'],
-                                    ['id' => 'transfer', 'name' => 'Transfer']
+                                    ['id' => 'deposit', 'name' => 'deposit'],
+                                    ['id' => 'withdrawal', 'name' => 'withdrawal'],
+                                    ['id' => 'transfer', 'name' => 'transfer'],
+                                    ['id' => 'loanPayment', 'name' => 'loanPayment']
                                 ];
                             @endphp
 

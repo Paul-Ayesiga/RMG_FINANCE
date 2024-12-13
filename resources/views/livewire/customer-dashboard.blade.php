@@ -5,23 +5,93 @@
                             empty($customer->occupation) || empty($customer->employer) || empty($customer->annual_income) || empty($customer->marital_status);
 @endphp
 
-<div class="h-screen overflow-y-auto">
+<div class="">
 @if($isCustomerIncomplete)
 
 {{-- Show message if any of the fields are incomplete --}}
-<x-mary-alert title="Complete Your Registration" description="Ensure your account is fully operational by completing your profile details." icon="o-exclamation-triangle" dismissible shadow class="mb-5 dark:shadow-lg dark:shadow-slate-300">
+<x-mary-alert title="Complete Your Registration" description="Ensure your account is fully operational by completing your profile details." icon="o-exclamation-triangle"  shadow class="mb-5 dark:shadow-lg dark:shadow-slate-300">
     <x-slot:actions>
         <x-mary-button icon="o-user" label="Go to Profile" link="/profile" class="bg-blue-100 hover:bg-blue-400 text-gray-700 font-medium" />
     </x-slot:actions>
 </x-mary-alert>
 
-<h1 class="font-bold text-5xl text-center me-3 mb-5 bg-gradient-to-r from-purple-500 to-pink-300 bg-clip-text text-transparent typing-effect">
-    Welcome to RMG Finance,
-    <span class="font-bold text-3xl text-center me-3 mb-5 bg-gradient-to-r from-purple-500 to-pink-300 bg-clip-text text-transparent">
-        Your Financial Partner
-    </span>
-</h1>
-<h3 class="text-lg font-serif text-center text-gray-600 mb-6 dark:text-white">
+{{-- typing effect --}}
+<div
+    x-data="{
+        text: '',
+        textArray : ['Welcome to RMG Finance', 'Your Financial Partner'],
+        textIndex: 0,
+        charIndex: 0,
+        typeSpeed: 110,
+        cursorSpeed: 550,
+        pauseEnd: 1500,
+        pauseStart: 20,
+        direction: 'forward',
+    }"
+    x-init="$nextTick(() => {
+        let typingInterval = setInterval(startTyping, $data.typeSpeed);
+
+        function startTyping(){
+            let current = $data.textArray[ $data.textIndex ];
+
+            // check to see if we hit the end of the string
+            if($data.charIndex > current.length){
+                    $data.direction = 'backward';
+                    clearInterval(typingInterval);
+
+                    setTimeout(function(){
+                        typingInterval = setInterval(startTyping, $data.typeSpeed);
+                    }, $data.pauseEnd);
+            }
+
+            $data.text = current.substring(0, $data.charIndex);
+
+            if($data.direction == 'forward')
+            {
+                $data.charIndex += 1;
+            }
+            else
+            {
+                if($data.charIndex == 0)
+                {
+                    $data.direction = 'forward';
+                    clearInterval(typingInterval);
+                    setTimeout(function(){
+                        $data.textIndex += 1;
+                        if($data.textIndex >= $data.textArray.length)
+                        {
+                            $data.textIndex = 0;
+                        }
+                        typingInterval = setInterval(startTyping, $data.typeSpeed);
+                    }, $data.pauseStart);
+                }
+                $data.charIndex -= 1;
+            }
+        }
+
+        setInterval(function(){
+            if($refs.cursor.classList.contains('hidden'))
+            {
+                $refs.cursor.classList.remove('hidden');
+            }
+            else
+            {
+                $refs.cursor.classList.add('hidden');
+            }
+        }, $data.cursorSpeed);
+
+    })"
+    class="flex items-center justify-center mx-auto text-center w-full px-4 sm:px-6 md:px-8 max-w-7xl">
+    <div class="relative flex items-center justify-center h-auto">
+        <h1 class="font-bold text-3xl sm:text-4xl md:text-6xl text-center bg-gradient-to-r from-purple-500 to-pink-300 bg-clip-text text-transparent">
+            <span x-text="text"></span>
+        </h1>
+        <span class="absolute right-0 w-2 -mr-2 bg-black h-3/4" x-ref="cursor"></span>
+    </div>
+</div>
+{{-- typing effect --}}
+
+<h3 class="text-lg font-serif text-center text-gray-600 mb-6 dark:text-white mt-7">
     You're just a few steps away from embarking on a successful financial journey with RMG Finance.
 </h3>
 
@@ -309,7 +379,7 @@
         <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
             <!-- Calendar -->
             <div class="md:col-span-3">
-                <div wire:poll.60s>
+                <div>
                     <x-mary-calendar
                         :events="$events"
                         locale="en"
@@ -324,6 +394,8 @@
                 <h4 class="font-semibold mb-4 dark:text-white">Upcoming Events</h4>
                 <div class="space-y-3 max-h-[300px] overflow-y-auto">
                     @foreach($events as $event)
+                    {{-- <div class="!bg-emerald-200">{{ $event['label'] }}</div> --}}
+
                         <div class="flex items-center justify-between p-2 bg-base-200 rounded-lg hover:bg-base-300 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium truncate dark:text-white">

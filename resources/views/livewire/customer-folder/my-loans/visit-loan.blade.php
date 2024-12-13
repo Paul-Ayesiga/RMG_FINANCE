@@ -33,7 +33,7 @@
     <!-- Tab Buttons -->
     <div
         x-ref="tabButtons"
-        class="relative grid grid-cols-2 gap-2 p-1 text-gray-500 bg-gray-100 rounded-lg sm:grid-cols-3 md:grid-cols-5 dark:bg-inherit"
+        class="relative grid grid-cols-2 gap-2 p-1 text-gray-500 bg-gray-100 rounded-lg sm:grid-cols-3 md:grid-cols-5 select-none  dark:bg-inherit"
         >
         <button
             :id="$id(tabId)"
@@ -216,7 +216,13 @@
                     <div>
                         <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Status</h3>
                         @if($loan->status === 'active')
-                            <x-wireui-badge class="bg-green-500 font-semibold capitalize p-3" lg label="{{ $loan->status}}"/>
+                            <x-wireui-badge class="bg-green-500 font-semibold capitalize p-3" lg label="{{ $loan->status}}">
+                                 <x-slot name="prepend" class="relative flex items-center w-2 h-2">
+                                    <span
+                                        class="absolute inline-flex w-full h-full rounded-full opacity-75 bg-white animate-ping"></span>
+                                    <span class="relative inline-flex w-2 h-2 rounded-full bg-white"></span>
+                                </x-slot>
+                            </x-wireui-badge>
                         @elseif($loan->status === 'paid')
                             <x-wireui-badge class="bg-indigo-500 font-semibold capitalize p-3" lg label="{{ $loan->status}}"/>
                             <p>This loan was closed on : {{ $loan->closed_at->format('F j, Y g:i A') }}</p>
@@ -294,7 +300,7 @@
                                             <td>{{ number_format($schedule->remaining_amount, 2) }}</td>
                                             <td>
                                             @if($schedule->status)
-                                                <div class="badge gap-2 {{ match($schedule->status) {
+                                                {{-- <div class="badge gap-2 {{ match($schedule->status) {
                                                     'pending' => 'badge-warning',
                                                     'approved' => 'badge-success',
                                                     'active' => 'badge-info',
@@ -312,7 +318,15 @@
                                                             stroke-width="2"
                                                             d="M6 18L18 6M6 6l12 12"></path>
                                                     </svg>
-                                                    {{ ucfirst($schedule->status) }}
+                                                    {{ ucfirst($schedule->status) }} --}}
+
+                                                    @if($schedule->status == 'pending')
+                                                        <x-wireui-badge icon-size="sm" sm icon="x-mark" orange label="pending" />
+                                                    @elseif($schedule->status == 'paid')
+                                                        <x-wireui-badge icon-size="sm" sm icon="check" green label="paid" />
+                                                    @else
+                                                        <x-wireui-badge icon-size="sm" sm icon="clock" blue label="partial" />
+                                                    @endif
                                                 </div>
                                             @else
                                                 <span class="text-gray-500">Not available</span>
@@ -567,7 +581,7 @@
     </div>
 
     <!-- Add this near the end of your file -->
-    <x-mary-modal wire:model="showReceiptModal" title="Transaction Receipt" separator>
+    <x-mary-modal wire:model="showReceiptModal" title="Transaction Receipt" separator class="z-50">
         <div class="p-6 bg-white">
             <!-- Receipt Header -->
             <div class="text-center mb-6">

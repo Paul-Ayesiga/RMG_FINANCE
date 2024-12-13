@@ -17,21 +17,26 @@ class ProtectUserAccount
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $AuthenticatedUser = Auth::id();
+        $AuthenticatedUser = Auth::user()->customer;
+
+        // dd($AuthenticatedUser);
 
         $Account = $request->route('account');
+
         $AccountId = $Account->id;
+
+        // dd($AccountId);
 
         $VisitedAccount = Account::where('id',$AccountId)->first();
 
         if($VisitedAccount == null){
             return redirect()->route('my-accounts');
         }else{
-            if($AuthenticatedUser == $VisitedAccount->customer_id){
+            if($AuthenticatedUser->id == $VisitedAccount->customer_id){
                 return $next($request);
             }
         }
-            return redirect()->route('my-accounts');
+            // return redirect()->route('my-accounts');
             abort(403);
 
 

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use WireUi\Traits\WireUiActions;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Computed;
 
 class StandingOrders extends Component
 {
@@ -27,7 +28,9 @@ class StandingOrders extends Component
     public $beneficiaries;
     public $host_account;
     public $standingOrderId;  // ID of the standing order to be updated
-    public $standingOrders = [];
+
+    #[Computed()]
+    public $standingOrders;
 
     public function mount()
     {
@@ -36,7 +39,16 @@ class StandingOrders extends Component
         $this->beneficiaries = Beneficiary::where('user_id', Auth::id())->get();
         // Fetch all standing orders for the authenticated user
 
-        $this->standingOrders = StandingOrder::where('created_by', Auth::id())->get();
+
+    }
+
+    public function boot()
+    {
+        $this->fetchStandingOrders();
+    }
+
+    public function fetchStandingOrders(){
+        $this->standingOrders = StandingOrder::with('accounts')->where('created_by', Auth::id())->get();
     }
 
     public function createStandingOrder()
@@ -85,12 +97,51 @@ class StandingOrders extends Component
                 return;
             }
 
+            // Validate end date and frequency if end date is provided
+            if ($this->end_date) {
+                $startDate = Carbon::parse($this->start_date);
+                $endDate = Carbon::parse($this->end_date);
+
+                if ($endDate->lt($startDate)) {
+                    throw new \Exception('End date must be after the start date.');
+                }
+
+                // Validate frequency
+                $diffInDays = $startDate->diffInDays($endDate);
+
+                switch ($this->frequency) {
+                    case 'daily':
+                        // Daily frequency should work with any interval
+                        break;
+                    case 'weekly':
+                        if ($diffInDays < 7) {
+                            throw new \Exception('Weekly frequency requires at least 7 days between start and end date.');
+                        }
+                        break;
+                    case 'monthly':
+                        if ($startDate->diffInMonths($endDate) < 1) {
+                            throw new \Exception('Monthly frequency requires at least 1 month between start and end date.');
+                        }
+                        break;
+                    case 'yearly':
+                        if ($startDate->diffInYears($endDate) < 1) {
+                            throw new \Exception('Yearly frequency requires at least 1 year between start and end date.');
+                        }
+                        break;
+                    default:
+                        throw new \Exception('Invalid frequency.');
+                }
+            }
+
+
             // Create or Update Standing Order based on presence of standingOrderId
             $standingOrder = $this->standingOrderId ? StandingOrder::find($this->standingOrderId) : new StandingOrder;
             $standingOrder->host_account_id = $this->host_account;
             $standingOrder->amount = $this->amount;
             $standingOrder->start_date = $this->start_date;
-            $standingOrder->end_date = $this->end_date;
+            if( $this->end_date){
+                $standingOrder->end_date = $this->end_date;
+            }
             $standingOrder->frequency = $this->frequency;
             $standingOrder->status = $this->status;
             $standingOrder->created_by = Auth::id();
@@ -98,18 +149,33 @@ class StandingOrders extends Component
 
             // Attach accounts or beneficiaries
             if (!empty($this->selected_accounts)) {
-                $standingOrder->accounts()->sync($this->selected_accounts);  // Use sync to update
-            } elseif (!empty($this->selected_beneficiaries)) {
+                // Sync selected accounts (direct accounts)
+                $standingOrder->accounts()->sync($this->selected_accounts);
+            }
+
+            if (!empty($this->selected_beneficiaries)) {
                 foreach ($this->selected_beneficiaries as $beneficiaryId) {
                     $beneficiary = Beneficiary::find($beneficiaryId);
+
                     if ($beneficiary) {
-                        $standingOrder->accounts()->sync([null => [
-                            'account_number' => $beneficiary->account_number,
-                            'standing_order_id' => $standingOrder->id,
-                        ]]);
+                        // If the beneficiary has an associated account_id, treat it as a direct account
+                        if ($beneficiary->account_id) {
+                            // Sync the beneficiary's account_id as if it's a direct account
+                            $standingOrder->accounts()->syncWithoutDetaching([$beneficiary->account_id => [
+                                'account_number' => null, // No need for account_number if account_id exists
+                                'standing_order_id' => $standingOrder->id,
+                            ]]);
+                        } else {
+                            // If the beneficiary does not have an account_id, use account_number
+                            $standingOrder->accounts()->attach(null, [
+                                'account_number' => $beneficiary->account_number, // Store account_number
+                                'standing_order_id' => $standingOrder->id,
+                            ]);
+                        }
                     }
                 }
             }
+
 
             DB::commit();
 
@@ -119,6 +185,7 @@ class StandingOrders extends Component
                 'description' => $this->standingOrderId ? 'Standing order updated successfully!' : 'Standing order created successfully!',
             ]);
 
+            $this->fetchStandingOrders();
             // Reset form after success
             $this->resetFields();
         } catch (\Exception $e) {
@@ -143,6 +210,7 @@ class StandingOrders extends Component
                 'description' => 'The standing order was deleted successfully!',
             ]);
         }
+        $this->fetchStandingOrders();
     }
 
     // Method to load existing standing order for editing
@@ -154,7 +222,9 @@ class StandingOrders extends Component
             $this->host_account = $order->host_account_id;
             $this->amount = $order->amount;
             $this->start_date = $order->start_date->format('Y-m-d');
-            $this->end_date = $order->end_date->format('Y-m-d');
+            if( $order->end_date){
+                $this->end_date = $order->end_date->format('Y-m-d');
+            }
             $this->frequency = $order->frequency;
             $this->status = $order->status;
 
@@ -162,10 +232,10 @@ class StandingOrders extends Component
             if ($order->accounts->isNotEmpty()) {
                 // If accounts are linked, set selected accounts
                 $this->selected_accounts = $order->accounts->pluck('id')->toArray();
-                $this->selected_beneficiaries = []; // Ensure beneficiaries are cleared
+                // $this->selected_beneficiaries = []; // Ensure beneficiaries are cleared
             } elseif ($order->beneficiaries->isNotEmpty()) {
                 // If beneficiaries are linked, set selected beneficiaries
-                $this->selected_beneficiaries = $order->beneficiaries->pluck('id')->toArray();
+                $this->selected_beneficiaries = $order->beneficiaries->pluck('account_id')->toArray();
                 $this->selected_accounts = []; // Ensure accounts are cleared
             }
         }
@@ -181,7 +251,6 @@ class StandingOrders extends Component
     public function render()
     {
         return view('livewire.customer-folder.standing-orders', [
-            'standingOrders' => $this->standingOrders,
             'accounts' => $this->accounts,
             'beneficiaries' => $this->beneficiaries,
         ]);

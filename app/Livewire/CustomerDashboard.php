@@ -105,23 +105,23 @@ class CustomerDashboard extends Component
     // Define event type configurations
     protected $eventTypes = [
         'payment' => [
-            'css' => '!bg-amber-200',
+            'css' => '!bg-amber-400',
             'icon' => '⏰'
         ],
         'meeting' => [
-            'css' => '!bg-blue-200',
+            'css' => '!bg-blue-400',
             'icon' => '📅'
         ],
         'deadline' => [
-            'css' => '!bg-red-200',
+            'css' => '!bg-red-400',
             'icon' => '⚠️'
         ],
         'disbursement' => [
-            'css' => '!bg-emerald-200',
+            'css' => '!bg-emerald-400',
             'icon' => '💰'
         ],
         'other' => [
-            'css' => '!bg-gray-200',
+            'css' => '!bg-gray-400',
             'icon' => '📌'
         ]
     ];
@@ -250,12 +250,16 @@ class CustomerDashboard extends Component
     {
         $type = $this->transactionChart['type'] === 'line' ? 'bar' : 'line';
         Arr::set($this->transactionChart, 'type', $type);
+
+        $this->loadEvents();
     }
 
     public function switchDistributionChart()
     {
         $type = $this->distributionChart['type'] === 'pie' ? 'doughnut' : 'pie';
         Arr::set($this->distributionChart, 'type', $type);
+
+        $this->loadEvents();
     }
 
     public function loadEvents()
@@ -267,7 +271,7 @@ class CustomerDashboard extends Component
         $activeLoans = $customer->loans()
             ->with(['schedules' => function ($query) {
                 $query->where('status', 'pending')
-                      ->orderBy('due_date', 'asc');
+                ->orderBy('due_date', 'asc');
             }])
             ->where('status', 'active')
             ->get();
@@ -278,7 +282,7 @@ class CustomerDashboard extends Component
             $this->events[] = [
                 'label' => 'Loan Disbursed: #' . $loan->reference_number,
                 'description' => "Amount: $" . number_format($loan->amount, 2) .
-                               "\nDisbursed on: " . Carbon::parse($loan->disbursement_date)->format('M d, Y h:i A'),
+                    "\nDisbursed on: " . Carbon::parse($loan->disbursement_date)->format('M d, Y h:i A'),
                 'css' => '!bg-emerald-200',
                 'date' => Carbon::parse($loan->disbursement_date),
             ];
@@ -286,7 +290,7 @@ class CustomerDashboard extends Component
             // Add pending schedules
             foreach ($loan->schedules as $schedule) {
                 $dueStatus = $this->getPaymentDueStatus($schedule->due_date);
-                $statusLabel = match($dueStatus) {
+                $statusLabel = match ($dueStatus) {
                     'overdue' => '⚠️ OVERDUE',
                     'upcoming' => '⏰ DUE SOON',
                     'future' => '📅 SCHEDULED'
@@ -295,7 +299,7 @@ class CustomerDashboard extends Component
                 $this->events[] = [
                     'label' => $statusLabel . ' - Payment Due: #' . $loan->reference_number,
                     'description' => "Amount Due: $" . number_format($schedule->total_amount, 2) .
-                                   "\nLoan Type: " . ucwords(str_replace('_', ' ', $loan->loanProduct->name)),
+                        "\nLoan Type: " . ucwords(str_replace('_', ' ', $loan->loanProduct->name)),
                     'css' => $this->getPaymentScheduleColor($schedule->due_date),
                     'date' => Carbon::parse($schedule->due_date),
                 ];
@@ -305,8 +309,10 @@ class CustomerDashboard extends Component
         // Get user-created events
         $userEvents = $customer->events()->get();
         foreach ($userEvents as $event) {
+            // Get the configuration for the event type
             $typeConfig = $this->eventTypes[$event->type];
 
+            // Check if the event has an end date
             if ($event->end_date) {
                 $this->events[] = [
                     'id' => $event->id,
@@ -316,7 +322,7 @@ class CustomerDashboard extends Component
                         Carbon::parse($event->start_date),
                         Carbon::parse($event->end_date)
                     ],
-                    'css' => $typeConfig['css']
+                    'css' => $typeConfig['css'],
                 ];
             } else {
                 $this->events[] = [
@@ -324,18 +330,19 @@ class CustomerDashboard extends Component
                     'label' => $typeConfig['icon'] . ' ' . $event->label,
                     'description' => $event->description,
                     'date' => Carbon::parse($event->start_date),
-                    'css' => $typeConfig['css']
+                    'css' => $typeConfig['css'],
                 ];
             }
         }
 
         // Sort events by date
-        $this->events = collect($this->events)->sortBy(function($event) {
+        $this->events = collect($this->events)->sortBy(function ($event) {
             return isset($event['date'])
-                ? Carbon::parse($event['date'])
-                : Carbon::parse($event['range'][0]);
+            ? Carbon::parse($event['date'])
+            : Carbon::parse($event['range'][0]);
         })->values()->all();
     }
+
 
     protected function getPaymentDueStatus($dueDate)
     {
@@ -394,43 +401,62 @@ class CustomerDashboard extends Component
 
     public function saveEvent()
     {
-        $this->validate([
-            'eventLabel' => 'required',
-            'eventType' => 'required|in:payment,meeting,deadline,disbursement,other',
-            'eventDescription' => 'required',
-            'eventDate' => 'required|date',
-            'eventEndDate' => 'nullable|date|after:eventDate',
-        ]);
+        try {
+            DB::beginTransaction();
+            $this->validate([
+                'eventLabel' => 'required',
+                'eventType' => 'required|in:payment,meeting,deadline,disbursement,other',
+                'eventDescription' => 'required',
+                'eventDate' => 'required|date',
+                'eventEndDate' => 'nullable|date|after:eventDate',
+            ]);
 
-        $typeConfig = $this->eventTypes[$this->eventType];
+            $typeConfig = $this->eventTypes[$this->eventType];
 
-        // Create event in database
-        Event::create([
-            'customer_id' => auth()->user()->customer->id,
-            'label' => $this->eventLabel,
-            'description' => $this->eventDescription,
-            'type' => $this->eventType,
-            'start_date' => Carbon::parse($this->eventDate),
-            'end_date' => $this->eventEndDate ? Carbon::parse($this->eventEndDate) : null,
-        ]);
+            // Create event in database
+            Event::create([
+                'customer_id' => Auth::user()->customer->id,
+                'label' => $this->eventLabel,
+                'description' => $this->eventDescription,
+                'type' => $this->eventType,
+                'start_date' => Carbon::parse($this->eventDate),
+                'end_date' => $this->eventEndDate ? Carbon::parse($this->eventEndDate) : null,
+            ]);
 
-        // Clear form and close modal
-        $this->reset(['eventLabel', 'eventType', 'eventDescription', 'eventDate', 'eventEndDate']);
-        $this->showEventModal = false;
+        DB::commit();
 
-        // Refresh events
-        $this->loadEvents();
+            // Clear form and close modal
+            $this->reset(['eventLabel', 'eventType', 'eventDescription', 'eventDate', 'eventEndDate']);
+            $this->showEventModal = false;
 
-        // Show success toast
-        $this->toast(
-            type: 'success',
-            title: 'Event Added Successfully',
-            description: null,
-            position: 'toast-bottom toast-end',
-            icon: 'o-check-circle',
-            css: 'alert-success shadow-lg min-h-0 h-12 py-2 px-4 dark:shadow-gray-900',
-            timeout: 3000
-        );
+            // Refresh events
+            $this->loadEvents();
+
+            // Show success toast
+            $this->toast(
+                type: 'success',
+                title: 'Event Added Successfully',
+                description: null,
+                position: 'toast-bottom toast-end',
+                icon: 'o-check-circle',
+                css: 'alert-success shadow-lg min-h-0 h-12 py-2 px-4 dark:shadow-gray-900',
+                timeout: 3000
+            );
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Log the error
+            // \Log::error('Failed to update account status: ' . $e->getMessage());
+            $this->toast(
+                type: 'error',
+                title: 'Failed to create event,' . $e->getMessage(),
+                position: 'toast-top toast-end',
+                icon: 'o-x-circle',
+                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
+                timeout: 3000
+            );
+        }
     }
 
     // Add method to delete events
@@ -438,7 +464,7 @@ class CustomerDashboard extends Component
     {
         $event = Event::find($eventId);
 
-        if ($event && $event->customer_id === auth()->user()->customer->id) {
+        if ($event && $event->customer_id === Auth::user()->customer->id) {
             $event->delete();
 
             // Refresh events

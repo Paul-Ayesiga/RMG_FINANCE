@@ -54,14 +54,15 @@
     }
 
     /* Focus background color */
-    div:focus.bg-primary-100:focus {
-        color: #e3e5eb;
-        background-color: #073ba4; /* Light background when focused */
+    div:focus.bg-gray-700:focus {
+        color: #0a2165;
+        /* background-color: #073ba4; */
+         /* Light background when focused */
     }
 
     /* Custom hover background color */
     div:hover.bg-primary-500:hover {
-        color: #e3e5eb;
+        color: #0c205c;
         background-color: #073ba4; /* Visible hover background color */
     }
 
@@ -80,6 +81,10 @@
     div.dark.text-secondary-400 {
         color: #0a42a2; /* Lighter text color for dark mode */
     }
+
+   div.animate-linear-progress{
+        background-color: blue;
+   }
 }
 
 
