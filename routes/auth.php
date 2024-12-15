@@ -33,7 +33,7 @@ Route::middleware('guest')->group(function(){
 });
 
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();
@@ -103,9 +103,6 @@ Route::middleware('auth')->group(function () {
         </html>
     ", 404);
     });
-
-
-
 
     Volt::route('verify-email', 'pages.auth.verify-email')
         ->name('verification.notice');

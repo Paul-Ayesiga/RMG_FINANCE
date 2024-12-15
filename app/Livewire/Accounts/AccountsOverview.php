@@ -6,7 +6,6 @@ use App\Models\Account;
 use App\Models\AccountType;
 use Livewire\Component;
 use Illuminate\Database\Eloquent\Builder;
-use Livewire\Attributes\On;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Validate;
 use Mary\Traits\Toast;
@@ -14,17 +13,9 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\WithMediaSync;
 use App\Models\Customer;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Lazy;
-use Illuminate\Validation\Rules;
-use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Collection;
 use App\Notifications\AccountStatusNotification;
-use App\Events\AccountStatusUpdated;
 use App\Events\PrivateNotify;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
@@ -215,11 +206,10 @@ class AccountsOverview extends Component
 
     public function saveAccount()
     {
+        // Validate input fields
+        $this->validate();
         try {
             DB::beginTransaction();
-                // Validate input fields
-                $this->validate();
-
                 // Get the selected account type
                 $accountType = AccountType::findOrFail($this->accountTypeId);
 

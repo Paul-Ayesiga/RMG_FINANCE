@@ -132,7 +132,7 @@ class Overview extends Component
         try {
             DB::beginTransaction();
 
-            $this->selectedLoan->approve(Auth::id());
+            $this->selectedLoan->approve(Auth::user()->staff->id);
 
             $this->selectedLoan->customer->user->notify(new LoanApproved($this->selectedLoan));
 
@@ -152,6 +152,8 @@ class Overview extends Component
 
         } catch (\Exception $e) {
             DB::rollBack();
+
+            dd($e->getMessage());
 
             $this->toast(
                 type: 'error',

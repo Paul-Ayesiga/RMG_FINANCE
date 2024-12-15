@@ -8,6 +8,7 @@ use Livewire\Attributes\Validate;
 use App\Models\User;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
+use Illuminate\Support\Facades\DB;
 
 class Edit extends Component
 {
@@ -71,6 +72,7 @@ class Edit extends Component
     {
         $this->validate();
 
+        DB::beginTransaction();
         try {
             $user = User::where('id', $this->customer->user_id)->first();
 
@@ -98,6 +100,8 @@ class Edit extends Component
                 'annual_income' => $this->annual_income,
             ]);
 
+            DB::commit();
+
             $this->toast(
                 type: 'success',
                 title: 'Client updated with success',
@@ -109,6 +113,7 @@ class Edit extends Component
                 redirectTo: '/clients'
             );
         } catch (\Exception $e) {
+            DB::rollBack();
             // Handle the error and show an error toast
             $this->toast(
                 type: 'error',

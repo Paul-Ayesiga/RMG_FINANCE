@@ -117,7 +117,11 @@
                                             errorless
                                         />
                                         <div class="flex items-center gap-2">
-                                            <x-mary-avatar image="{{ $user->avatar ?? asset('user.png') }}" class="!w-8"/>
+                                            @if(!empty($user->avatar))
+                                             <x-mary-avatar image="{{ $user->avatar}}" class="!w-8"/>
+                                            @else
+                                              <x-mary-avatar image="{{ asset('user.png')}}" class="!w-8"/>
+                                            @endif
                                             <div>
                                                 <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
                                                     {{ $user->name }}

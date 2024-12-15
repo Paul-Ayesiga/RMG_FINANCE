@@ -72,14 +72,14 @@ Route::middleware(['auth','verified','role:customer'])->group(function(){
 });
 
 Route::view('profile', 'profile')
-    ->middleware(['auth'])
+    ->middleware(['auth','verified'])
     ->name('profile');
 
 
 require __DIR__.'/auth.php';
 Route::supportBubble();
 
-Route::middleware(['auth', 'role:super-admin'])->group(function () {
+Route::middleware(['auth', 'verified','role:super-admin'])->group(function () {
     Route::get('/admin/notifications/send', SendNotification::class)->name('admin.notifications.send');
 });
 

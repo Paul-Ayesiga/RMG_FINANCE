@@ -4,19 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class appliedTax extends Model
+class AppliedTax extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
 
-    public function tax()
+    public function tax(): BelongsTo
     {
         return $this->belongsTo(Tax::class);
     }
 
-    public function taxable()
+    public function taxable(): MorphTo
     {
         return $this->morphTo();
     }

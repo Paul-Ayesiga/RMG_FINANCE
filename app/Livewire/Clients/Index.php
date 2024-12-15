@@ -12,17 +12,13 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\WithMediaSync;
 use App\Models\Customer;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Computed;
 use Illuminate\Validation\Rules;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-
-
 
 #[Lazy()]
 class Index extends Component
@@ -230,49 +226,66 @@ class Index extends Component
             // 'accepted' => ['required'] // Validate the acceptance of terms
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
-
-        event(new Registered($user = User::create($validated)));
-
-        $user->assignRole('customer');
-
-        if ($this->photo) {
-            $url = $this->photo->store('users', 'public');
-            $user->update(['avatar' => "/storage/$url"]);
-        }
-
-        $this->dispatch('profile-updated', name: $user->name);
-
         $this->validate();
 
-        $customer = new Customer();
+        DB::beginTransaction();
 
-        $customer->user_id = $user->id;
-        $customer->customer_number = $this->generateCustomerNumber();
-        $customer->phone_number = $this->phone_number;
-        $customer->address = $this->address;
-        $customer->gender = $this->gender; // Save new field
-        $customer->marital_status = $this->maritalStatus; // Save new field
-        $customer->date_of_birth = $this->birthDate; // Save new field
-        $customer->identification_number = $this->identification_number; // Save new field
-        $customer->occupation = $this->occupation; // Save new field
-        $customer->employer = $this->employer; // Save new field
-        $customer->annual_income = $this->annual_income; // Save new field
-        $customer->save();
+        try {
+            $validated['password'] = Hash::make($validated['password']);
 
-        // dd($customer);
-        $this->addCustomerDrawer = false;
-        $this->resetForm();
-        $this->toast(
-                type: 'success',
-                title: 'Client created with success',
-                description: null,
+            $user = User::create($validated);
+            event(new Registered($user));
+
+            $user->assignRole('customer');
+
+            if ($this->photo) {
+                $url = $this->photo->store('users', 'public');
+                $user->update(['avatar' => "/storage/$url"]);
+            }
+
+            $this->dispatch('profile-updated', name: $user->name);
+
+            $customer = Customer::create([
+                'user_id' => $user->id,
+                'customer_number' => $this->generateCustomerNumber(),
+                'phone_number' => $this->phone_number,
+                'address' => $this->address,
+                'gender' => $this->gender, // Save new field
+                'marital_status' => $this->maritalStatus, // Save new field
+                'date_of_birth' => $this->birthDate, // Save new field
+                'identification_number' => $this->identification_number, // Save new field
+                'occupation' => $this->occupation, // Save new field
+                'employer' => $this->employer, // Save new field
+                'annual_income' => $this->annual_income, // Save new field
+            ]);
+
+            DB::commit();
+
+            $this->addCustomerDrawer = false;
+            $this->resetForm();
+            $this->toast(
+                    type: 'success',
+                    title: 'Client created with success',
+                    description: null,
+                    position: 'toast-top toast-end',
+                    icon: 'o-check-badge',
+                    css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
+                    timeout: 3000,
+                    redirectTo: null
+                );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->toast(
+                type: 'error',
+                title: 'Failed to create client',
+                description: $e->getMessage(),
                 position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
+                icon: 'o-x-circle',
+                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
                 timeout: 3000,
                 redirectTo: null
             );
+        }
     }
 
     private function generateCustomerNumber(): string
@@ -313,7 +326,7 @@ class Index extends Component
     {
         try {
             // Begin a database transaction
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $customer = Customer::findOrFail($id);
 
@@ -331,7 +344,7 @@ class Index extends Component
             $customer->delete();
 
             // Commit the transaction
-            \DB::commit();
+            DB::commit();
 
             $this->deleteCustomerModal = false;
             $this->resetPage();
@@ -347,8 +360,8 @@ class Index extends Component
             );
         } catch (\Exception $e) {
             // Rollback the transaction in case of error
-            \DB::rollBack();
-            
+            DB::rollBack();
+
             $this->toast(
                 type: 'error',
                 title: 'Failed to delete client',

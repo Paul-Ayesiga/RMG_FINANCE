@@ -11,6 +11,7 @@ use App\Models\Loan;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Support\Facades\URL;
 
 class LoanApproved extends Notification implements ShouldQueue, ShouldBroadcast
 {
@@ -40,7 +41,7 @@ class LoanApproved extends Notification implements ShouldQueue, ShouldBroadcast
             ->line("- Interest Rate: {$this->loan->interest_rate}%")
             ->line("- Term: {$this->loan->term} months")
             ->line("Please wait for the disbursement notification. The funds will be transferred to your account shortly.")
-            ->action('View Loan Details', route('my-loans', $this->loan->id))
+            ->action('View Loan Details', route('visit-loan', ['loan' => $this->loan->id], true))
             ->line('Thank you for banking with us!');
     }
 

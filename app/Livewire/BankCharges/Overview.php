@@ -6,6 +6,7 @@ use App\Models\BankCharge;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Lazy;
+use Illuminate\Support\Facades\DB;
 
 #[Lazy()]
 class Overview extends Component
@@ -16,12 +17,12 @@ class Overview extends Component
     public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
-    
+
     // Modals
     public bool $viewModal = false;
     public bool $createModal = false;
     public bool $editModal = false;
-    
+
     // Form Data
     public $selectedCharge = null;
     public $name = '';
@@ -74,14 +75,16 @@ class Overview extends Component
     {
         $this->validate();
 
-        BankCharge::create([
-            'name' => $this->name,
-            'type' => $this->type,
-            'rate' => $this->rate,
-            'is_percentage' => $this->is_percentage,
-            'description' => $this->description,
-            'is_active' => $this->is_active,
-        ]);
+        DB::transaction(function () {
+            BankCharge::create([
+                'name' => $this->name,
+                'type' => $this->type,
+                'rate' => $this->rate,
+                'is_percentage' => $this->is_percentage,
+                'description' => $this->description,
+                'is_active' => $this->is_active,
+            ]);
+        });
 
         $this->createModal = false;
         $this->dispatch('notify', [
@@ -99,7 +102,7 @@ class Overview extends Component
         $this->is_percentage = $charge->is_percentage;
         $this->description = $charge->description;
         $this->is_active = $charge->is_active;
-        
+
         $this->editModal = true;
     }
 
@@ -107,14 +110,16 @@ class Overview extends Component
     {
         $this->validate();
 
-        $this->selectedCharge->update([
-            'name' => $this->name,
-            'type' => $this->type,
-            'rate' => $this->rate,
-            'is_percentage' => $this->is_percentage,
-            'description' => $this->description,
-            'is_active' => $this->is_active,
-        ]);
+        DB::transaction(function () {
+            $this->selectedCharge->update([
+                'name' => $this->name,
+                'type' => $this->type,
+                'rate' => $this->rate,
+                'is_percentage' => $this->is_percentage,
+                'description' => $this->description,
+                'is_active' => $this->is_active,
+            ]);
+        });
 
         $this->editModal = false;
         $this->dispatch('notify', [
@@ -126,7 +131,7 @@ class Overview extends Component
     public function delete(BankCharge $charge)
     {
         $charge->delete();
-        
+
         $this->dispatch('notify', [
             'message' => 'Bank charge deleted successfully!',
             'type' => 'success'
@@ -151,4 +156,4 @@ class Overview extends Component
             'transactionTypes' => $this->getTransactionTypes()
         ]);
     }
-} 
+}

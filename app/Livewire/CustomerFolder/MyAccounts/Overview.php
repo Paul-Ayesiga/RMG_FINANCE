@@ -216,35 +216,38 @@ class Overview extends Component
             'balance' => [
                 'required',
                 'numeric',
-                'min:' . ($accountType['min_balance'] ?? 0)
+                'min:' . ($accountType->min_balance ?? 0)
             ],
             'status' => 'required',
+        ],[
+            'accountTypeId.required' => 'Account Type required',
+            'balance.required' => 'Initial deposit required',
+            'balance.numeric' => 'Only numbers allowed',
+            'balance.min' => 'Initial Deposit for this account type must be ' . ($accountType->min_balance ?? 'at least') . ' and above'
         ]);
 
         // Create the account
-       $account = Account::create([
-            'customer_id' => Auth::user()->customer->id,
-            'account_type_id' => $this->accountTypeId,
-            'balance' => $this->balance,
-            'status' => $this->status,
-            'account_number' => $this->generateAccountNumber(),
-        ]);
+       DB::transaction(function () {
+            $account = Account::create([
+                'customer_id' => Auth::user()->customer->id,
+                'account_type_id' => $this->accountTypeId,
+                'balance' => $this->balance,
+                'status' => $this->status,
+                'account_number' => $this->generateAccountNumber(),
+            ]);
 
-        // Show success message
-        $this->toast(
-            type: 'success',
-            title: 'Account created successfully',
-            position: 'toast-top toast-end',
-            icon: 'o-check-badge',
-            css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-            timeout: 3000
-        );
+            // Show success message
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Account created successfully',
+            ]);
 
-        // Reset form and close modal
-        $this->addAccountModal = false;
-        $user = User::where('id', Auth::id())->first();
-        $user->notify(new NewAccountCreated('New Account', 'Your account has been successfully created! Your account number is ' . $account->account_number . '.'));
-        PrivateNotify::dispatch($user, 'A new account has been created for you!');
+            // Reset form and close modal
+            $this->addAccountModal = false;
+            $user = User::where('id', Auth::id())->first();
+            $user->notify(new NewAccountCreated('New Account', 'Your account has been successfully created! Your account number is ' . $account->account_number . '.'));
+            PrivateNotify::dispatch($user, 'A new account has been created for you!');
+        });
     }
 
     private function generateAccountNumber(): string
@@ -346,15 +349,7 @@ class Overview extends Component
         $this->accountTypeId = null; // Reset the selected account type
         if ($value) {
             $this->filteredAccountTypes = AccountType::where('category', $value)
-                ->get()
-                ->map(function ($accountType) {
-                    return [
-                        'id' => $accountType->id,
-                        'name' => $accountType->name . ' (' . $accountType->interest_rate . '% interest)',
-                        'description' => $accountType->description,
-                        'interest_rate' => $accountType->interest_rate
-                    ];
-                });
+                ->get();
         } else {
             $this->filteredAccountTypes = collect([]);
         }

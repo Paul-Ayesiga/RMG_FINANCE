@@ -13,7 +13,7 @@ class Admin extends User
 
     public function managedLoanProducts()
     {
-        return $this->hasMany(Loan_Product::class, 'created_by');
+        return $this->hasMany(LoanProduct::class, 'created_by');
     }
 }
 
