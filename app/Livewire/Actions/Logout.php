@@ -13,9 +13,13 @@ class Logout
     public function __invoke(): void
     {
 
-        Auth::logout();
 
         Session::invalidate();
         Session::regenerateToken();
+
+        Auth::logout();
+
+        Session::forget('url.intended');
+
     }
 }

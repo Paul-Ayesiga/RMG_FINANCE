@@ -269,7 +269,11 @@
                 @scope('item', $customer)
                     <x-mary-list-item :item="$customer->user" sub-value="description">
                     <x-slot:avatar>
-                        <x-mary-avatar image="{{ asset($customer->user->avatar) ?? asset('user.png')}}" class="!w-8 sm:!w-10" />
+                    @if(!empty($customer->user->avatar))
+                        <x-mary-avatar image="{{ asset($customer->user->avatar) }}" class="!w-8 sm:!w-10" />
+                    @else
+                        <x-mary-avatar image="{{ asset('user.png')}}" class="!w-8 sm:!w-10" />
+                    @endif
                     </x-slot:avatar>
                     <x-slot:actions>
                         <x-mary-icon name="o-check-circle" class="p-1 sm:p-2 w-8 h-8 sm:w-10 sm:h-10 rounded-full text-blue-700" />

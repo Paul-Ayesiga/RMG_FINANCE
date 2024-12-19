@@ -69,7 +69,7 @@
     <div class="container">
         <div class="header">
             <a href="#" rel="noopener" target="_blank">
-                <img alt="Logo" src="{{ asset('logo1.png') }}" />
+                <img alt="Logo" src="{{ asset('logos/rmg.png') }}" />
             </a>
         </div>
         <div class="content">
@@ -83,12 +83,12 @@
             <p>
                 <a href="{{ $link }}" rel="noopener" target="_blank" style="color: #009ef7; text-decoration: none;">{{ $link }}</a>
             </p>
-            <p>Kind regards,<br>The SofTech MicroFinance Team.</p>
+            <p>Kind regards,<br>The RMG MicroFinance Team.</p>
         </div>
         <div class="footer">
             <p>Floor 5, 450 Avenue of the Red Field, SF, 10050, Ntinda.</p>
             <p>&copy; {{ date('Y') }}
-                <a href="https://softechmicrofinance.com" rel="noopener" target="_blank">SofTech Microfinance</a>. All rights reserved.
+                <a href="https://rmgmicrofinance.com" rel="noopener" target="_blank">RMG Microfinance</a>. All rights reserved.
             </p>
         </div>
     </div>

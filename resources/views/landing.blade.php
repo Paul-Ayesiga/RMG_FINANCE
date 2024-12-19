@@ -161,50 +161,9 @@
             <div class="flex justify-between items-center py-4">
 
 
-            {{-- <h1 x-data="{
-                startingAnimation: { opacity: 0, scale: 4 },
-                endingAnimation: { opacity: 1, scale: 1, stagger: 0.07, duration: 1, ease: 'expo.out' },
-                addCNDScript: true,
-                animateText() {
-                    $el.classList.remove('invisible');
-                    gsap.fromTo($el.children, this.startingAnimation, this.endingAnimation);
-                },
-                splitCharactersIntoSpans(element) {
-                    text = element.innerHTML;
-                    modifiedHTML = [];
-                    for (var i = 0; i < text.length; i++) {
-                        attributes = '';
-                        if(text[i].trim()){ attributes = 'class=\'inline-block\''; }
-                        modifiedHTML.push('<span ' + attributes + '>' + text[i] + '</span>');
-                    }
-                    element.innerHTML = modifiedHTML.join('');
-                },
-                addScriptToHead(url) {
-                    script = document.createElement('script');
-                    script.src = url;
-                    document.head.appendChild(script);
-                }
-                }"
-                x-init="
-                    splitCharactersIntoSpans($el);
-                    if(addCNDScript){
-                        addScriptToHead('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js');
-                    }
-                    gsapInterval = setInterval(function(){
-                        if(typeof gsap !== 'undefined'){
-                            animateText();
-                            clearInterval(gsapInterval);
-                        }
-                    }, 5);
-                "
-                class="invisible block text-3xl font-bold custom-font"
-                > --}}
+
             <a href="#" class="text-2xl font-bold text-blue-600 animate__animated animate__fadeIn">RMG FINANCE</a>
-        {{-- </h1> --}}
-
-
-
-
+    
                 <!-- Desktop Menu -->
                 <div class="desktop-menu space-x-8">
                     <a href="#home" class="nav-link text-gray-700 hover:text-blue-600 animate__animated animate__fadeInDown">Home</a>

@@ -69,9 +69,15 @@
                 <!-- Profile Image Tab -->
                 <div x-show="$wire.activeTab === 'profileImage'">
                     <x-mary-card title="Profile Image" separator class="shadow-lg bg-white dark:bg-inherit">
-                        <x-mary-file wire:model="photo" accept="image/png image/jpeg" crop-after-change hint="Click to change">
-                            <img src="{{ $customer->user->avatar ?? asset('logo1.png') }}" class="h-40 rounded-lg" />
+                        @if(!empty($customer->user->avatar))
+                        <x-mary-file wire:model="photo" accept="image/png image/jpeg" crop-after-change hint="click to change">
+                            <img src="{{ $customer->user->avatar }}" class="h-40 rounded-lg" />
                         </x-mary-file>
+                        @else
+                        <x-mary-file wire:model="photo" accept="image/png image/jpeg" crop-after-change hint="click to change">
+                            <img src="{{ asset('user.png') }}" class="h-40 rounded-lg" />
+                        </x-mary-file>
+                        @endif
                         <x-slot:actions>
                             <x-mary-button label="Previous" icon="o-backward" class="bg-orange-900 btn-sm text-white" wire:click="previous('profileImage')" spinner="previous('profileImage')" />
                             <x-mary-button label="Next" icon="o-forward" class="btn-violet-200 btn-sm text-blue-900 dark:text-blue-900" wire:click="next('profileImage')" spinner="next('profileImage')" />

@@ -42,48 +42,36 @@
 
 
 @layer components {
-    /* Default text color in dark mode */
-    div.text-secondary-600.dark:text-secondary-200 {
-        color: #e5e7eb; /* Light text color for dark mode */
+
+    .bg-secondary-300{
+        background-color: green;
     }
 
-    /* Hover text color and background color for the div */
-    div:hover.text-secondary-600:hover {
-        color: #e3e5eb; /* Dark text on hover */
-        background-color: #073ba4; /* Light background on hover */
+    .text-postive-400{
+        color: green;
+    }
+    .text-negative-400{
+        color: red;
+    }
+    .text-info-400{
+        color: blue;
     }
 
-    /* Focus background color */
-    div:focus.bg-gray-700:focus {
-        color: #0a2165;
-        /* background-color: #073ba4; */
-         /* Light background when focused */
+    .ease-linear .duration-150 {
+        background-color: gray;
+        color: white;
     }
-
-    /* Custom hover background color */
-    div:hover.bg-primary-500:hover {
-        color: #0c205c;
-        background-color: #073ba4; /* Visible hover background color */
-    }
-
-    /* Dark mode: Custom hover background for dark theme */
-    div.dark:hover.bg-secondary-700:hover {
-         background-color: #073ba4; /* Darker background for dark mode */
-    }
-
-    /* Dark mode: Custom focus background for dark theme */
-    div.dark:focus.bg-secondary-700:focus {
-        background-color: #151718; /* Ensure focus background is visible in dark mode */
-    }
-
-
-    /* Ensuring dark text remains visible in dark mode */
-    div.dark.text-secondary-400 {
-        color: #0a42a2; /* Lighter text color for dark mode */
+    .ease-linear .duration-150:hover {
+        background-color: blue;
+        color: white;
     }
 
    div.animate-linear-progress{
         background-color: blue;
+   }
+
+   #search{
+    color: white;
    }
 }
 
