@@ -473,8 +473,7 @@ class VisitAccount extends Component
     // }
 
     public function transfer($id)
-    {
-
+    {      
         $sourceAccount = Account::findOrFail($id);
 
         // dd($this->beneficiarySelectedIndex);
