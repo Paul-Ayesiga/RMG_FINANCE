@@ -473,8 +473,7 @@ class VisitAccount extends Component
     // }
 
     public function transfer($id)
-    {
-      
+    {      
         $sourceAccount = Account::findOrFail($id);
 
         // dd($this->beneficiarySelectedIndex);
@@ -517,8 +516,6 @@ class VisitAccount extends Component
         ]);
 
 
-
-        // Determine if beneficiary selection is used
         // Determine if beneficiary selection is used
         if ($this->beneficiarySelectedIndex !== null) {
             // Get the selected beneficiary from the list
@@ -532,18 +529,23 @@ class VisitAccount extends Component
             $destinationAccount = Account::find($this->transferCustomerAccountId ?? $this->transferOtherAccountId);
         }
 
+        if($destinationAccount){
 
         // Check if the transfer is to the same account
-        if ($sourceAccount->id === $destinationAccount->id) {
-            $this->toast(
-                type: 'error',
-                title: 'Cannot transfer to same account',
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
-            return;
+            if ($sourceAccount->id === $destinationAccount->id) {
+                $this->notification()->send([
+                    'icon' => 'error',
+                    'title' => 'Cannot transfer to same account',
+                    'css' => 'alert alert-warning text-white shadow-lg rounded-sm p-3',
+                ]);
+                return;
+            }
+        }else{
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Account number provided doesnot exist',
+                'css' => 'alert alert-warning text-white shadow-lg rounded-sm p-3',
+            ]);
         }
 
         try {
@@ -602,14 +604,11 @@ class VisitAccount extends Component
             $this->receiptType = 'transfer';
             $this->showReceiptModal = true;
         } catch (\Exception $e) {
-            $this->toast(
-                type: 'error',
-                title: $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => $e->getMessage(),
+                'css' => 'alert alert-warning text-white shadow-lg rounded-sm p-3 text-red-500',
+            ]);
         }
 
         // Optionally save the beneficiary
@@ -630,15 +629,11 @@ class VisitAccount extends Component
                 'account_number' => $validatedData['accountNumber']
             ]);
 
-            $this->toast(
-                type: 'success',
-                title: 'Beneficiary Saved',
-                description: 'Beneficiary information has been successfully saved.',
-                position: 'toast-top toast-end',
-                icon: 'o-check-circle',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                timeout: 9000
-            );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Beneficiary Saved',
+                'description' => 'Beneficiary information has been successfully saved.'
+            ]);
 
         }
         $this->resetForm();

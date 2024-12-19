@@ -46,29 +46,29 @@ class RolePermissionManager extends Component
     public $isLoading = false;
 
  // Add this method to clear cache when mounting component
-public function mount()
-{
-    // Clear permission cache
-    app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+    public function mount()
+    {
+        // Clear permission cache
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-    // Ensure super-admin has all permissions
-    $superAdmin = Role::where('name', 'super-admin')->first();
-    if ($superAdmin) {
-        $allPermissions = Permission::all();
-        $superAdmin->syncPermissions($allPermissions);
+        // Ensure super-admin has all permissions
+        $superAdmin = Role::where('name', 'super-admin')->first();
+        if ($superAdmin) {
+            $allPermissions = Permission::all();
+            $superAdmin->syncPermissions($allPermissions);
+        }
+
+        $this->loadRolesAndPermissions();
+        $this->selectedPermissions = collect([]);
     }
 
-    $this->loadRolesAndPermissions();
-    $this->selectedPermissions = collect([]);
-}
-
-// Update loadRolesAndPermissions to always get fresh data
+    // Update loadRolesAndPermissions to always get fresh data
     public function loadRolesAndPermissions()
     {
-    // Clear permission cache
-    app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        // Clear permission cache
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-    $this->roles = Role::with('permissions')->get();
+        $this->roles = Role::with('permissions')->get();
         $this->permissions = Permission::orderBy('name')->get();
     }
 
@@ -92,6 +92,7 @@ public function mount()
         ]);
 
         try {
+            DB::beginTransaction();
             $role = Role::create(['name' => $this->roleForm['name']]);
 
             if (!empty($this->roleForm['permissions'])) {
@@ -110,7 +111,9 @@ public function mount()
                 title: 'Role created successfully',
                 position: 'toast-top toast-end'
             );
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
             $this->toast(
                 type: 'error',
                 title: 'Error creating role: ' . $e->getMessage(),

@@ -12,16 +12,9 @@ use Mary\Traits\Toast;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\WithMediaSync;
-use App\Models\Customer;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Computed;
-use Illuminate\Validation\Rules;
-use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\DB;
 
 #[Lazy()]
 class accountTypes extends Component
@@ -201,28 +194,48 @@ class accountTypes extends Component
     {
         $this->validate();
 
-        AccountType::create([
-            'category' => $this->category,
-            'name' => $this->name,
-            'description' => $this->description,
-            'interest_rate' => $this->interest_rate,
-            'min_balance' => $this->min_balance,
-            'max_withdrawal' => $this->max_withdrawal,
-            'maturity_period' => $this->maturity_period,
-            'monthly_deposit' => $this->monthly_deposit,
-            'overdraft_limit' => $this->overdraft_limit,
-        ]);
+        DB::beginTransaction();
+        try {
+            AccountType::create([
+                'category' => $this->category,
+                'name' => $this->name,
+                'description' => $this->description,
+                'interest_rate' => $this->interest_rate,
+                'min_balance' => $this->min_balance,
+                'max_withdrawal' => $this->max_withdrawal,
+                'maturity_period' => $this->maturity_period,
+                'monthly_deposit' => $this->monthly_deposit,
+                'overdraft_limit' => $this->overdraft_limit,
+            ]);
 
-        $this->toast(
-                type: 'success',
-                title: 'Account Type created with success',
-                description: null,
+            $this->toast(
+                    type: 'success',
+                    title: 'Account Type created with success',
+                    description: null,
+                    position: 'toast-top toast-end',
+                    icon: 'o-check-badge',
+                    css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
+                    timeout: 3000,
+                    redirectTo: null
+                );
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log the error
+            // \Log::error('Failed to create account type: ' . $e->getMessage());
+            $this->toast(
+                type: 'error',
+                title: 'Failed to create account type',
+                description: 'An error occurred while creating the account type.',
                 position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
+                icon: 'o-x-circle',
+                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
                 timeout: 3000,
                 redirectTo: null
             );
+        }
+
         // Reset form fields after saving
         $this->reset();
         // Close the modal
@@ -234,10 +247,10 @@ class accountTypes extends Component
     {
         // Store the account type ID
         $this->accountTypeId = $accountTypeId;
-        
+
         // Find the account type
         $accountType = AccountType::findOrFail($accountTypeId);
-        
+
         // Set the form fields
         $this->category = $accountType->category;
         $this->name = $accountType->name;
@@ -248,7 +261,7 @@ class accountTypes extends Component
         $this->monthly_deposit = $accountType->monthly_deposit;
         $this->maturity_period = $accountType->maturity_period;
         $this->overdraft_limit = $accountType->overdraft_limit;
-        
+
         $this->editAccountTypeModal = true;
     }
 
@@ -256,10 +269,11 @@ class accountTypes extends Component
     {
         $this->validate();
 
+        DB::beginTransaction();
         try {
             // Find the account type using the stored ID
             $accountType = AccountType::findOrFail($this->accountTypeId);
-            
+
             // Update the account type
             $accountType->update([
                 'category' => $this->category,
@@ -274,7 +288,7 @@ class accountTypes extends Component
             ]);
 
             $this->editAccountTypeModal = false;
-            
+
             // Reset all form fields
             $this->reset([
                 'accountTypeId',
@@ -288,7 +302,7 @@ class accountTypes extends Component
                 'maturity_period',
                 'overdraft_limit'
             ]);
-            
+
             $this->toast(
                 type: 'success',
                 title: 'Account Type updated successfully',
@@ -297,7 +311,9 @@ class accountTypes extends Component
                 css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
                 timeout: 3000
             );
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
             $this->toast(
                 type: 'error',
                 title: 'Error updating account type',
@@ -327,25 +343,25 @@ class accountTypes extends Component
     {
         try {
             $accountType = AccountType::findOrFail($id);
-            
+
             // Begin a database transaction
-            \DB::beginTransaction();
-            
+            DB::beginTransaction();
+
             // Delete all associated accounts and their transactions
             foreach ($accountType->accounts as $account) {
                 // Delete all transactions associated with this account
                 $account->transactions()->delete();
-                
+
                 // Delete the account itself
                 $account->delete();
             }
-            
+
             // Delete the account type
             $accountType->delete();
-            
+
             // Commit the transaction
-            \DB::commit();
-            
+            DB::commit();
+
             $this->deleteAccountTypeModal = false;
             $this->toast(
                 type: 'success',
@@ -359,8 +375,8 @@ class accountTypes extends Component
             );
         } catch (\Exception $e) {
             // Rollback the transaction in case of error
-            \DB::rollBack();
-            
+            DB::rollBack();
+
             $this->deleteAccountTypeModal = false;
             $this->toast(
                 type: 'error',
@@ -386,24 +402,26 @@ class accountTypes extends Component
 
     public function deleteSelected()
     {
-         // Assuming you have a model for the items, e.g., Item::destroy($this->selected)
-        AccountType::destroy($this->selected);
+        DB::transaction(function () {
+            // Assuming you have a model for the items, e.g., Item::destroy($this->selected)
+            AccountType::destroy($this->selected);
 
-        // Reset the selected array after deletion
-        $this->selected = [];
+            // Reset the selected array after deletion
+            $this->selected = [];
 
-        // Optionally add some feedback to the user
-        $this->filledbulk = false;
-        $this->toast(
-                type: 'error',
-                title: 'Account Types deleted with success',
-                description: null,
-                position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-danger text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+            // Optionally add some feedback to the user
+            $this->filledbulk = false;
+            $this->toast(
+                    type: 'error',
+                    title: 'Account Types deleted with success',
+                    description: null,
+                    position: 'toast-top toast-end',
+                    icon: 'o-check-badge',
+                    css: 'alert alert-danger text-white shadow-lg rounded-sm p-3',
+                    timeout: 3000,
+                    redirectTo: null
+                );
+        });
     }
 
     public function activeFiltersCount(): int

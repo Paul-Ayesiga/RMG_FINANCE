@@ -44,17 +44,6 @@ new class extends Component
 
    public function handlePrivateNotifications($data)
     {
-        // $data will contain the message sent from the event
-        // $this->toast(
-        //     type: 'success',
-        //     title: 'You have a new notification.',
-        //     description: "{$data['message']}", // Set the description to the message from the event
-        //     position: 'toast-top toast-right',
-        //     icon: 'o-information-circle',
-        //     css: 'alert alert-success rounded-lg text-white shadow-lg p-1 flex items-center space-x-3',
-        //     timeout: 5000,
-        // );
-
          $this->notification()->send([
 
             'icon' => 'success',

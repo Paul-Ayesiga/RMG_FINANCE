@@ -31,15 +31,25 @@ new #[Layout('layouts.guest')] class extends Component
         // }
         auth()->user()->load('roles');
 
+        // if (auth()->user()->hasRole(['staff', 'super-admin', 'manager'])) {
+        //     // $this->redirect('/dashboard',navigate: true);
+        //     $this->redirectIntended('/dashboard', navigate: true);
+        // } elseif (auth()->user()->hasRole('customer')) {
+        //     // $this->redirect('/customer-dashboard', navigate: true);
+        //     $this->redirectIntended('/customer-dashboard', navigate: true);
+        // } else {
+        //     // Fallback or default redirect
+        //     $this->redirect('/',navigate:true);
+        // }
+
         if (auth()->user()->hasRole(['staff', 'super-admin', 'manager'])) {
-            $this->redirect('/dashboard',navigate: true);
-            // $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+            session(['url.intended' => '/dashboard']);
+            $this->redirectIntended('/dashboard', navigate: true);
         } elseif (auth()->user()->hasRole('customer')) {
-            $this->redirect('/customer-dashboard', navigate: true);
-            // $this->redirectIntended('/customer-dashboard', navigate: true);
+            // session(['url.intended' => '/customer-dashboard']);
+            $this->redirectIntended('/customer-dashboard', navigate: true);
         } else {
-            // Fallback or default redirect
-            $this->redirect('/',navigate:true);
+            $this->redirect('/', navigate: true);
         }
 
     }
