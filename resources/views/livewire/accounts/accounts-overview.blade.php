@@ -1,4 +1,4 @@
-<div>
+<div class="p-3">
      <!-- HEADER -->
     <x-mary-header title="Accounts Overview" separator progress-indicator>
             <x-slot:middle>
@@ -29,6 +29,7 @@
                 <!-- Filter Button with Badge -->
                 <x-mary-button label="Filter" icon="o-funnel" class="bg-blue-200 btn-sm mx-2 rounded-md border-none dark:text-white dark:bg-slate-700"
                     wire:click="$set('filtersDrawer', true)" badge="{{$activeFiltersCount}}" />
+
             </div>
             {{-- export buttons --}}
              <div class="inline-flex flex-wrap items-center mb-2">
@@ -48,14 +49,14 @@
                     <x-slot name="trigger">
                         <x-mary-button label="" icon="o-eye" class="bg-blue-200 btn-sm border-none dark:text-white dark:bg-slate-700" />
                     </x-slot>
-                    @foreach(['customer.user.name','accountType.name', 'account_number', 'balance', 'status'] as $column)
+                    @foreach($columns as $column => $visible)
                         <x-mary-menu-item wire:click="toggleColumnVisibility('{{ $column }}')">
-                            @if($columns[$column])
+                            @if($visible)
                                 <x-mary-icon name="o-eye" class="text-green-500" />
                             @else
                                 <x-mary-icon name="o-eye-slash" class="text-gray-500" />
                             @endif
-                            <span class="ml-2">{{ ucfirst(str_replace('_', ' ', $column)) }}</span>
+                            <span class="ml-2">{{ ucfirst(str_replace(['_', '.'], ' ', $column)) }}</span>
                         </x-mary-menu-item>
                     @endforeach
                 </x-mary-dropdown>
@@ -82,10 +83,15 @@
 
         <x-mary-table :headers="$headers" :rows="$accounts" :sort-by="$sortBy" with-pagination  per-page="perPage"
             :per-page-values="[1,3, 5, 10]"  wire:model="selected" selectable striped>
-            {{-- @scope('cell_user_avatar', $customer)
-                <x-mary-avatar image="{{ $customer->avatar ?? asset('user.png')}}" class="!w-10" />
-            @endscope --}}
-           @scope('cell_status', $account)
+            @scope('cell_customer.user.avatar', $account)
+                @if(!empty($account->customer->user->avatar))
+                    <x-mary-avatar image="{{ asset($account->customer->user->avatar) }}" class="!w-8 sm:!w-10" />
+                    {{-- <img src="{{ asset($customer->user->avatar)}}" width="20" height="20" class="rounded-circle" /> --}}
+                @else
+                    <x-mary-avatar image="{{ asset('user.png')}}" class="!w-8 sm:!w-10" />
+                @endif
+            @endscope
+            @scope('cell_status', $account)
                 @php
                 $statuses = [
                     'pending',
@@ -122,7 +128,7 @@
                         <!-- Account Type Header -->
                         <div class="text-center mb-4">
                             <h2 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $this->accountToPreview->account_number ?? 'Account Number' }}</h2>
-                            <p class="text-sm sm:text-base text-gray-500">Balance: ${{ number_format($this->accountToPreview->balance ?? 0, 2) }}</p>
+                            <p class="text-sm sm:text-base text-gray-500">Balance: UGX {{ number_format($this->accountToPreview->balance ?? 0, 2) }}</p>
                         </div>
 
                         <!-- Account Owner -->
@@ -151,18 +157,18 @@
                             </div>
                             <div>
                                 <h3 class="text-base sm:text-lg font-semibold text-gray-700 mb-2">Minimum Balance</h3>
-                                <p class="text-sm sm:text-base text-gray-600">${{ number_format($this->accountToPreview->accountType->min_balance ?? 0, 2) }}</p>
+                                <p class="text-sm sm:text-base text-gray-600">UGX {{ number_format($this->accountToPreview->accountType->min_balance ?? 0, 2) }}</p>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <h3 class="text-base sm:text-lg font-semibold text-gray-700 mb-2">Maximum Withdrawal</h3>
-                                <p class="text-sm sm:text-base text-gray-600">${{ number_format($this->accountToPreview->accountType->max_withdrawal ?? 0, 2) }}</p>
+                                <p class="text-sm sm:text-base text-gray-600">UGX {{ number_format($this->accountToPreview->accountType->max_withdrawal ?? 0, 2) }}</p>
                             </div>
                             <div>
                                 <h3 class="text-base sm:text-lg font-semibold text-gray-700 mb-2">Overdraft Limit</h3>
-                                <p class="text-sm sm:text-base text-gray-600">${{ number_format($this->accountToPreview->accountType->overdraft_limit ?? 0, 2) }}</p>
+                                <p class="text-sm sm:text-base text-gray-600">UGX {{ number_format($this->accountToPreview->accountType->overdraft_limit ?? 0, 2) }}</p>
                             </div>
                         </div>
 
@@ -234,30 +240,48 @@
     </x-mary-card>
     {{-- end of clients table --}}
 
+
+    {{-- filters drawer --}}
+        <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-1/3 md:w-1/2">
+             <x-mary-input
+                    label=""
+                    placeholder="Search accounts ..."
+                    wire:model.live.debounce="search"
+                    clearable
+                    icon="o-magnifying-glass"
+                    class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none"
+                />
+
+                @if(count($activeFilters) > 0)
+                    <x-mary-button wire:click="clearAllFilters" label="Clear All Filters" class="mt-2 btn-danger btn-sm"/>
+                @endif
+        </x-mary-drawer>
+    {{-- endn of filter drawer --}}
+
+    {{-- when selected bulk deletion modal --}}
+        <x-mary-modal wire:model="filledbulk"  title="Bulk Deletion yet To Happen" subtitle="" separator>
+            <div class="p-4 text-center">
+                <p class="text-base sm:text-lg">Are you sure you want to perform this action? It's irreversible.</p>
+            </div>
+            <x-slot:actions>
+                <div class="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
+                    <x-mary-button label="Cancel" @click="$wire.filledbulk = false" class="w-full sm:w-auto" />
+                    <x-mary-button label="Delete" wire:click="deleteSelected" class="bg-red-600 rounded-md text-white font-bold w-full sm:w-auto" spinner/>
+                </div>
+            </x-slot:actions>
+        </x-mary-modal>
         {{-- when selected bulk deletion modal --}}
-            <x-mary-modal wire:model="filledbulk"  title="Bulk Deletion yet To Happen" subtitle="" separator>
-                <div class="p-4 text-center">
-                    <p class="text-base sm:text-lg">Are you sure you want to perform this action? It's irreversible.</p>
+        <x-mary-modal wire:model="emptybulk"  title="Ooops! No rows selected " subtitle="" separator>
+            <div class="p-4 text-center">
+                <p class="text-base sm:text-lg">Select some rows to delete</p>
+            </div>
+            <x-slot:actions>
+                <div class="flex justify-center">
+                    <x-mary-button label="Okay" @click="$wire.emptybulk = false" class="btn btn-accent w-full sm:w-auto" />
                 </div>
-                <x-slot:actions>
-                    <div class="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
-                        <x-mary-button label="Cancel" @click="$wire.filledbulk = false" class="w-full sm:w-auto" />
-                        <x-mary-button label="Delete" wire:click="deleteSelected" class="bg-red-600 rounded-md text-white font-bold w-full sm:w-auto" spinner/>
-                    </div>
-                </x-slot:actions>
-            </x-mary-modal>
-            {{-- when selected bulk deletion modal --}}
-            <x-mary-modal wire:model="emptybulk"  title="Ooops! No rows selected " subtitle="" separator>
-                <div class="p-4 text-center">
-                    <p class="text-base sm:text-lg">Select some rows to delete</p>
-                </div>
-                <x-slot:actions>
-                    <div class="flex justify-center">
-                        <x-mary-button label="Okay" @click="$wire.emptybulk = false" class="btn btn-accent w-full sm:w-auto" />
-                    </div>
-                </x-slot:actions>
-            </x-mary-modal>
-        {{-- end of bulk delete modal --}}
+            </x-slot:actions>
+        </x-mary-modal>
+    {{-- end of bulk delete modal --}}
 
 
     {{-- add Account Type --}}

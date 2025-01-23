@@ -18,14 +18,15 @@ use Illuminate\Support\Collection;
 use App\Notifications\AccountStatusNotification;
 use App\Events\PrivateNotify;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\NewAccountCreated;
-
+use WireUi\Traits\WireUiActions;
 
 #[Lazy()]
 class AccountsOverview extends Component
 {
-    use Toast;
+    use WireUiActions;
     use WithPagination;
     use WithFileUploads, WithMediaSync;
 
@@ -54,6 +55,7 @@ class AccountsOverview extends Component
     public $status;
 
     public $columns = [
+        'customer.user.avatar' => true,
         'customer.user.name' => true,
         'accountType.name' => true,
         'account_number' => true,
@@ -74,7 +76,6 @@ class AccountsOverview extends Component
     public ? int $accountTypeId = null;
 
     public Collection $customers;
-    // public Collection $accountTypes;
 
     public $selectedCategory = null;
     public $filteredAccountTypes = [];
@@ -82,55 +83,57 @@ class AccountsOverview extends Component
     // Add this property to store account statuses
     public $accountStatuses = [];
 
+    public $filtersDrawer = false;
+
     public function placeholder()
     {
         // return view('livewire.placeholder');
-            return <<<'HTML'
-                    <!-- Skeleton Loader for clients Page -->
-                    <div class="min-h-screen bg-gray-50 p-4 dark:bg-inherit">
-                        <!-- Page Header Skeleton -->
-                        <div class="animate-pulse flex justify-between items-center mb-6">
-                            <div class="h-6 w-32 bg-gray-300 rounded"></div>
-                            <div class="h-10 w-48 bg-gray-300 rounded"></div>
-                        </div>
-
-                        <!-- Search Bar and Buttons Skeleton -->
-                        <div class="animate-pulse flex items-center space-x-4 mb-4">
-                            <div class="h-10 w-96 bg-gray-300 rounded"></div>
-                            <div class="h-10 w-32 bg-gray-300 rounded"></div>
-                        </div>
-
-                        <!-- Action Buttons Skeleton -->
-                        <div class="animate-pulse flex items-center space-x-4 mb-6">
-                            <div class="h-8 w-20 bg-red-300 rounded"></div>
-                            <div class="h-8 w-20 bg-yellow-300 rounded"></div>
-                            <div class="h-8 w-20 bg-purple-300 rounded"></div>
-                            <div class="h-8 w-20 bg-green-300 rounded"></div>
-                            <div class="h-8 w-20 bg-gray-300 rounded"></div>
-                        </div>
-
-                        <!-- Table Header Skeleton -->
-                        <div class="animate-pulse grid grid-cols-5 gap-4 mb-2">
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                        </div>
-
-                        <!-- Table Rows Skeleton -->
-                        <div class="animate-pulse space-y-4">
-                            <div class="grid grid-cols-5 gap-4">
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            </div>
-
-                        </div>
+        return <<<'HTML'
+                <!-- Skeleton Loader for clients Page -->
+                <div class="min-h-screen bg-gray-50 p-4 dark:bg-inherit">
+                    <!-- Page Header Skeleton -->
+                    <div class="animate-pulse flex justify-between items-center mb-6">
+                        <div class="h-6 w-32 bg-gray-300 rounded"></div>
+                        <div class="h-10 w-48 bg-gray-300 rounded"></div>
                     </div>
-                HTML;
+
+                    <!-- Search Bar and Buttons Skeleton -->
+                    <div class="animate-pulse flex items-center space-x-4 mb-4">
+                        <div class="h-10 w-96 bg-gray-300 rounded"></div>
+                        <div class="h-10 w-32 bg-gray-300 rounded"></div>
+                    </div>
+
+                    <!-- Action Buttons Skeleton -->
+                    <div class="animate-pulse flex items-center space-x-4 mb-6">
+                        <div class="h-8 w-20 bg-red-300 rounded"></div>
+                        <div class="h-8 w-20 bg-yellow-300 rounded"></div>
+                        <div class="h-8 w-20 bg-purple-300 rounded"></div>
+                        <div class="h-8 w-20 bg-green-300 rounded"></div>
+                        <div class="h-8 w-20 bg-gray-300 rounded"></div>
+                    </div>
+
+                    <!-- Table Header Skeleton -->
+                    <div class="animate-pulse grid grid-cols-5 gap-4 mb-2">
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                    </div>
+
+                    <!-- Table Rows Skeleton -->
+                    <div class="animate-pulse space-y-4">
+                        <div class="grid grid-cols-5 gap-4">
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        </div>
+
+                    </div>
+                </div>
+            HTML;
     }
 
     public function toggleColumnVisibility($column)
@@ -138,10 +141,10 @@ class AccountsOverview extends Component
         $this->columns[$column] = !$this->columns[$column];
     }
 
+    #[On('refresh')]
     public function mount()
     {
         $this->searchCustomer();
-        // $this->accountTypes = collect([]);
         $this->filteredAccountTypes = collect([]);
 
         // Initialize account statuses in mount
@@ -165,12 +168,10 @@ class AccountsOverview extends Component
             ->merge($selectedCustomer);
     }
 
-
-
     public function headers()
     {
         return collect([
-            // ['key' => 'user.avatar', 'label' => 'Photo', 'class' => 'w-1'],
+            ['key' => 'customer.user.avatar', 'label' => 'Photo', 'class' => 'w-1'],
             ['key' => 'customer.user.name', 'label' => 'Owner'],
             ['key' => 'accountType.name', 'label' => 'Account Type'],
             ['key' => 'account_number', 'label' => 'Account NO.'],
@@ -202,6 +203,7 @@ class AccountsOverview extends Component
             })
             ->orderBy(...array_values($this->sortBy))
             ->paginate($this->perPage);
+
     }
 
     public function saveAccount()
@@ -332,28 +334,22 @@ class AccountsOverview extends Component
             DB::commit();
 
             // Show success toast to admin
-            $this->toast(
-                type: 'success',
-                title: "Status updated to {$value}",
-                position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
+
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => "Status updated to {$value}",
+            ]);
+
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             // Log the error
-            // \Log::error('Failed to update account status: ' . $e->getMessage());
-            $this->toast(
-                type: 'error',
-                title: 'Failed to update status',
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Failed to update status'
+            ]);
         }
     }
 
@@ -444,16 +440,11 @@ class AccountsOverview extends Component
 
         // Optionally add some feedback to the user
         $this->filledbulk = false;
-        $this->toast(
-                type: 'error',
-                title: 'Accounts deleted with success',
-                description: null,
-                position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-danger text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+
+        $this->notification()->send([
+            'icon' => 'success',
+            'title' => 'Selected Accounts deleted successfully'
+        ]);
     }
 
     public function activeFiltersCount(): int

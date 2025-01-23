@@ -1,12 +1,12 @@
 <!-- Floating Chat Bubble -->
-<div class="fixed bottom-1 right-1 z-50"  wire:ignore.self>
+<div class="fixed bottom-1 right-1 z-50"  wire:ignore>
   <div class="flex items-center justify-center p-12">
     <div class="w-full">
       <div
         class="formbold-form-wrapper mx-auto hidden w-full max-w-[550px] rounded-lg border border-[#e0e0e0] bg-white"
       >
         <div class="flex items-center justify-between rounded-t-lg bg-[#6A64F1] py-4 px-9">
-          <h1 class="text-xl font-semibold">RMG Finance Chatbot</h1>
+          <h1 class="text-xl font-semibold">Your RMG Assistant</h1>
           <button onclick="chatboxToogleHandler()" class="text-white">
             <svg width="17" height="17" viewBox="0 0 17 17" class="fill-current">
               <path

@@ -24,7 +24,7 @@ class Customer extends Model
     ];
 
     protected $guarded=[];
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -49,6 +49,11 @@ class Customer extends Model
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
+    }
+
+    public function loanVotes()
+    {
+        return $this->hasMany(GroupLoanVote::class);
     }
 }
 

@@ -1,4 +1,4 @@
-<div>
+<div class="p-3">
      <!-- HEADER -->
     <x-mary-header title="Account Types" separator progress-indicator>
             <x-slot:middle>
@@ -85,6 +85,9 @@
             @scope('cell_account_count', $accountType)
                 <x-mary-badge :value="$accountType->accounts->count()" class="badge-success" />
             @endscope
+            @scope('cell_min_balance',$accountType, $currency)
+                {{ convertCurrency($accountType->min_balance, 'UGX', $currency) }}
+            @endscope
             {{-- Special `actions` slot --}}
             @scope('actions', $accountType)
                 <div class="inline-flex">
@@ -108,7 +111,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <span class="block font-medium text-gray-600">Minimum Balance:</span>
-                                    <span class="block text-gray-800">{{ $this->accountTypeToPreview->min_balance ?? 'Not specified' }}</span>
+                                    <span class="block text-gray-800">{{ convertCurrency($this->accountTypeToPreview->min_balance ,'UGX' , $currency) ?? 'Not specified' }}</span>
                                 </div>
                                 <div>
                                     <span class="block font-medium text-gray-600">Interest Rate:</span>
@@ -269,4 +272,9 @@
             </div>
         </x-mary-form>
     </x-mary-modal>
+
+
+    <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-3/4 md:w-1/2">
+
+    </x-mary-drawer>
 </div>

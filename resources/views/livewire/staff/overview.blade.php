@@ -3,7 +3,7 @@
     <!-- Breadcrumbs -->
     <div class="text-sm breadcrumbs">
         <ul>
-            <li><a>Home</a></li>
+            <li><a href="{{ route('dashboard')}}" wire:navigate>Home</a></li>
             <li><a>Staff</a></li>
         </ul>
     </div>
@@ -14,38 +14,26 @@
         <div class="flex flex-col md:flex-row justify-between gap-4">
             <!-- Search -->
             <div class="w-full md:w-1/2">
-                <x-mary-input 
-                    icon="o-magnifying-glass" 
-                    placeholder="Search staff..." 
-                    wire:model.live.debounce.300ms="search"
-                    class="w-full"
+                 <x-mary-input
+                    label=""
+                    placeholder="Search staff..."
+                    wire:model.live.debounce="search"
+                    clearable
+                    icon="o-magnifying-glass"
+                    class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none"
                 />
             </div>
-            
+
             <!-- Actions -->
             <div class="flex items-center gap-4">
-                <x-mary-button 
-                    icon="o-plus"
-                    label="Add Staff" 
-                    class="btn-primary"
+                <x-wireui-button
+                    icon="plus"
+                    label="Add Staff"
+                    class="bg-blue-500"
                     wire:click="create"
                     spinner="create"
                 />
-                
-                <!-- Per Page Selector -->
-                <div class="flex items-center gap-2">
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Show</span>
-                    <x-mary-select
-                        wire:model.live="perPage"
-                        :options="[
-                            ['id' => 10, 'name' => '10'],
-                            ['id' => 25, 'name' => '25'],
-                            ['id' => 50, 'name' => '50'],
-                            ['id' => 100, 'name' => '100']
-                        ]"
-                        class="w-20"
-                    />
-                </div>
+
             </div>
         </div>
 
@@ -54,7 +42,7 @@
             <table class="w-full whitespace-nowrap">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th wire:click="sortBy('staff_number')" 
+                        <th wire:click="sortBy('staff_number')"
                             class="px-4 py-3 w-[150px] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 text-left">
                             <div class="flex items-center gap-1">
                                 Staff Number
@@ -68,7 +56,7 @@
                         <th class="px-4 py-3 w-[250px] text-left">Email</th>
                         <th class="px-4 py-3 w-[150px] text-left">Role</th>
                         <th class="px-4 py-3 w-[150px] text-left">Status</th>
-                        <th wire:click="sortBy('created_at')" 
+                        <th wire:click="sortBy('created_at')"
                             class="px-4 py-3 w-[150px] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 text-left">
                             <div class="flex items-center gap-1">
                                 Date Joined
@@ -86,7 +74,7 @@
                             <td class="px-4 py-3">{{ $staff->staff_number }}</td>
                             <td class="px-4 py-3">
                                 @if($staff->user->avatar)
-                                    <img src="{{ asset($staff->user->avatar) }}" 
+                                    <img src="{{ asset($staff->user->avatar) }}"
                                          class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200"
                                          alt="{{ $staff->user->name }}"
                                          title="{{ $staff->user->name }}">
@@ -127,11 +115,11 @@
                             </td>
                             <td class="px-4 py-3">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    {{ $staff->user->email_verified_at 
-                                        ? 'bg-green-100 text-green-800 border border-green-200' 
+                                    {{ $staff->user->email_verified_at
+                                        ? 'bg-green-100 text-green-800 border border-green-200'
                                         : 'bg-yellow-100 text-yellow-800 border border-yellow-200' }}">
-                                    <span class="w-1.5 h-1.5 rounded-full 
-                                        {{ $staff->user->email_verified_at ? 'bg-green-600' : 'bg-yellow-600' }} 
+                                    <span class="w-1.5 h-1.5 rounded-full
+                                        {{ $staff->user->email_verified_at ? 'bg-green-600' : 'bg-yellow-600' }}
                                         mr-1.5">
                                     </span>
                                     {{ $staff->user->email_verified_at ? 'Active' : 'Not verified' }}
@@ -142,22 +130,22 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2">
-                                    <x-mary-button 
-                                        icon="o-eye" 
+                                    <x-mary-button
+                                        icon="o-eye"
                                         class="btn-ghost btn-sm"
                                         wire:click="viewStaff({{ $staff->id }})"
                                         spinner="viewStaff({{ $staff->id }})"
                                         title="View Details"
                                     />
-                                    <x-mary-button 
-                                        icon="o-pencil" 
+                                    <x-mary-button
+                                        icon="o-pencil"
                                         class="btn-ghost btn-sm"
                                         wire:click="edit({{ $staff->id }})"
                                         spinner="edit({{ $staff->id }})"
                                         title="Edit Staff"
                                     />
-                                    <x-mary-button 
-                                        icon="o-trash" 
+                                    <x-mary-button
+                                        icon="o-trash"
                                         class="btn-ghost btn-sm text-red-500"
                                         wire:click="delete({{ $staff->id }})"
                                         wire:confirm="Are you sure you want to delete this staff member?"
@@ -182,12 +170,8 @@
             <!-- Entries per page -->
             <div class="flex items-center gap-2">
                 <span class="text-sm text-gray-600 dark:text-gray-400">Show</span>
-                <select wire:model.live="perPage" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
+                <x-wireui-select wire:model.live="perPage" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300" :options="['1','10','25','50','100']" />
+
                 <span class="text-sm text-gray-600 dark:text-gray-400">entries</span>
             </div>
 
@@ -196,9 +180,9 @@
                 <div class="inline-flex rounded-md shadow-sm">
                     <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
                         {{-- Previous Page Link --}}
-                        <button 
-                            wire:click="previousPage" 
-                            wire:loading.attr="disabled" 
+                        <button
+                            wire:click="previousPage"
+                            wire:loading.attr="disabled"
                             class="{{ $staffMembers->onFirstPage() ? 'opacity-50 cursor-not-allowed' : '' }} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md leading-5 hover:text-gray-500 focus:z-10 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300"
                             {{ $staffMembers->onFirstPage() ? 'disabled' : '' }}
                         >
@@ -208,7 +192,7 @@
                         {{-- Page Numbers --}}
                         <div class="hidden md:flex">
                             @foreach ($staffMembers->getUrlRange(1, $staffMembers->lastPage()) as $page => $url)
-                                <button 
+                                <button
                                     wire:click="gotoPage({{ $page }})"
                                     class="{{ $page == $staffMembers->currentPage() ? 'bg-blue-50 border-blue-500 text-blue-600 z-10' : 'border-gray-300 text-gray-600 hover:bg-gray-50' }} relative inline-flex items-center px-4 py-2 border text-sm font-medium dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300"
                                 >
@@ -218,9 +202,9 @@
                         </div>
 
                         {{-- Next Page Link --}}
-                        <button 
-                            wire:click="nextPage" 
-                            wire:loading.attr="disabled" 
+                        <button
+                            wire:click="nextPage"
+                            wire:loading.attr="disabled"
                             class="{{ !$staffMembers->hasMorePages() ? 'opacity-50 cursor-not-allowed' : '' }} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md leading-5 hover:text-gray-500 focus:z-10 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300"
                             {{ !$staffMembers->hasMorePages() ? 'disabled' : '' }}
                         >
@@ -237,7 +221,7 @@
         @if($selectedStaff)
             <div class="p-6">
                 <h2 class="text-2xl font-bold mb-6">Staff Details</h2>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Profile Image -->
                     <div class="md:col-span-2 flex justify-center">
@@ -306,10 +290,10 @@
                     <input type="file" wire:model="avatar" id="edit_profile" class="hidden">
                     <label for="edit_profile" class="cursor-pointer block">
                         @if($avatar && !is_string($avatar))
-                            <img src="{{ $avatar->temporaryUrl() }}" 
+                            <img src="{{ $avatar->temporaryUrl() }}"
                                  class="w-32 h-32 rounded-full object-cover bg-gray-100">
                         @elseif($selectedStaff && $selectedStaff->user->avatar)
-                            <img src="{{ asset($selectedStaff->user->avatar) }}" 
+                            <img src="{{ asset($selectedStaff->user->avatar) }}"
                                  class="w-32 h-32 rounded-full object-cover bg-gray-100">
                         @else
                             <div class="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center">
@@ -327,35 +311,37 @@
                             </svg>
                         </div>
                     </label>
-                    @error('avatar') 
+                    @error('avatar')
                         <p class="mt-2 text-sm text-red-600 text-center">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
 
             <div>
-                <x-mary-input 
-                    label="Name" 
-                    wire:model="name" 
-                    placeholder="Enter name" 
+                <x-wireui-input
+                    label="Name"
+                    wire:model="name"
+                    placeholder="Enter name"
+                    errorless
                 />
                 @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
 
             <div>
-                <x-mary-input 
-                    label="Email" 
-                    wire:model="email" 
-                    placeholder="Enter email" 
+                <x-wireui-input
+                    label="Email"
+                    wire:model="email"
+                    placeholder="Enter email"
+                    errorless
                 />
                 @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
 
             <div>
-                <x-mary-input 
-                    label="Staff Number" 
-                    wire:model="staff_number" 
-                    readonly 
+                <x-mary-input
+                    label="Staff Number"
+                    wire:model="staff_number"
+                    readonly
                 />
                 @error('staff_number') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
@@ -365,40 +351,47 @@
                     label="Role"
                     wire:model="role"
                     :options="$roles"
+                    {{-- option-label="name"
+                    option-value="id"
+                    option-key-value="name" --}}
                     placeholder="Select role"
+                    errorless
+                    class=" focus:border-none border-gray-400 focus:outline-gray-400"
                 />
                 @error('role') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
 
             <div>
-                <x-mary-input 
-                    label="New Password (optional)" 
-                    wire:model="password" 
+                <x-wireui-password
+                    label="New Password (optional)"
+                    wire:model="password"
                     type="password"
-                    placeholder="Enter new password" 
+                    placeholder="Enter new password"
+                    errorless
                 />
                 @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
 
             <div>
-                <x-mary-input 
-                    label="Confirm Password" 
-                    wire:model="password_confirmation" 
+                <x-wireui-password
+                    label="Confirm Password"
+                    wire:model="password_confirmation"
                     type="password"
-                    placeholder="Confirm new password" 
+                    placeholder="Confirm new password"
                 />
             </div>
 
             <div class="flex justify-end gap-4">
-                <x-mary-button 
-                    label="Cancel" 
-                    @click="$wire.editModal = false" 
+                <x-wireui-button
+                    label="Cancel"
+                    @click="$wire.editModal = false"
+                    class="btn-outline bg-gray-500"
                 />
-                <x-mary-button 
-                    label="Update" 
-                    class="btn-primary" 
-                    type="submit" 
-                    spinner 
+                <x-wireui-button
+                    label="Update"
+                    class="bg-blue-500"
+                    type="submit"
+                    spinner="update"
                 />
             </div>
         </form>
@@ -438,16 +431,17 @@
                 <!-- Form Fields -->
                 <div class="space-y-4">
                     <div>
-                        <x-mary-input 
+                        <x-wireui-input
                             label="Name"
                             wire:model="name"
                             placeholder="Enter staff name"
+                            errorless
                         />
                         @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <x-mary-input 
+                        <x-mary-input
                             label="Staff Number"
                             wire:model="staff_number"
                             readonly
@@ -457,21 +451,25 @@
 
                 <div class="space-y-4">
                     <div>
-                        <x-mary-input 
+                        <x-wireui-input
                             type="email"
                             label="Email"
                             wire:model="email"
                             placeholder="Enter email address"
+                            errorless
                         />
                         @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <x-mary-select
+                        <x-wireui-select
                             label="Role"
                             wire:model="role"
                             :options="$roles"
+                            option-label="name"
+                            option-value="name"
                             placeholder="Select role"
+                            errorless
                         />
                         @error('role') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
@@ -480,17 +478,18 @@
                 <!-- Password Fields -->
                 <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <x-mary-input 
+                        <x-wireui-password
                             type="password"
                             label="Password"
                             wire:model="password"
                             placeholder="Enter password"
+                            errorless
                         />
                         @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <x-mary-input 
+                        <x-wireui-password
                             type="password"
                             label="Confirm Password"
                             wire:model="password_confirmation"
@@ -502,16 +501,17 @@
 
             <!-- Form Actions -->
             <div class="flex justify-end gap-4 mt-6">
-                <x-mary-button 
+                <x-wireui-button
                     label="Cancel"
                     @click="$wire.createModal = false"
-                    class="btn-outline"
+                    class="btn-outline bg-gray-500"
                 />
-                <x-mary-button 
+                <x-wireui-button
                     type="submit"
-                    label="Create"
-                    class="btn-primary"
-                    spinner
+                    label="Add"
+                    icon="plus"
+                    class="bg-blue-500"
+                    spinner="store"
                 />
             </div>
         </form>

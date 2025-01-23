@@ -16,10 +16,10 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     </head>
-    <body class="font-sans text-gray-900 antialiased">
+    <body class="font-sans text-gray-900 antialiased ">
 
         <!-- Form container with responsive padding -->
-        <div>
+        <div class="bg-gradient-to-r from-gray-400 via-zinc-200 to-gray-50">
             {{ $slot }}
         </div>
 

@@ -45,13 +45,7 @@
                         <th class="py-2 px-4 border-b text-sm font-semibold text-gray-700 text-center">Actions</th>
                     </tr>
                 </thead>
-                {{-- <tbody wire:loading.delay class="">
-                    <td>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><g><circle cx="4" cy="12" r="3" fill="currentColor"/><circle cx="20" cy="12" r="3" fill="currentColor"/><animateTransform attributeName="transform" calcMode="spline" dur="1s" keySplines=".36,.6,.31,1;.36,.6,.31,1" repeatCount="indefinite" type="rotate" values="0 12 12;180 12 12;360 12 12"/></g></svg>
-                    </td>
-                </tbody> --}}
-
-                <tbody > <!-- This will remove rows while loading -->
+                <tbody> <!-- This will remove rows while loading -->
                     @forelse($this->standingOrders as $order)
                         <tr class="hover:bg-gray-100 dark:hover:bg-black">
                             <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $loop->iteration }}</td>
@@ -64,7 +58,6 @@
                             <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">
                                 @foreach ($order->accounts as $record)
                                     {{ $record->pivot->account_id ? 'RMGbank' : 'BeneficiaryOtherBank' }} ({{ $record->pivot->account_id ? $record->account_number : $record->pivot->account_number }})
-                                    {{ $record->pivot->account_id }}
                                 @endforeach
                             </td>
                             <td class="py-2 px-2 border-b text-sm text-center">

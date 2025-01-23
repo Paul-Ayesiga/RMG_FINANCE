@@ -81,7 +81,10 @@ class Overview extends Component
     // Add this property
     public $allowedFrequencies = [];
 
+    public $filtersDrawer = false;
 
+
+    #[On('refresh')]
     public function mount()
     {
         $this->loanProducts = collect();
@@ -227,7 +230,7 @@ class Overview extends Component
         $selectedAccount = Account::where('id', $this->accountId)->get();
 
         $this->accounts = Account::query()
-            ->where('customer_id', auth()->user()->customer->id)
+            ->where('customer_id', Auth::user()->customer->id)
             ->where('status', 'active')
             ->when($value, fn($query) => $query->where('account_number', 'like', "%$value%"))
             ->take(5)
@@ -275,14 +278,11 @@ class Overview extends Component
         // Check if user can apply for a loan
         $loanCheck = $this->canApplyForLoan();
         if (!$loanCheck['can_apply']) {
-            $this->toast(
-                type: 'error',
-                title: 'Cannot Apply for Loan',
-                message: $loanCheck['message'],
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Cannot Apply for Loan',
+                'description' => $loanCheck['message'],
+            ]);
             return;
         }
 
@@ -413,6 +413,7 @@ class Overview extends Component
         return ($this->amount * $loanProduct->interest_rate * $this->term) / 100;
     }
 
+    #[On('refresh')]
     public function render()
     {
         return view('livewire.customer-folder.my-loans.overview', [

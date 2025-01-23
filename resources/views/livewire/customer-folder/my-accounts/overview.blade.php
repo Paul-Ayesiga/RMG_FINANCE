@@ -12,7 +12,9 @@
                 />
             </x-slot:middle>
             <x-slot:actions>
-                <x-mary-button label="Create Account" @click="$wire.addAccountModal = true"  icon="o-plus" class="bg-blue-700 mb-3 text-white rounded-md mr-10" />
+                @can('create accounts')
+                    <x-mary-button label="Create Account" @click="$wire.addAccountModal = true"  icon="o-plus" class="bg-blue-700 mb-3 text-white rounded-md mr-10" />
+                @endcan
             </x-slot:actions>
     </x-mary-header>
 
@@ -25,7 +27,7 @@
             <div class="inline-flex flex-wrap items-center mb-2 space-x-2">
                 <!-- Filter Button with Badge -->
                 <x-mary-button label="Filter" icon="o-funnel" class="bg-blue-200 btn-sm mx-2 rounded-md border-none dark:text-white dark:bg-slate-700"
-                    wire:click="$set('filtersDrawer', true)" badge="{{$activeFiltersCount}}" />
+                     @click="$wire.filtersDrawer = true" badge="{{$activeFiltersCount}}" />
             </div>
             {{-- export buttons --}}
              <div class="inline-flex flex-wrap items-center mb-2">
@@ -97,6 +99,10 @@
                 </span>
             @endscope
 
+            @scope('cell_balance', $account, $currency)
+                {{ number_format(convertCurrency($account->balance,'UGX', $currency),0)}}
+            @endscope
+
             {{-- Special `actions` slot --}}
             @scope('actions', $account)
                 <div class="inline-flex">
@@ -125,8 +131,7 @@
                                     bg-red-100 text-red-800
                                 @elseif($this->accountToPreview->status === 'pending')
                                     bg-blue-100 text-blue-800
-                                @else
-                                    bg-gray-100 text-gray-800
+
                                 @endif
                             ">
                                 {{ ucfirst($this->accountToPreview->status) }}
@@ -230,5 +235,9 @@
     </x-mary-modal>
     {{-- End of Add Account Type --}}
 
+
+    <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-3/4 md:w-1/2">
+
+    </x-mary-drawer>
 </div>
 

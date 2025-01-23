@@ -172,13 +172,13 @@
                     class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed"
                     search-function="searchLoanDisbursementAccount"
                 >
-                    @scope('item', $account)
+                    @scope('item', $account, $currency)
                         <x-mary-list-item :item="$account" sub-value="account_number">
                             <x-slot:avatar>
                                 <x-mary-icon name="o-credit-card" class="bg-orange-100 p-2 w-8 h8 rounded-full" />
                             </x-slot:avatar>
                             <x-slot:actions>
-                                <x-mary-badge :value="number_format($account->balance, 2)" />
+                                <x-mary-badge :value="number_format(convertCurrency($account->balance,'UGX', $currency), 2)" />
                             </x-slot:actions>
                         </x-mary-list-item>
                     @endscope
@@ -221,17 +221,19 @@
                         help="Upload all required documents (PDF, Images)"
                     />
                 @endif
-
-
             </div>
 
             <x-slot:actions>
                 <x-mary-button label="Cancel" wire:click="$set('addLoanModal', false)" />
-                <x-mary-button label="Apply" class="btn-primary" type="submit" spinner="applyForLoan" :disabled="!$loanProductId"/>
+                <x-mary-button label="Apply" class="bg-blue-200 text-black" type="submit" spinner="applyForLoan" :disabled="!$loanProductId"/>
             </x-slot:actions>
         </x-mary-form>
     </x-mary-modal>
   @endcan
 
+
+   <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-3/4 md:w-1/2">
+
+    </x-mary-drawer>
 </div>
 

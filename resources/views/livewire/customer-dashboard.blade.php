@@ -1,3 +1,11 @@
+{{-- @php
+    // Convert the deposit amount from 'UGX' to the selected currency
+    $convertedDeposits = convertCurrency($stats['deposits']['amount'] ?? 0, 'UGX', $currency);
+    $convertedWithdrawals = convertCurrency($stats['withdrawals']['amount'] ?? 0, 'UGX', $currency);
+    $convertedTransfers = convertCurrency($stats['transfers']['amount'] ?? 0, 'UGX', $currency);
+    $convertedWalletBalance = convertCurrency($stats['balance'] ?? 0, 'UGX', $currency);
+@endphp --}}
+
 <div>
 @if (isProfileIncomplete(Auth::user()))
 
@@ -153,7 +161,7 @@
 
 @else
 
-<section class="bg-zinc-50">
+<section class="bg-inherit">
     <div class="max-w-screen-xl px-4 mx-auto py-8">
         <div class="flex flex-row gap-4 justify-center">
             <a href="#_" class="transform hover:scale-125 duration-300">
@@ -188,7 +196,7 @@
         <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Deposits</h3>
             <p class="text-3xl dark:text-white">{{ $stats['deposits']['count'] }}</p>
-            <p class="text-sm dark:text-white"> <small>UGX</small> {{
+            <p class="text-sm dark:text-white"> <small>{{ $currency }}</small> {{
                 $stats['deposits']['amount'] >= 1000000000
                     ? number_format($stats['deposits']['amount'] / 1000000000, 1) . 'B'
                     : ($stats['deposits']['amount'] >= 1000000
@@ -203,10 +211,10 @@
         <div class="p-4 bg-blue-400">
             <img src="{{ asset('icons/withdrawal.svg') }}" class="h-12 w-12" alt="Withdrawal Icon">
         </div>
-        <div class="px-4 text-gray-700">
+       <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Withdrawals</h3>
             <p class="text-3xl dark:text-white">{{ $stats['withdrawals']['count'] }}</p>
-            <p class="text-sm dark:text-white"><small>UGX</small> {{
+            <p class="text-sm dark:text-white"><small>{{ $currency }}</small> {{
                 $stats['withdrawals']['amount'] >= 1000000000
                     ? number_format($stats['withdrawals']['amount'] / 1000000000, 1) . 'B'
                     : ($stats['withdrawals']['amount'] >= 1000000
@@ -221,10 +229,10 @@
         <div class="p-4 bg-indigo-400">
             <img src="{{ asset('icons/card.svg') }}" class="h-12 w-20" alt="Transfers Icon">
         </div>
-        <div class="px-4 text-gray-700">
+      <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Transfers</h3>
             <p class="text-3xl dark:text-white">{{ $stats['transfers']['count'] }}</p>
-            <p class="text-sm dark:text-white"><small>UGX</small> {{
+            <p class="text-sm dark:text-white"><small>{{ $currency }}</small> {{
                 $stats['transfers']['amount'] >= 1000000000
                     ? number_format($stats['transfers']['amount'] / 1000000000, 1) . 'B'
                     : ($stats['transfers']['amount'] >= 1000000
@@ -239,9 +247,9 @@
         <div class="p-4 bg-red-400">
             <img src="{{ asset('icons/wallet.svg') }}" class="h-12 w-12" alt="Wallet Icon">
         </div>
-        <div class="px-4 text-gray-700">
-            <h3 class="text-sm tracking-wider dark:text-white">Wallet Balance</h3>
-            <p class="text-3xl dark:text-white"><i>UGX</i> {{
+       <div class="px-4 text-gray-700">
+            <h3 class="text-xs tracking-wider dark:text-white">Wallet Balance</h3>
+            <p class="text-lg dark:text-white break-all"><i>{{ $currency }}</i> {{
                 $stats['balance'] >= 1000000000
                     ? number_format($stats['balance'] / 1000000000, 1) . 'B'
                     : ($stats['balance'] >= 1000000
@@ -267,7 +275,7 @@
             <h3 class="text-sm tracking-wider dark:text-white">Active Loans</h3>
             <p class="text-3xl dark:text-white">{{ $stats['loans']['active'] }}</p>
             <p class="text-sm dark:text-white">
-                UGX{{
+                {{$currency}} {{
                 $stats['loans']['total_amount'] >= 1000000000
                     ? number_format($stats['loans']['total_amount'] / 1000000000, 1) . 'B'
                     : ($stats['loans']['total_amount'] >= 1000000
@@ -315,7 +323,7 @@
             <h3 class="text-sm tracking-wider dark:text-white">Paid Loans</h3>
             <p class="text-3xl dark:text-white">{{ $stats['loans']['paid'] }}</p>
             <p class="text-sm dark:text-white">
-                UGX{{
+                {{$currency}} {{
                 $stats['loans']['total_amount'] >= 1000000000
                     ? number_format($stats['loans']['paid_amount'] / 1000000000, 1) . 'B'
                     : ($stats['loans']['total_amount'] >= 1000000
@@ -336,7 +344,7 @@
     <div class="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
         <div class="flex justify-between items-center mb-2">
             <h3 class="text-lg font-semibold dark:text-white">Transaction Trends</h3>
-            <x-mary-button label="Switch Chart Type" wire:click="switchTrendChart" spinner class="btn-sm" />
+            <x-mary-button label="Switch Type" wire:click="switchTrendChart" spinner class="btn-sm"/>
         </div>
         <div class="relative" style="min-height: 300px; width: 100%;">
             <x-mary-chart wire:model="transactionChart" />
@@ -347,7 +355,7 @@
     <div class="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
         <div class="flex justify-between items-center mb-2">
             <h3 class="text-lg font-semibold dark:text-white">Transaction Distribution</h3>
-            <x-mary-button label="Switch Chart Type" wire:click="switchDistributionChart" spinner class="btn-sm" />
+            <x-mary-button label="Switch Type" wire:click="switchDistributionChart" spinner class="btn-sm" />
         </div>
         <div class="relative" style="min-height: 300px; width: 100%;">
             <x-mary-chart wire:model="distributionChart" />
@@ -355,23 +363,23 @@
     </div>
 </div>
 
-<!-- After your existing charts -->
-<div class="mt-8 px-4 sm:px-8 pb-8">
+<!-- Calendar section-->
+<div class="mt-8 px-2 sm:px-4 pb-8">
     <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold dark:text-white">Financial Calendar</h3>
-            <x-mary-button
-                label="Add Event"
-                icon="o-plus"
+            <x-wireui-button
+                label="Event"
+                icon="plus"
                 wire:click="openEventModal"
-                class="btn-primary"
+                class="bg-blue-300"
                 spinner="openEventModal"
             />
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 ">
             <!-- Calendar -->
-            <div class="md:col-span-3">
+            <div class=" md:col-span-3 ml-[-21px] lg:ml-0">
                 <div>
                     <x-mary-calendar
                         :events="$events"
@@ -383,7 +391,7 @@
             </div>
 
             <!-- Events List -->
-            <div class="md:col-span-2 bg-base-100 p-4 rounded-lg border dark:border-gray-700">
+            <div class="w-full md:col-span-2 bg-base-100 p-4 rounded-lg border dark:border-gray-700">
                 <h4 class="font-semibold mb-4 dark:text-white">Upcoming Events</h4>
                 <div class="space-y-3 max-h-[300px] overflow-y-auto">
                     @foreach($events as $event)
@@ -526,5 +534,4 @@
 
 @script
     <script src="https://cdn.jsdelivr.net/npm/vanilla-calendar-pro@2.9.6/build/vanilla-calendar.min.js"></script>
-
 @endscript

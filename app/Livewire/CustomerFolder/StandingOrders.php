@@ -38,8 +38,6 @@ class StandingOrders extends Component
         $this->accounts = Auth::user()->customer->accounts;
         $this->beneficiaries = Beneficiary::where('user_id', Auth::id())->get();
         // Fetch all standing orders for the authenticated user
-
-
     }
 
     public function boot()
@@ -232,7 +230,7 @@ class StandingOrders extends Component
             if ($order->accounts->isNotEmpty()) {
                 // If accounts are linked, set selected accounts
                 $this->selected_accounts = $order->accounts->pluck('id')->toArray();
-                // $this->selected_beneficiaries = []; // Ensure beneficiaries are cleared
+                $this->selected_beneficiaries = []; // Ensure beneficiaries are cleared
             } elseif ($order->beneficiaries->isNotEmpty()) {
                 // If beneficiaries are linked, set selected beneficiaries
                 $this->selected_beneficiaries = $order->beneficiaries->pluck('account_id')->toArray();

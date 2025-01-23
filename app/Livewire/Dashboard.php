@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\User;
+use App\Models\Staff;
 use App\Models\Event;
 use App\Models\LoanProduct;
 use App\Models\Loan;
@@ -11,9 +12,12 @@ use App\Models\Account;
 use App\Models\AccountType;
 use Carbon\Carbon;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
+use App\Helpers\currencyHelper;
 
 
 #[Lazy()]
@@ -27,6 +31,7 @@ class Dashboard extends Component
     public $loanChart;
     public $accountChart;
 
+    #[On('refresh')]
     public function mount()
     {
         $this->loadCharts();
@@ -36,7 +41,13 @@ class Dashboard extends Component
 
     protected function loadCharts()
     {
-        // Loan Distribution Chart
+
+        $user = Auth::id();
+        $currencyArray = User::where('id', $user)->get()->pluck('currency');
+        $currency = $currencyArray[0];
+
+        // Loan Distribution Chart (convert data)
+        $loanDistributionData = $this->getLoanDistribution();
         $this->myChart = [
             'chart' => [
                 'type' => 'pie',
@@ -46,14 +57,18 @@ class Dashboard extends Component
                 'text' => 'Loan Distribution by Type',
                 'align' => 'center'
             ],
-            'series' => $this->getLoanDistribution(),
+            'series' => array_map(function ($amount) use ($currency) {
+                return convertCurrency($amount, 'UGX', $currency); // Use helper function here
+            }, $loanDistributionData),
             'labels' => LoanProduct::pluck('name')->toArray(),
             'legend' => [
                 'position' => 'bottom'
             ]
         ];
 
-        // Monthly Applications Chart
+        // Monthly Applications Chart (convert data)
+        $loanData = $this->getMonthlyApplications('loan');
+        $accountData = $this->getMonthlyApplications('account');
         $this->category = [
             'chart' => [
                 'type' => 'bar',
@@ -66,11 +81,15 @@ class Dashboard extends Component
             'series' => [
                 [
                     'name' => 'Loans',
-                    'data' => $this->getMonthlyApplications('loan')
+                    'data' => array_map(function ($amount) use ($currency) {
+                        return convertCurrency($amount, 'UGX', $currency); // Use helper function here
+                    }, $loanData)
                 ],
                 [
                     'name' => 'Accounts',
-                    'data' => $this->getMonthlyApplications('account')
+                    'data' => array_map(function ($amount) use ($currency) {
+                        return convertCurrency($amount, 'UGX', $currency); // Use helper function here
+                    }, $accountData)
                 ]
             ],
             'xaxis' => [
@@ -78,31 +97,22 @@ class Dashboard extends Component
             ]
         ];
 
-        // Transaction Monitoring Chart
+        // Transaction Monitoring Chart (convert data)
+        $transactionTypes = ['deposit', 'withdrawal', 'transfer'];
         $this->transactionChart = [
             'type' => 'line',
             'data' => [
                 'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                'datasets' => [
-                    [
-                        'label' => 'Deposits',
-                        'data' => $this->getMonthlyTransactions('deposit'),
-                        'borderColor' => '#10B981', // green
+                'datasets' => array_map(function ($type) use ($currency) {
+                    return [
+                        'label' => ucfirst($type),
+                        'data' => array_map(function ($amount) use ($currency) {
+                            return convertCurrency($amount, 'UGX', $currency); // Use helper function here
+                        }, $this->getMonthlyTransactions($type)),
+                        'borderColor' => $this->getTransactionColor($type),
                         'tension' => 0.1
-                    ],
-                    [
-                        'label' => 'Withdrawals',
-                        'data' => $this->getMonthlyTransactions('withdrawal'),
-                        'borderColor' => '#EF4444', // red
-                        'tension' => 0.1
-                    ],
-                    [
-                        'label' => 'Transfers',
-                        'data' => $this->getMonthlyTransactions('transfer'),
-                        'borderColor' => '#3B82F6', // blue
-                        'tension' => 0.1
-                    ]
-                ]
+                    ];
+                }, $transactionTypes)
             ],
             'options' => [
                 'responsive' => true,
@@ -116,27 +126,15 @@ class Dashboard extends Component
             ]
         ];
 
-        // Loan Monitoring Chart
+        // Loan Monitoring Chart (convert data)
         $this->loanChart = [
             'type' => 'bar',
             'data' => [
                 'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 'datasets' => [
-                    [
-                        'label' => 'New Loans',
-                        'data' => $this->getMonthlyLoans('new'),
-                        'backgroundColor' => '#8B5CF6', // violet
-                    ],
-                    [
-                        'label' => 'Active Loans',
-                        'data' => $this->getMonthlyLoans('active'),
-                        'backgroundColor' => '#059669', // emerald
-                    ],
-                    [
-                        'label' => 'Completed Loans',
-                        'data' => $this->getMonthlyLoans('completed'),
-                        'backgroundColor' => '#2563EB', // blue
-                    ]
+                    $this->createLoanDataset('new', $currency),
+                    $this->createLoanDataset('active', $currency),
+                    $this->createLoanDataset('completed', $currency),
                 ]
             ],
             'options' => [
@@ -151,7 +149,7 @@ class Dashboard extends Component
             ]
         ];
 
-        // Account Status Chart
+        // Account Status Chart (convert data)
         $this->accountChart = [
             'type' => 'doughnut',
             'data' => [
@@ -187,6 +185,45 @@ class Dashboard extends Component
             ->groupBy('loan_product_id')
             ->pluck('count')
             ->toArray();
+    }
+
+    protected function getTransactionColor($type)
+    {
+        switch ($type) {
+            case 'deposit':
+                return '#10B981'; // green
+            case 'withdrawal':
+                return '#EF4444'; // red
+            case 'transfer':
+                return '#3B82F6'; // blue
+            default:
+                return '#6B7280'; // gray
+        }
+    }
+
+    protected function createLoanDataset($status, $currency)
+    {
+        return [
+            'label' => ucfirst($status) . ' Loans',
+            'data' => array_map(function ($amount) use ($currency) {
+                return convertCurrency($amount, 'UGX', $currency); // Use helper function here
+            }, $this->getMonthlyLoans($status)),
+            'backgroundColor' => $this->getLoanStatusColor($status),
+        ];
+    }
+
+    protected function getLoanStatusColor($status)
+    {
+        switch ($status) {
+            case 'new':
+                return '#8B5CF6'; // violet
+            case 'active':
+                return '#059669'; // emerald
+            case 'completed':
+                return '#2563EB'; // blue
+            default:
+                return '#6B7280'; // gray
+        }
     }
 
     protected function getMonthlyApplications($type)
@@ -407,7 +444,7 @@ class Dashboard extends Component
 
         return view('livewire.dashboard', [
             'customers' => User::where('role', 'customer')->count(),
-            'staff' => User::where('role', 'staff')->count(),
+            'staff' => Staff::count(),
             'accountTypes' => AccountType::count(),
             'pendingAccounts' => Account::where('status', 'pending')->count(),
             'approvedAccounts' => Account::where('status', 'approved')->count(),

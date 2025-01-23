@@ -163,7 +163,7 @@
 
 
             <a href="#" class="text-2xl font-bold text-blue-600 animate__animated animate__fadeIn">RMG FINANCE</a>
-    
+
                 <!-- Desktop Menu -->
                 <div class="desktop-menu space-x-8">
                     <a href="#home" class="nav-link text-gray-700 hover:text-blue-600 animate__animated animate__fadeInDown">Home</a>
@@ -195,6 +195,7 @@
         </div>
         <div class="menu-overlay"></div>
     </nav>
+
 
     <!-- Hero Section -->
     <section id="home" class="pt-24 pb-12 bg-gradient-to-r from-blue-600 to-blue-800">

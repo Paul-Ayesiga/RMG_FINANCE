@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Validate;
-use Mary\Traits\Toast;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\WithMediaSync;
@@ -23,14 +22,14 @@ use App\Models\Transaction;
 use Livewire\Attributes\Computed;
 use App\Notifications\NewAccountCreated;
 use App\Events\PrivateNotify;
-
+use WireUi\Traits\WireUiActions;
 
 #[Lazy()]
 class Overview extends Component
 {
-    use Toast;
     use WithPagination;
     use WithFileUploads, WithMediaSync;
+    use WireUiActions;
 
     public ?Account $account;
 
@@ -80,6 +79,8 @@ class Overview extends Component
     public $selectedCategory = null;
     public Collection $filteredAccountTypes;
 
+    public $filtersDrawer = false;
+
     public function placeholder()
     {
         return <<<'HTML'
@@ -121,6 +122,7 @@ class Overview extends Component
         $this->columns[$column] = !$this->columns[$column];
     }
 
+    #[On('refresh')]
     public function mount()
     {
         $this->accountTypes = collect([]);

@@ -8,12 +8,14 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Events\systemNotification;
 use Livewire\Attributes\On;
-use Mary\Traits\Toast;
+use WireUi\Traits\WireUiActions;
+use Livewire\Attributes\Lazy;
 
+#[Lazy()]
 class SendNotification extends Component
 {
     use WithPagination;
-    use Toast;
+    use WireUiActions;
 
     public $type = 'info';
     public $title = '';
@@ -86,19 +88,8 @@ class SendNotification extends Component
             ->get();
     }
 
-    #[On('echo:system-notification,systemNotification')]
-    // public function notifyNewOrder()
-    // {
-    //     $this->toast(
-    //         type: 'success',
-    //         title: 'It is done!',
-    //         description: null,
-    //         position: 'toast-top-right',
-    //         icon: 'o-information-circle',      // Optional icon, similar to Toastr's icon
-    //         css: 'alert-info',                  // DaisyUI classes
-    //         timeout: 5000,                      // Timeout in ms (same as Toastr's timeOut)
-    //     );
-    // }
+    // #[On('echo:system-notification,systemNotification')]
+
 
     public function render()
     {

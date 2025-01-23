@@ -27,6 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'avatar',
         'password',
+        'currency'
     ];
 
     /**
@@ -87,5 +88,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Beneficiary::class);
     }
 
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_members')->withPivot('role');
+    }
+
+    public function settings()
+    {
+        return $this->hasOne(Settings::class);
+    }
 
 }

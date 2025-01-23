@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -18,25 +19,27 @@ class SuperAdminSeeder extends Seeder
     {
         //Super admin
         $clintonAccount = User::firstOrCreate([
-            'email' => 'clinton@gmail.com',
+            'email' => 'ayesigapo@gmail.com',
+            'email_verified_at' => Carbon::today(),
+
         ], [
             'name' => 'Super-Admin',
-            'password' => Hash::make('Clinton@smsone123'),
+            'password' => Hash::make('kellyrina2023'),
         ]);
         //assign roles
         $clintonAccount->assignRole('super-admin');
         $clintonAccount->removeRole('customer');
 
         //Customer admin
-        $paulAccount = User::firstOrCreate([
-            'email' => 'ayesigapo@gmail.com',
-        ], [
-            'name' => 'Paul Ayesiga',
-            'password' => Hash::make('Secret@1'),
-        ]);
-        //assign roles
-        $paulAccount->assignRole('customer');
-        $paulAccount->removeRole('super-admin');
+        // $paulAccount = User::firstOrCreate([
+        //     'email' => 'ayesigapo@gmail.com',
+        // ], [
+        //     'name' => 'Paul Ayesiga',
+        //     'password' => Hash::make('Secret@1'),
+        // ]);
+        // //assign roles
+        // $paulAccount->assignRole('customer');
+        // $paulAccount->removeRole('super-admin');
 
     }
 }

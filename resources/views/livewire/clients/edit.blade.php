@@ -1,4 +1,4 @@
-<div>
+<div class="p-3">
     <div class="breadcrumbs text-sm mb-2">
         <ul>
             <li><a wire:navigate href="{{ route('dashboard')}}">Home</a></li>
@@ -54,7 +54,7 @@
                                 <option>widowed</option>
                             </select>
                             <x-mary-datetime label="Birth Date" wire:model.defer="date_of_birth" icon="o-calendar" class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
-                            <x-mary-input label="Identification Number" wire:model.defer="identification_number" placeholder="National ID" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" readonly/>
+                            <x-mary-input label="Identification Number" wire:model.defer="identification_number" placeholder="National ID"  class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" readonly/>
                             <x-mary-input label="Occupation" wire:model.defer="occupation" placeholder="Occupation" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
                             <x-mary-input label="Employer" wire:model.defer="employer" placeholder="Employer" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
                             <x-mary-input label="Annual Income" wire:model.defer="annual_income" placeholder="Annual Income" type="number" step="0.01" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
@@ -90,7 +90,7 @@
                     <x-mary-card title="Addresses" separator class="bg-white shadow-lg dark:bg-inherit">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <x-mary-input label="Primary Address" wire:model="address" placeholder="Primary Address" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
-                            <x-mary-input label="Secondary Address" wire:model="secondaryAddress" placeholder="Secondary Address" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
+                            <x-mary-input label="Secondary Address" wire:model="secondaryAddress" placeholder="Secondary Address" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" readonly/>
                         </div>
                         <x-slot:actions>
                             <x-mary-button label="Previous" icon="o-backward" class="bg-orange-900 btn-sm text-white" wire:click="previous('addresses')" spinner="previous('addresses')" />
@@ -103,8 +103,8 @@
                 <div x-show="$wire.activeTab === 'payments'">
                     <x-mary-card title="Payments (optional for now)" separator class="bg-white shadow-lg dark:bg-inherit">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <x-mary-input label="Payment Method" wire:model.defer="paymentMethod" placeholder="e.g., Credit Card, PayPal" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
-                            <x-mary-input label="Card Number" wire:model.defer="cardNumber" placeholder="**** **** **** 1234" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" />
+                            <x-mary-input label="Payment Method" wire:model.defer="paymentMethod" placeholder="e.g., Credit Card, PayPal" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" readonly/>
+                            <x-mary-input label="Card Number" wire:model.defer="cardNumber" placeholder="**** **** **** 1234" clearable class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" readonly/>
                         </div>
                         <x-slot:actions>
                             <x-mary-button label="Previous" icon="o-backward" class="bg-orange-900 btn-sm text-white" wire:click="previous('payments')" spinner="previous('payments')" />

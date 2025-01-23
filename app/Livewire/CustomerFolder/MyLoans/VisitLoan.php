@@ -6,6 +6,7 @@ use App\Models\Loan;
 use Livewire\Component;
 use WireUi\Traits\WireUiActions;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +55,7 @@ class VisitLoan extends Component
     #[Validate('required|string|regex:/^[0-9]{10}$/')]
     public $mobileMoneyNumber;
 
+    #[On('refresh')]
     public function mount()
     {
         $this->accounts = collect();

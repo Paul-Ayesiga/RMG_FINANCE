@@ -1,4 +1,4 @@
-<div>
+<div class="p-3">
     <!-- Breadcrumbs -->
     <div class="text-sm breadcrumbs">
         <ul>

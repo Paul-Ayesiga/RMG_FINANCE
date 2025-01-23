@@ -122,7 +122,7 @@
                     <!-- Account Balance -->
                     <div>
                         <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Balance</h3>
-                        <p class="text-green-600 font-bold">UGX {{ $account->balance }}</p>
+                        <p class="text-green-600 font-bold">{{$currency}} {{ number_format(convertCurrency($account->balance,'UGX', $currency),0) }}</p>
                     </div>
 
                     <!-- Account Status -->
@@ -161,7 +161,7 @@
             >
             <div class="p-6 bg-white border rounded-lg shadow-sm dark:bg-inherit">
                 <h3 class="text-lg font-semibold">Withdrawals</h3>
-                <p class="text-gray-600 dark:text-white">View your withdrawal details here.</p>
+                <p class="text-gray-600 dark:text-white">View your withdrawalss details here.</p>
                 <x-mary-form wire:submit="withdraw" x-data="{ withdrawalMethod: 'default' }">
                     <div class="p-2">
                         <div class="mb-4 text-center dark:text-yellow-100">
@@ -189,10 +189,38 @@
 
                         <!-- Default Withdrawal Form -->
                         <div x-show="withdrawalMethod === 'default'">
-                            <x-wireui-input label="Amount" wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount"  errorless/>
-                            @error('withdrawalAmount')
-                                <p class="text-red-700 italic text-sm">{{ $message }}</p>
-                            @enderror
+                            {{-- <x-mary-input wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount"  :prefix="$currency" money inline class="w-full h-10 px-4 py-2 text-sm bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/> --}}
+                            <x-mary-input wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount" class="bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400">
+                                <x-slot:prepend>
+                                <div class="inline-flex items-center gap-2">
+                                        <form wire:submit.prevent="updateCurrency">
+                                            <div class="relative">
+                                                <select
+                                                    wire:model.live="currency"
+                                                    class="h-full bg-base-200 border border-gray-300 rounded-l-md px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500">
+                                                    @foreach (config('currencies.supported') as $code => $details)
+                                                        <option wire:loading.remove value="{{ $code }}">
+                                                            {{ $details['name'] }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                                <!-- Spinner -->
+                                                <div
+                                                    wire:loading
+                                                    wire:target="currency"
+                                                    class="absolute inset-y-0 right-4 top-2.5 flex items-center">
+                                                    <svg class="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </x-slot:prepend>
+                            </x-mary-input>
                         </div>
 
                         <!-- Card Withdrawal Form -->
@@ -230,7 +258,7 @@
             >
             <div class="p-6 bg-white border rounded-lg shadow-sm dark:bg-inherit">
                 <h3 class="text-lg font-semibold">Deposits</h3>
-                <p class="text-gray-600 mb-2 dark:text-white">View your deposit details here.</p>
+                <p class="text-gray-600 mb-2 dark:text-white">View your deposits details here.</p>
                   <x-mary-form wire:submit="deposit" x-data="{ depositMethod: 'default' }">
                     <div class="p-4">
                         <!-- Deposit Method Selection -->
@@ -263,15 +291,37 @@
 
                         <!-- default Deposit Method -->
                         <div x-show="depositMethod === 'default'" class="text-center" x-cloak>
-                            <x-wireui-input
-                                label="Amount"
-                                wire:model="depositAmount"
-                                type="number"
-                                step="0.01"
-                                placeholder="Enter deposit amount" errorless/>
-                                @error('depositAmount')
-                                    <p class="text-red-700 italic text-sm">{{ $message }}</p>
-                                @enderror
+                           <x-mary-input wire:model="depositAmount" type="number" step="0.01" placeholder="Enter deposit amount" class="bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400">
+                                <x-slot:prepend>
+                                <div class="inline-flex items-center gap-2">
+                                        <form wire:submit.prevent="updateCurrency">
+                                            <div class="relative">
+                                                <select
+                                                    wire:model.live="currency"
+                                                    class="h-full bg-base-200 border border-gray-300 rounded-l-md px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500">
+                                                    @foreach (config('currencies.supported') as $code => $details)
+                                                        <option wire:loading.remove value="{{ $code }}">
+                                                            {{ $details['name'] }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                                <!-- Spinner -->
+                                                <div
+                                                    wire:loading
+                                                    wire:target="currency"
+                                                    class="absolute inset-y-0 right-4 top-2.5 flex items-center">
+                                                    <svg class="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </x-slot:prepend>
+                            </x-mary-input>
                         </div>
 
                         <!-- Card Deposit Method -->
@@ -376,7 +426,7 @@
                     <div class="flex-1 p-1 bg-gray-100 dark:bg-inherit">
                         <div class="space-y-6">
                             <!-- Local RGMBank Content -->
-                            <div x-show="activeTab === 'local-rgmbank'" :id="$id('local-rgmbank-content')" class="relative bg-white p-6 border rounded-lg shadow-sm dark:bg-inherit dark:text-white mt-6" x-cloak>
+                            <div x-show="activeTab === 'local-rgmbank'" :id="$id('local-rgmbank-content')" class="relative bg-white p-3 border rounded-lg shadow-sm dark:bg-inherit dark:text-white mt-6" x-cloak>
                                 <h3 class="text-lg font-semibold">Local RMG Bank Account</h3>
                                 <div x-data="{
                                         activeAccordion: '',
@@ -523,7 +573,7 @@
                                         <div x-show="activeAccordion==id" x-collapse x-cloak>
                                             <div class="p-5 pt-0 opacity-70 overflow-y-scroll">
                                                 <form wire:submit.prevent="transfer({{ $account->id }})" class="space-y-4">
-                                                    <x-wireui-select  wire:model.live="beneficiarySelectedIndex" label="Beneficiaries" placeholder="Select one beneficiary"  min-items-for-search  without-items-count >
+                                                    <x-wireui-select  wire:model="beneficiarySelectedIndex" label="Beneficiaries" placeholder="Select one beneficiary"  min-items-for-search  without-items-count >
                                                         @foreach ($beneficiaries as $index => $beneficiary)
                                                             <x-wireui-select.option label="{{ $beneficiary['nickname'] }} ({{ $beneficiary['account_number'] }})" value="{{ $index }}" />
                                                         @endforeach
@@ -833,7 +883,7 @@
                                         {{ ucfirst($transaction->type) }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3">UGX {{ number_format($transaction->amount, 2) }}</td>
+                                <td class="px-4 py-3">{{$currency}} {{ number_format(convertCurrency($transaction->amount, 'UGX' , $currency), 2) }}</td>
                                 <td class="px-4 py-3">
                                     <span class="px-2 py-0.5 font-semibold text-sm rounded-sm text-white
                                         {{ $transaction->status === 'completed' ? 'bg-green-500' :
@@ -873,75 +923,75 @@
             <div class="mt-4">
                 {{ $accountTransactionsBlade->links() }}  <!-- Pagination controls -->
             </div>
-
-             <!-- Transaction View Modal -->
-                <x-mary-modal wire:model="viewModal">
-                    @if($selectedTransaction)
-                        <div class="p-4">
-                            <h2 class="text-lg font-semibold mb-4">Transaction Details</h2>
-
-                            <div class="space-y-4">
-                                <div class="grid lg:grid-cols-2 md:grid-cols-1 gap-4">
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Reference</label>
-                                        <p class="font-medium">{{ $selectedTransaction->reference_number }}</p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Type</label>
-                                        <p>
-                                            <span class="px-2 py-0.5 font-semibold text-sm rounded-sm text-white
-                                                {{ $selectedTransaction->type === 'deposit' ? 'bg-green-500' :
-                                                ($selectedTransaction->type === 'withdrawal' ? 'bg-yellow-500' : 'bg-blue-500') }}">
-                                                {{ ucfirst($selectedTransaction->type) }}
-                                            </span>
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Amount</label>
-                                        <p class="font-medium">UGX {{ number_format($selectedTransaction->amount, 2) }}</p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Status</label>
-                                        <p>
-                                            <span class="px-2 py-0.5 font-semibold text-sm rounded-sm text-white
-                                                {{ $selectedTransaction->status === 'completed' ? 'bg-green-500' :
-                                                ($selectedTransaction->status === 'pending' ? 'bg-yellow-500' : 'bg-red-500') }}">
-                                                {{ ucfirst($selectedTransaction->status) }}
-                                            </span>
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Account Number</label>
-                                        <p class="font-medium text-wrap">{{ $selectedTransaction->account->account_number }}</p>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Date</label>
-                                        <p class="font-medium">{{ $selectedTransaction->created_at->format('M d, Y H:i') }}</p>
-                                    </div>
-                                </div>
-
-                                @if($selectedTransaction->description)
-                                    <div>
-                                        <label class="text-sm text-gray-600 dark:text-gray-400">Description</label>
-                                        <p class="font-medium">{{ $selectedTransaction->description }}</p>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="mt-6 flex justify-end">
-                                <x-mary-button label="Close" @click="$wire.viewModal = false" />
-                            </div>
-                        </div>
-                    @endif
-                </x-mary-modal>
             </div>
         </div>
     </div>
+
+    <!-- Transaction View Modal -->
+    <x-mary-modal wire:model="viewModal" separator>
+        @if($selectedTransaction)
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-4">Transaction Details</h2>
+
+                <div class="space-y-4">
+                    <div class="grid lg:grid-cols-2 md:grid-cols-1 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-600 dark:text-gray-400">Reference</label>
+                            <p class="font-medium">{{ $selectedTransaction->reference_number }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-600 dark:text-gray-400">Type</label>
+                            <p>
+                                <span class="px-2 py-0.5 font-semibold text-sm rounded-sm text-white
+                                    {{ $selectedTransaction->type === 'deposit' ? 'bg-green-500' :
+                                    ($selectedTransaction->type === 'withdrawal' ? 'bg-yellow-500' : 'bg-blue-500') }}">
+                                    {{ ucfirst($selectedTransaction->type) }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-600 dark:text-gray-400">Amount</label>
+                            <p class="font-medium">{{$currency}} {{ number_format(convertCurrency($selectedTransaction->amount,'UGX',$currency), 2) }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-600 dark:text-gray-400">Status</label>
+                            <p>
+                                <span class="px-2 py-0.5 font-semibold text-sm rounded-sm text-white
+                                    {{ $selectedTransaction->status === 'completed' ? 'bg-green-500' :
+                                    ($selectedTransaction->status === 'pending' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                    {{ ucfirst($selectedTransaction->status) }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-600 dark:text-gray-400">Account Number</label>
+                            <p class="font-medium text-wrap">{{ $selectedTransaction->account->account_number }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-600 dark:text-gray-400">Date</label>
+                            <p class="font-medium">{{ $selectedTransaction->created_at->format('M d, Y H:i') }}</p>
+                        </div>
+                    </div>
+
+                    @if($selectedTransaction->description)
+                        <div>
+                            <label class="text-sm text-gray-600 dark:text-gray-400">Description</label>
+                            <p class="font-medium">{{ $selectedTransaction->description }}</p>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <x-mary-button label="Close" @click="$wire.viewModal = false" />
+                </div>
+            </div>
+        @endif
+    </x-mary-modal>
 
     <!-- Add this near the end of your file -->
     <x-mary-modal wire:model="showReceiptModal" title="Transaction Receipt" separator>
@@ -1001,12 +1051,12 @@
                             @foreach($receiptData['charges'] as $charge)
                                 <div class="flex justify-between text-sm pl-4">
                                     <span class="text-gray-600">{{ $charge['name'] }} ({{ $charge['rate'] }}):</span>
-                                    <span class="text-red-600">-{{ number_format($charge['amount'], 2) }}</span>
+                                    <span class="text-red-600">-{{ number_format(convertCurrency($charge['amount'],'UGX',$currency ), 2)}}</span>
                                 </div>
                             @endforeach
                             <div class="flex justify-between text-sm font-medium border-t border-dashed pt-1">
                                 <span>Total Charges:</span>
-                                <span class="text-red-600">-{{ number_format($receiptData['total_charges'] ?? 0, 2) }}</span>
+                                <span class="text-red-600">-{{ number_format(convertCurrency($receiptData['total_charges'] ,'UGX',$currency ) ?? 0, 2)}}</span>
                             </div>
                         </div>
                     @endif
@@ -1018,12 +1068,12 @@
                             @foreach($receiptData['taxes'] as $tax)
                                 <div class="flex justify-between text-sm pl-4">
                                     <span class="text-gray-600">{{ $tax['name'] }} ({{ $tax['rate'] }}):</span>
-                                    <span class="text-red-600">-{{ number_format($tax['amount'], 2) }}</span>
+                                    <span class="text-red-600">-{{ number_format(convertCurrency($tax['amount'], 'UGX', $currency),2) }}</span>
                                 </div>
                             @endforeach
                             <div class="flex justify-between text-sm font-medium border-t border-dashed pt-1">
                                 <span>Total Taxes:</span>
-                                <span class="text-red-600">-{{ number_format($receiptData['total_taxes'] ?? 0, 2) }}</span>
+                                <span class="text-red-600">-{{ number_format(convertCurrency($receiptData['total_taxes'], 'UGX', $currency) ?? 0, 2) }}</span>
                             </div>
                         </div>
                     @endif

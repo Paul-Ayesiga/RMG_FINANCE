@@ -53,6 +53,8 @@ class Overview extends Component
 
     public array $activeFilters = [];
 
+    public $filtersDrawer = false;
+
     public function mount()
     {
         $this->updateActiveFilters();

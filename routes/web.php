@@ -19,10 +19,13 @@ use App\Livewire\BankCharges\Overview as BankCharge;
 use App\Livewire\Taxes\Overview as BTax;
 use App\Livewire\Admin\RolePermissionManager;
 use App\Livewire\Admin\SendNotification;
+use App\Livewire\CustomerFolder\GroupManagement;
 use App\Livewire\CustomerFolder\MyAccounts\VisitAccount;
 use App\Livewire\CustomerFolder\MyLoans\VisitLoan;
 use App\Livewire\CustomerFolder\StandingOrders;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\CurrencyController;
+use App\Livewire\ReportDashboard;
 
 Route::get('/roles', function () {
     return Role::all();  // Fetch all roles
@@ -46,6 +49,7 @@ Route::middleware(['auth','verified','role:super-admin'])->group(function(){
     Route::get('/settings/bank-charges', BankCharge::class)->name('bank-charges');
     Route::get('/settings/taxes', BTax::class)->name('taxes');
     Route::get('/admin/roles', RolePermissionManager::class)->name('admin.roles');
+    Route::get('/reports', ReportDashboard::class)->name('admin.reports');
 
 });
 
@@ -69,14 +73,15 @@ Route::middleware(['auth','verified','role:customer'])->group(function(){
     Route::get('/rmgpay',RMGPAY::class)->name('rmgpay');
     Route::get('/standing-order',StandingOrders::class)->name('standing-order');
     Route::get('/not', NotificationsDrawer::class )->name('not');
+    Route::get('/groups',GroupManagement::class)->name('group.management');
 });
 
 Route::view('profile', 'profile')
     ->middleware(['auth','verified'])
     ->name('profile');
 
-
 require __DIR__.'/auth.php';
+
 Route::supportBubble();
 
 Route::middleware(['auth', 'verified','role:super-admin'])->group(function () {
@@ -84,3 +89,4 @@ Route::middleware(['auth', 'verified','role:super-admin'])->group(function () {
 });
 
 
+Route::post('/currency/update', [CurrencyController::class, 'update'])->name('currency.update');
