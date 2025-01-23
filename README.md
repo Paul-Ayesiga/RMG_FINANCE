@@ -22,6 +22,7 @@ RMG Finance is a comprehensive microfinance management system designed for effic
 4. **Transactions and Receipt Management**
 5. **Notification System**
 6. **Roles and Permissions Management**
+7. **Currency preference**
 
 ---
 
@@ -149,7 +150,8 @@ This runs the Laravel scheduler every minute, and Laravel will execute the regis
     ```bash
     php artisan queue:work
     ```
-
+4.   php artisan app:update-exchange-rates
+    cache the realtime currency exchange rates.
 ---
 
 ## **Happy Exploration!** 🎉🎉🎉
