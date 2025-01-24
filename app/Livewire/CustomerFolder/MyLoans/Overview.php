@@ -421,9 +421,10 @@ class Overview extends Component
         $user = Auth::id();
         // $currentCurrency = User::find($user)->currency;
         $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         $loanProduct = LoanProduct::find($this->loanProductId);
         $interest = (convertCurrencyToUGX($this->amount,'UGX',$currentCurrency) * $loanProduct->interest_rate * $this->term) / 100;
-        return $this->amount + $interest + $loanProduct->processing_fee;
+        return convertCurrencyToUGX($this->amount, 'UGX', $currentCurrency) + $interest + $loanProduct->processing_fee;
     }
 
     private function calculateTotalInterest()

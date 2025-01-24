@@ -14,10 +14,12 @@ use App\Notifications\LoanDisbursed;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Events\PrivateNotify;
+use WireUi\Traits\WireUiActions;
 
 class Overview extends Component
 {
     use Toast, WithPagination;
+    use WireUiActions;
 
     // Search and Filters
     public $search = '';
@@ -134,17 +136,19 @@ class Overview extends Component
         try {
             DB::beginTransaction();
 
-            $this->selectedLoan->approve(Auth::user()->staff->id);
+            $staffId = Auth::user()->staff ? Auth::user()->staff->id : Auth::id();
+            $this->selectedLoan->approve($staffId);
 
             $this->selectedLoan->customer->user->notify(new LoanApproved($this->selectedLoan));
 
             DB::commit();
 
-            $this->toast(
-                type: 'success',
-                title: 'Loan approved successfully',
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Loan approved successfully',
+            ]);
+
+            $this->dispatch('refresh');
 
             $this->approveLoanModal = false;
             $user = $this->selectedLoan->customer->user;
@@ -155,7 +159,7 @@ class Overview extends Component
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // dd($e->getMessage());
+            dd($e->getMessage());
 
             $this->toast(
                 type: 'error',

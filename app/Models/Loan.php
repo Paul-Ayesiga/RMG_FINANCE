@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class Loan extends Model
 {
@@ -109,7 +110,7 @@ class Loan extends Model
         // Update loan status
         $this->update([
             'status' => 'active',
-            'disbursed_by' => auth()->id(),
+            'disbursed_by' => Auth::id(),
             'disbursed_at' => now(),
         ]);
     }
@@ -144,44 +145,52 @@ class Loan extends Model
         };
     }
 
-    // private function calculatePaymentAmount(): array
-    // {
-    //     $principal = $this->amount;
-    //     $numberOfPayments = $this->getNumberOfPayments();
+    private function calculatePaymentAmount(): array
+    {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
 
-    //     // Convert annual interest rate to period rate
-    //     $periodRate = match($this->payment_frequency) {
-    //         LoanProduct::FREQUENCY_DAILY => $this->interest_rate / 365 / 100,
-    //         LoanProduct::FREQUENCY_WEEKLY => $this->interest_rate / 52 / 100,
-    //         LoanProduct::FREQUENCY_BIWEEKLY => $this->interest_rate / 26 / 100,
-    //         LoanProduct::FREQUENCY_MONTHLY => $this->interest_rate / 12 / 100,
-    //         LoanProduct::FREQUENCY_QUARTERLY => $this->interest_rate / 4 / 100,
-    //         default => $this->interest_rate / 12 / 100,
-    //     };
+        $principal = $this->amount;
+        $numberOfPayments = $this->getNumberOfPayments();
 
-    //     // Calculate payment using PMT formula
-    //     $payment = $principal * ($periodRate * pow(1 + $periodRate, $numberOfPayments))
-    //               / (pow(1 + $periodRate, $numberOfPayments) - 1);
+        // Convert annual interest rate to period rate
+        $periodRate = match($this->payment_frequency) {
+            LoanProduct::FREQUENCY_DAILY => $this->interest_rate / 365 / 100,
+            LoanProduct::FREQUENCY_WEEKLY => $this->interest_rate / 52 / 100,
+            LoanProduct::FREQUENCY_BIWEEKLY => $this->interest_rate / 26 / 100,
+            LoanProduct::FREQUENCY_MONTHLY => $this->interest_rate / 12 / 100,
+            LoanProduct::FREQUENCY_QUARTERLY => $this->interest_rate / 4 / 100,
+            default => $this->interest_rate / 12 / 100,
+        };
 
-    //     // Calculate principal and interest per payment
-    //     $totalPayment = $payment * $numberOfPayments;
-    //     $totalInterest = $totalPayment - $principal;
+        // Calculate payment using PMT formula
+        $payment = $principal * ($periodRate * pow(1 + $periodRate, $numberOfPayments))
+                  / (pow(1 + $periodRate, $numberOfPayments) - 1);
 
-    //     $principalPerPayment = $principal / $numberOfPayments;
-    //     $interestPerPayment = $totalInterest / $numberOfPayments;
+        // Calculate principal and interest per payment
+        $totalPayment = $payment * $numberOfPayments;
+        $totalInterest = $totalPayment - $principal;
 
-    //     return [
-    //         'period_rate' => $periodRate,
-    //         'payment_amount' => $payment,
-    //         'number_of_payments' => $numberOfPayments,
-    //         'principal_per_payment' => $principalPerPayment,
-    //         'interest_per_payment' => $interestPerPayment,
-    //         'total_per_payment' => $principalPerPayment + $interestPerPayment
-    //     ];
-    // }
+        $principalPerPayment = $principal / $numberOfPayments;
+        $interestPerPayment = $totalInterest / $numberOfPayments;
+
+        return [
+            'period_rate' => $periodRate,
+            'payment_amount' => $payment,
+            'number_of_payments' => $numberOfPayments,
+            'principal_per_payment' => $principalPerPayment,
+            'interest_per_payment' => $interestPerPayment,
+            'total_per_payment' => $principalPerPayment + $interestPerPayment
+        ];
+    }
 
     private function calculatePaymentSchedule(): void
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         $paymentCalculation = $this->calculatePaymentAmount();
         $paymentDate = $this->first_payment_date->copy();
 
