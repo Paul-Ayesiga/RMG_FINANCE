@@ -144,41 +144,41 @@ class Loan extends Model
         };
     }
 
-    private function calculatePaymentAmount(): array
-    {
-        $principal = $this->amount;
-        $numberOfPayments = $this->getNumberOfPayments();
-        
-        // Convert annual interest rate to period rate
-        $periodRate = match($this->payment_frequency) {
-            LoanProduct::FREQUENCY_DAILY => $this->interest_rate / 365 / 100,
-            LoanProduct::FREQUENCY_WEEKLY => $this->interest_rate / 52 / 100,
-            LoanProduct::FREQUENCY_BIWEEKLY => $this->interest_rate / 26 / 100,
-            LoanProduct::FREQUENCY_MONTHLY => $this->interest_rate / 12 / 100,
-            LoanProduct::FREQUENCY_QUARTERLY => $this->interest_rate / 4 / 100,
-            default => $this->interest_rate / 12 / 100,
-        };
+    // private function calculatePaymentAmount(): array
+    // {
+    //     $principal = $this->amount;
+    //     $numberOfPayments = $this->getNumberOfPayments();
 
-        // Calculate payment using PMT formula
-        $payment = $principal * ($periodRate * pow(1 + $periodRate, $numberOfPayments))
-                  / (pow(1 + $periodRate, $numberOfPayments) - 1);
+    //     // Convert annual interest rate to period rate
+    //     $periodRate = match($this->payment_frequency) {
+    //         LoanProduct::FREQUENCY_DAILY => $this->interest_rate / 365 / 100,
+    //         LoanProduct::FREQUENCY_WEEKLY => $this->interest_rate / 52 / 100,
+    //         LoanProduct::FREQUENCY_BIWEEKLY => $this->interest_rate / 26 / 100,
+    //         LoanProduct::FREQUENCY_MONTHLY => $this->interest_rate / 12 / 100,
+    //         LoanProduct::FREQUENCY_QUARTERLY => $this->interest_rate / 4 / 100,
+    //         default => $this->interest_rate / 12 / 100,
+    //     };
 
-        // Calculate principal and interest per payment
-        $totalPayment = $payment * $numberOfPayments;
-        $totalInterest = $totalPayment - $principal;
-        
-        $principalPerPayment = $principal / $numberOfPayments;
-        $interestPerPayment = $totalInterest / $numberOfPayments;
+    //     // Calculate payment using PMT formula
+    //     $payment = $principal * ($periodRate * pow(1 + $periodRate, $numberOfPayments))
+    //               / (pow(1 + $periodRate, $numberOfPayments) - 1);
 
-        return [
-            'period_rate' => $periodRate,
-            'payment_amount' => $payment,
-            'number_of_payments' => $numberOfPayments,
-            'principal_per_payment' => $principalPerPayment,
-            'interest_per_payment' => $interestPerPayment,
-            'total_per_payment' => $principalPerPayment + $interestPerPayment
-        ];
-    }
+    //     // Calculate principal and interest per payment
+    //     $totalPayment = $payment * $numberOfPayments;
+    //     $totalInterest = $totalPayment - $principal;
+
+    //     $principalPerPayment = $principal / $numberOfPayments;
+    //     $interestPerPayment = $totalInterest / $numberOfPayments;
+
+    //     return [
+    //         'period_rate' => $periodRate,
+    //         'payment_amount' => $payment,
+    //         'number_of_payments' => $numberOfPayments,
+    //         'principal_per_payment' => $principalPerPayment,
+    //         'interest_per_payment' => $interestPerPayment,
+    //         'total_per_payment' => $principalPerPayment + $interestPerPayment
+    //     ];
+    // }
 
     private function calculatePaymentSchedule(): void
     {

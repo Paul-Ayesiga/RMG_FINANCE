@@ -172,7 +172,7 @@ class Account extends Model
             $this->customer->user->notify(new TransactionNotification(
                 $transaction,
                 'Deposit Successful',
-                "A deposit of ". $currentCurrency . ' ' . number_format($amount, 0) . " has been processed. Net amount after charges: " . number_format(convertCurrency($finalAmount, 'UGX', $currentCurrency), 0)
+                "A deposit of ". $currentCurrency . ' ' . number_format($amount, 0) . " has been processed. Net amount after charges: ". $currentCurrency . ' ' . number_format(convertCurrency($finalAmount, 'UGX', $currentCurrency), 0)
             ));
 
             PrivateNotify::dispatch($this->customer->user, 'Your deposit was successful!');
@@ -257,7 +257,7 @@ class Account extends Model
             $this->customer->user->notify(new TransactionNotification(
                 $transaction,
                 'Withdrawal Successful',
-                "A withdrawal of " . $currentCurrency . ' '. number_format($amount, 2) . " has been processed. Total deduction including charges: " . number_format($totalAmount, 2)
+                "A withdrawal of " . $currentCurrency . ' '. number_format($amount, 2) . " has been processed. Total deduction including charges: ". $currentCurrency . ' ' . number_format(convertCurrency($totalAmount, 'UGX', $currentCurrency), 0)
             ));
 
             PrivateNotify::dispatch($this->customer->user, 'Your withdrawal was successful!');
@@ -395,7 +395,7 @@ class Account extends Model
             $this->customer->user->notify(new TransactionNotification(
                 $transaction,
                 'Transfer Sent',
-                "You have transferred ". $currentCurrency . ' '. number_format($amount, 0) . " to account " . $destinationAccount->account_number . ". Total deduction including charges: " . number_format(convertCurrency($totalAmount, 'UGX', $currentCurrency), 0)
+                "You have transferred ". $currentCurrency . ' '. number_format($amount, 0) . " to account " . $destinationAccount->account_number . ". Total deduction including charges: ". $currentCurrency . ' ' . number_format(convertCurrency($totalAmount, 'UGX', $currentCurrency), 0)
             ));
 
             PrivateNotify::dispatch($this->customer->user, 'Your transfer was successful!');

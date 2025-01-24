@@ -351,7 +351,7 @@ class Overview extends Component
                 'customer_id' => Auth::user()->customer->id,
                 'loan_product_id' => $this->loanProductId,
                 'account_id' => $this->accountId,  // Updated field name
-                'amount' => $this->amount,
+                'amount' => convertCurrencyToUGX($this->amount,'UGX',$currentCurrency),
                 'term' => $this->term,
                 'interest_rate' => $loanProduct->interest_rate,
                 'payment_frequency' => $frequency, // Use the cleaned frequency value
@@ -418,15 +418,21 @@ class Overview extends Component
 
     private function calculateTotalPayable()
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
         $loanProduct = LoanProduct::find($this->loanProductId);
-        $interest = ($this->amount * $loanProduct->interest_rate * $this->term) / 100;
+        $interest = (convertCurrencyToUGX($this->amount,'UGX',$currentCurrency) * $loanProduct->interest_rate * $this->term) / 100;
         return $this->amount + $interest + $loanProduct->processing_fee;
     }
 
     private function calculateTotalInterest()
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
         $loanProduct = LoanProduct::find($this->loanProductId);
-        return ($this->amount * $loanProduct->interest_rate * $this->term) / 100;
+        return (convertCurrencyToUGX($this->amount, 'UGX', $currentCurrency) * $loanProduct->interest_rate * $this->term) / 100;
     }
 
     #[On('refresh')]
