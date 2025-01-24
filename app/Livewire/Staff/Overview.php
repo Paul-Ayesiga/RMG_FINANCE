@@ -43,7 +43,7 @@ class Overview extends Component
     public $password_confirmation = '';
 
     // Add property for role
-    public $role ;
+    public $role = 'staff';
 
     // Add property for available roles
     public $availableRoles = [];
@@ -80,7 +80,7 @@ class Overview extends Component
             ->map(function($role) {
                 return [
                     'id' => $role->name,
-                    'name' => ucfirst($role->name),
+                    'name' => $role->name,
                     'description' => $role->description // if you have this field
                 ];
             })
@@ -127,6 +127,8 @@ class Overview extends Component
 
     public function store()
     {
+
+        // dd($this->role);
         $this->validate([
             'name' => 'required|min:3',
             'email' => 'required|email|unique:users,email',
@@ -154,6 +156,7 @@ class Overview extends Component
             ]);
 
             // Assign role
+
             $user->assignRole($this->role);
 
             // Create staff record

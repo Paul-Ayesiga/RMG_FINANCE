@@ -84,7 +84,7 @@ class Account extends Model
         foreach ($taxes as $tax) {
 
             $user = Auth::id();
-            $currentCurrency = User::where('id', $user)->get()->pluck('currency');
+            $currentCurrency = User::where('id', $user)->pluck('currency')->first();
 
             if ($currentCurrency === 'UGX') {
                 $taxAmount = $tax->is_percentage
@@ -133,7 +133,7 @@ class Account extends Model
             $deductions = $this->calculateChargesAndTaxes('deposit', $amount);
 
             $user = Auth::id();
-            $currentCurrency = User::where('id',$user)->get()->pluck('currency');
+            $currentCurrency = User::where('id',$user)->pluck('currency')->first();
 
             // dd($currentCurrency);
 
@@ -191,7 +191,7 @@ class Account extends Model
         try {
 
             $user = Auth::id();
-            $currentCurrency = User::where('id', $user)->get()->pluck('currency'); // Fallback to 'UGX' if no currency is set
+            $currentCurrency = User::where('id', $user)->pluck('currency')->first();// Fallback to 'UGX' if no currency is set
 
             // Check minimum balance requirement
             $minBalance = $this->accountType->min_balance ?? 0;
@@ -275,7 +275,7 @@ class Account extends Model
         DB::beginTransaction();
         try {
             $user = Auth::id();
-            $currentCurrency = User::where('id', $user)->get()->pluck('currency');
+            $currentCurrency = User::where('id', $user)->pluck('currency')->first();
 
             // Check minimum balance requirement for source account
             $minBalance = $this->accountType->min_balance ?? 0;

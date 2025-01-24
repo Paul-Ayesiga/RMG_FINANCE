@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Log;
 
 
 #[Lazy()]
@@ -141,7 +142,9 @@ class VisitAccount extends Component
     public function deposit($accountId)
     {
         $user = Auth::id();
-        $currentCurrency = User::where('id', $user)->get()->pluck('currency');
+        $currentCurrency = User::find($user)->currency;
+
+        // dd($currentCurrency);
 
         $this->validate([
             'depositAmount' => 'required|numeric|min:1000',
@@ -150,71 +153,70 @@ class VisitAccount extends Component
         $account = Account::findOrFail($accountId);
 
         try {
-            // Get the transaction object from deposit method
+            // Perform the deposit and get the transaction
             $transaction = $account->deposit($this->depositAmount);
 
-            // Check if transaction was successful and is an object
             if (!$transaction || !is_object($transaction)) {
-                throw new \Exception('Transaction failed to process');
+                throw new \Exception('Transaction failed to process.');
             }
 
-            // Get breakdowns of charges and taxes
+            // Fetch applied charges
             $charges = $account->appliedCharges()
                 ->where('created_at', $transaction->created_at)
                 ->with('bankCharge:id,name')
                 ->get()
-                ->map(function ($charge) {
-                    return [
-                        'name' => $charge->bankCharge->name,
-                        'amount' => $charge->amount,
-                        'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
-                    ];
-                });
+                ->map(fn($charge) => [
+                    'name' => $charge->bankCharge->name ?? 'Unknown Charge',
+                    'amount' => $charge->amount,
+                    'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : ''),
+                ]);
 
+            // Fetch applied taxes
             $taxes = $account->appliedTaxes()
                 ->where('created_at', $transaction->created_at)
                 ->with('tax:id,name')
                 ->get()
-                ->map(function ($tax) {
-                    return [
-                        'name' => $tax->tax->name,
-                        'amount' => $tax->amount,
-                        'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
-                    ];
-                });
+                ->map(fn($tax) => [
+                    'name' => $tax->tax->name ?? 'Unknown Tax',
+                    'amount' => $tax->amount,
+                    'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : ''),
+                ]);
 
-            // Set receipt data and show modal
+            // Prepare receipt data
             $this->receiptData = [
-                'date' => now()->format('Y-m-d H:i:s'),
+                'date' => now()->toDayDateTimeString(),
                 'account_number' => $account->account_number,
                 'amount' => $this->depositAmount,
                 'charges' => $charges->toArray(),
                 'total_charges' => $transaction->charges,
                 'taxes' => $taxes->toArray(),
                 'total_taxes' => $transaction->taxes,
-                'total_amount' => convertCurrency($transaction->total_amount,'UGX',$currentCurrency[0]),
+                'total_amount' => convertCurrency($transaction->total_amount, 'UGX', $currentCurrency),
                 'reference' => $transaction->reference_number ?? 'DEP' . time(),
-                'balance' => convertCurrency($account->balance,'UGX',$currentCurrency[0])
+                'balance' => convertCurrency($account->balance, 'UGX', $currentCurrency),
             ];
 
+            // Reset deposit input and show modal
             $this->receiptType = 'deposit';
             $this->depositAmount = null;
             $this->showReceiptModal = true;
         } catch (\Exception $e) {
+            Log::error('Deposit failed for account: ' . $accountId, ['error' => $e->getMessage()]);
 
             $this->notification()->send([
                 'icon' => 'error',
                 'title' => 'Deposit failed, please try again later',
-                'description' =>  $e->getMessage(),
-                'class' => 'bg-red-500'
+                'description' => $e->getMessage(),
+                'class' => 'bg-red-500',
             ]);
         }
     }
 
+
     public function withdraw($accountId)
     {
         $user = Auth::id();
-        $currentCurrency = User::where('id', $user)->get()->pluck('currency');
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
 
         $account = Account::findOrFail($accountId);
 
@@ -330,8 +332,8 @@ class VisitAccount extends Component
     public function transfer($id)
     {
         $user = Auth::id();
-        $currentCurrency = User::where('id', $user)->get()->pluck('currency');
-
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+        
         $sourceAccount = Account::findOrFail($id);
 
         // dd($this->beneficiarySelectedIndex);

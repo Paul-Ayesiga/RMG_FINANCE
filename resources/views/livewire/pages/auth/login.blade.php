@@ -129,6 +129,7 @@ new #[Layout('layouts.guest')]  class extends Component
                     }
                 }, 5);
                 "
+                wire:ignore
                 class="invisible bg-gradient-to-r from-blue-400 via-blue-600 to-gray-500 bg-clip-text text-transparent font-bold tracking-tight leading-tight custom-font mb-4"
                 >
                 Your Financial Partner

@@ -50,7 +50,7 @@
                         <tr class="hover:bg-gray-100 dark:hover:bg-black">
                             <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $loop->iteration }}</td>
                             <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $order->host_account->account_number}}</td>
-                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">UGX {{ number_format($order->amount, 2) }}</td>
+                            <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">UGX {{ number_format(convertCurrency($order->amount, 'UGX', $currency), 2) }}</td>
                             <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $order->start_date->format('Y-m-d') }}</td>
                             <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white">{{ $order->end_date ? $order->end_date->format('Y-m-d') : 'N/A' }}</td>
                             <td class="py-2 px-4 border-b text-sm text-gray-800 dark:text-white capitalize">{{ $order->frequency }}</td>
@@ -138,7 +138,6 @@
                 errorless
             />
             @error('host_account') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-
         </div>
 
         <!-- Account Tab Content -->
@@ -186,17 +185,19 @@
         </div>
 
         <!-- Start Date -->
-        <div class="form-group mx-auto mb-4">
-            <label for="start_date" class="block  font-semibold text-gray-700">Start Date</label>
-            <input wire:model="start_date" type="date" class="form-control mt-2 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" id="start_date">
-            @error('start_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-        </div>
+        <div class="w-full inline-flex flex-wrap">
+            <div class="lg:w-1/2 mb-4 sm:w-full">
+                <label for="start_date" class="block  font-semibold text-gray-700">Start Date</label>
+                <input wire:model="start_date" type="date" class="form-control mt-2 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" id="start_date">
+                @error('start_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            </div>
 
-        <!-- End Date -->
-        <div class="form-group mx-auto mb-4">
-            <label for="end_date" class="block  font-semibold text-gray-700">End Date (Optional)</label>
-            <input wire:model="end_date" type="date" class="form-control mt-2 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" id="end_date">
-            @error('end_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            <!-- End Date -->
+            <div class="lg:w-1/2 mb-4 sm:w-full">
+                <label for="end_date" class="block  font-semibold text-gray-700">End Date (optional)</label>
+                <input wire:model="end_date" type="date" class="form-control mt-2 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" id="end_date">
+                @error('end_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            </div>
         </div>
 
         <!-- Frequency -->

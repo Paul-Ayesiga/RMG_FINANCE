@@ -22,14 +22,21 @@
 
   </style>
 </head>
-<body class="min-h-screen font-sans bg-fuchsia-50 dark:bg-gradient-to-l from-gray-700 via-zinc-800 to-gray-900">
+<body class="min-h-screen font-sans bg-blue-50 dark:bg-gradient-to-l from-gray-700 via-zinc-800 to-gray-900">
 
     {{-- NAVBAR mobile only --}}
-    <x-mary-nav  sticky full-width class="bg-fuchsia-50  dark:bg-zinc-950 z-20 border-none">
+    <x-mary-nav  sticky full-width class="bg-blue-50  dark:bg-zinc-950 z-20 border-none">
         <x-slot:brand>
-            <a href="{{route('dashboard')}}" wire:navigate>
-            <x-app-brand />
-            </a>
+            @role(['super-admin','staff'])
+                <a href="{{route('dashboard')}}" wire:navigate>
+                <x-app-brand />
+                </a>
+            @endrole
+            @role('customer')
+                <a href="{{route('customer-dashboard')}}" wire:navigate>
+                <x-app-brand />
+                </a>
+            @endrole
         </x-slot:brand>
         <x-slot:actions>
                 <x-mary-theme-toggle class="btn btn-circle btn-xs btn-ghost"/>
@@ -187,13 +194,13 @@
     </script>
 
     {{-- <script src="toastr.js"></script> --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@alpinejs/gesture" defer></script>
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.plugin(Gesture)
-    })
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@alpinejs/gesture" defer></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.plugin(Gesture)
+        })
 
-</script>
+    </script>
 </body>
 </html>

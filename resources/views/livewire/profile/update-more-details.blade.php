@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 use Mary\Traits\Toast;
 use Livewire\Attributes\Validate;
+use WireUi\Traits\WireUiActions;
+
 
 new class extends Component
 {
     use Toast;
+    use wireuiActions;
 
     public ?User $user;
 

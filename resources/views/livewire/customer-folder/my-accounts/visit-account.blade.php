@@ -190,14 +190,14 @@
                         <!-- Default Withdrawal Form -->
                         <div x-show="withdrawalMethod === 'default'">
                             {{-- <x-mary-input wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount"  :prefix="$currency" money inline class="w-full h-10 px-4 py-2 text-sm bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/> --}}
-                            <x-mary-input wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount" class="bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400">
+                            <x-mary-input wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount" class="bg-gray-100 border dark:bg-inherit  border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400">
                                 <x-slot:prepend>
                                 <div class="inline-flex items-center gap-2">
                                         <form wire:submit.prevent="updateCurrency">
                                             <div class="relative">
                                                 <select
                                                     wire:model.live="currency"
-                                                    class="h-full bg-base-200 border border-gray-300 rounded-l-md px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500">
+                                                    class="h-full bg-blue-500 dark:bg-inherit  border border-gray-300 rounded-l-md px-4 py-3 text-sm text-white focus:outline-none focus:ring focus:ring-primary-300 dark:bg-blue-500 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500">
                                                     @foreach (config('currencies.supported') as $code => $details)
                                                         <option wire:loading.remove value="{{ $code }}">
                                                             {{ $details['name'] }}
@@ -225,16 +225,16 @@
 
                         <!-- Card Withdrawal Form -->
                         <div x-show="withdrawalMethod === 'card'">
-                            <x-mary-input label="Card Number" wire:model="cardNumber" type="text" placeholder="Enter card number" />
-                            <x-mary-input label="Expiry Date" wire:model="cardExpiry" type="text" placeholder="MM/YY" />
-                            <x-mary-input label="CVV" wire:model="cardCvv" type="number" placeholder="Enter CVV" />
-                            <x-mary-input label="Amount" wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount" />
+                            <x-mary-input label="Card Number" wire:model="cardNumber" type="text" placeholder="Enter card number" class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
+                            <x-mary-input label="Expiry Date" wire:model="cardExpiry" type="text" placeholder="MM/YY" class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400" />
+                            <x-mary-input label="CVV" wire:model="cardCvv" type="number" placeholder="Enter CVV" class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
+                            <x-mary-input label="Amount" wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount" class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
                         </div>
 
                         <!-- Mobile Money Withdrawal Form -->
                         <div x-show="withdrawalMethod === 'mobile_money'">
-                            <x-mary-input label="Phone Number" wire:model="mobileNumber" type="tel" placeholder="Enter mobile number" />
-                            <x-mary-input label="Amount" wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount" />
+                            <x-mary-input label="Phone Number" wire:model="mobileNumber" type="tel" placeholder="Enter mobile number" class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
+                            <x-mary-input label="Amount" wire:model="withdrawalAmount" type="number" step="0.01" placeholder="Enter withdrawal amount" class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
                         </div>
                     </div>
 
@@ -291,14 +291,14 @@
 
                         <!-- default Deposit Method -->
                         <div x-show="depositMethod === 'default'" class="text-center" x-cloak>
-                           <x-mary-input wire:model="depositAmount" type="number" step="0.01" placeholder="Enter deposit amount" class="bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400">
+                           <x-mary-input wire:model="depositAmount" type="number" step="0.01" placeholder="Enter deposit amount" class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400">
                                 <x-slot:prepend>
                                 <div class="inline-flex items-center gap-2">
                                         <form wire:submit.prevent="updateCurrency">
                                             <div class="relative">
                                                 <select
                                                     wire:model.live="currency"
-                                                    class="h-full bg-base-200 border border-gray-300 rounded-l-md px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500">
+                                                    class="h-full bg-blue-500 border dark:bg-inherit  border-gray-300 rounded-l-md px-4 py-3 text-sm text-white focus:outline-none focus:ring focus:ring-primary-300 dark:bg-blue-500 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500">
                                                     @foreach (config('currencies.supported') as $code => $details)
                                                         <option wire:loading.remove value="{{ $code }}">
                                                             {{ $details['name'] }}
@@ -330,23 +330,27 @@
                                 label="Card Number"
                                 wire:model="cardNumber"
                                 type="text"
-                                placeholder="Enter card number" />
+                                placeholder="Enter card number"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
                             <x-mary-input
                                 label="Expiry Date"
                                 wire:model="cardExpiry"
                                 type="text"
-                                placeholder="MM/YY" />
+                                placeholder="MM/YY"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400" />
                             <x-mary-input
                                 label="CVV"
                                 wire:model="cardCvv"
                                 type="number"
-                                placeholder="Enter CVV" />
+                                placeholder="Enter CVV"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
                             <x-mary-input
                                 label="Amount"
                                 wire:model="depositAmount"
                                 type="number"
                                 step="0.01"
-                                placeholder="Enter deposit amount" />
+                                placeholder="Enter deposit amount"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
                         </div>
 
                         <!-- Mobile Money Deposit Method -->
@@ -355,13 +359,15 @@
                                 label="Phone Number"
                                 wire:model="mobileNumber"
                                 type="tel"
-                                placeholder="Enter mobile number" />
+                                placeholder="Enter mobile number"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"/>
                             <x-mary-input
                                 label="Amount"
                                 wire:model="depositAmount"
                                 type="number"
                                 step="0.01"
-                                placeholder="Enter deposit amount" />
+                                placeholder="Enter deposit amount"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400" />
                         </div>
                     </div>
 
@@ -391,7 +397,7 @@
                 <h3 class="text-lg font-semibold mb-3 p-5">Transfers</h3>
                 <div x-data="{ activeTab: 'local-rgmbank', isTabOpen: true }" class="flex flex-col lg:flex-row">
                     <!-- Left Side Tabs (Vertical) on Large Screens, Horizontal on Mobile -->
-                    <div :class="isTabOpen ? 'w-64' : 'w-16'" class="transition-all duration-300 flex-shrink-0 lg:w-64 lg:block w-full">
+                    <div :class="isTabOpen ? 'w-64' : 'w-64'" class="transition-all duration-300 flex-shrink-0 lg:w-64 lg:block w-full">
                         <div class="bg-slate-100 text-white h-full p-4 space-y-4 dark:bg-inherit">
                             <!-- Toggle Button (Visible on mobile) -->
                             <button
@@ -433,7 +439,7 @@
                                         setActiveAccordion(id) {
                                             this.activeAccordion = (this.activeAccordion == id) ? '' : id
                                         }
-                                    }" class="relative w-full max-w-md mx-auto text-xs">
+                                    }" class="relative w-full max-w-md mx-auto">
 
                                     <!-- Accordion for "Transfer to Own Accounts" -->
                                     <div x-data="{ id: $id('ownAccount') }" :class="{ 'border-neutral-200/60 text-neutral-800 dark:text-white' : activeAccordion==id, 'border-transparent text-neutral-600 dark:text-white  dark:hover:text-yellow-100' : activeAccordion!=id }" class="duration-200 ease-out bg-white border rounded-md cursor-pointer group dark:bg-inherit dark:text-white" x-cloak>
@@ -656,7 +662,7 @@
         <div
             :id="$id(tabId + '-content')"
             x-show="tabContentActive($el)"
-            class="relative"
+            class="relative bg-gray-50 dark:bg-inherit p-4"
             x-cloak
             >
             <div class="p-6 bg-white border rounded-lg shadow-sm">
@@ -674,7 +680,7 @@
                             icon="o-magnifying-glass"
                             placeholder="Search reference number..."
                             wire:model.live.debounce.300ms="search"
-                            class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
+                            class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out "
                         />
                     </div>
                     <!-- Export Button -->
@@ -706,7 +712,7 @@
                                 wire:model.live="type"
                                 :options="$types"
                                 placeholder="Filter by type"
-                                class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out "
                             />
                         </div>
 
@@ -725,7 +731,7 @@
                                 wire:model.live="status"
                                 :options="$statuses"
                                 placeholder="Filter by status"
-                                class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out "
                             />
                         </div>
 
@@ -745,7 +751,7 @@
                                 icon="o-calendar"
                                 :config="$dateConfig"
                                 placeholder="Select date range"
-                                class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:border-primary-500 focus:ring-0 focus:outline-none transition-all duration-200 ease-in-out"
+                                class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out "
                             />
                         </div>
                     </div>
@@ -821,7 +827,7 @@
                 </div>
             </div>
 
-           <div class="overflow-x-scroll">
+            <div class="overflow-x-scroll">
                 <table class="w-full min-w-[800px] text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>

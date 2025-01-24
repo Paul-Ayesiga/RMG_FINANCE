@@ -14,8 +14,8 @@ return [
     'default' => 'UGX', // Default currency
     'supported' => [
         'UGX' => ['name' => 'UGX', 'rate' => 1],
-        'USD' => ['name' => 'USD', 'rate' => 3683.20],  // Example exchange rate (1 USD = 3683.20 UGX)
-        'KES' => ['name' => 'KES', 'rate' => 27.34],  // Example exchange rate (1 KES = 27.34 UGX)
-        'EUR' => ['name' => 'EUR', 'rate' => 3974.56],  // Example exchange rate (1 EUR = 3974.56 UGX)
+        'USD' => ['name' => 'USD', 'rate' => 0.00027],  // Example exchange rate (1 USD = 3683.20 UGX)
+        'KES' => ['name' => 'KES', 'rate' => 0.040],  // Example exchange rate (1 KES = 27.34 UGX)
+        'EUR' => ['name' => 'EUR', 'rate' => 0.00023],  // Example exchange rate (1 EUR = 3974.56 UGX)
     ],
 ];

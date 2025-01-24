@@ -99,13 +99,13 @@ new class extends Component
             {{-- </x-mary-card> --}}
         <div>
             <x-input-label for="name" :value="__('Name')" class="dark:text-white" />
-            <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full py-2 px-2"  autofocus autocomplete="name" />
+            <x-text-input wire:model="name" id="name" name="name" type="text"   class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400" autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
             <x-input-label for="email" :value="__('Email')" class="dark:text-white" />
-            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full  py-2 px-2" required autocomplete="username" />
+            <x-text-input wire:model="email" id="email" name="email" type="email"   class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())

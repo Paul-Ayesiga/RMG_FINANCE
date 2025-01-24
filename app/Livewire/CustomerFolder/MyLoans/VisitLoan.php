@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
 use App\Models\Account;
+use App\Models\User;
 use App\Notifications\TransactionNotification;
 use Livewire\Attributes\Lazy;
 use Mary\Traits\Toast;
@@ -60,6 +61,7 @@ class VisitLoan extends Component
     {
         $this->accounts = collect();
         $this->searchLoanToPaymentAccounts();
+
     }
 
     public function searchLoanToPaymentAccounts(string $value = '')
@@ -85,6 +87,13 @@ class VisitLoan extends Component
         ]);
 
         $account = Account::findOrFail($this->selectedAccount);
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
+         $this->paymentAmount = convertCurrencyToUGX($this->paymentAmount,'UGX',$currentCurrency);
+
+        //  dd($this->paymentAmount);
 
         // Calculate total remaining amount for all unpaid schedules
         $unpaidSchedules = $this->loan->schedules()
@@ -94,11 +103,13 @@ class VisitLoan extends Component
 
         $totalRemainingAmount = $unpaidSchedules->sum('remaining_amount');
 
+        // $paymentAmountConverted = convertCurrency($this->payment,'UGX',$currentCurrency);
         // Check if this is a full repayment
         $isFullRepayment = $this->paymentAmount >= $totalRemainingAmount;
 
         // If amount is more than total remaining, adjust it to exact amount
         if ($isFullRepayment) {
+            // dd($totalRemainingAmount);
             $this->paymentAmount = $totalRemainingAmount;
         } else {
             // Partial payment logic
@@ -118,13 +129,13 @@ class VisitLoan extends Component
                 $payment = $this->loan->payments()->create([
                     'loan_id' => $this->loan->id,
                     'payment_schedule_id' => $schedule->id,
-                    'amount' => $amountToPayForSchedule,
+                    'amount' => $amountToPayForSchedule, // Store in UGX
                     'payment_method' => 'account',
                     'reference_number' => $paymentReference,
                     'status' => 'completed',
                     'notes' => sprintf(
                         'Partial payment of %s made from account %s',
-                        number_format($amountToPayForSchedule, 2),
+                        number_format(convertCurrency($amountToPayForSchedule, 'UGX', $currentCurrency ), 2),
                         $account->account_number
                     ),
                 ]);
@@ -152,7 +163,7 @@ class VisitLoan extends Component
                 $payment = $this->loan->payments()->create([
                     'loan_id' => $this->loan->id,
                     'payment_schedule_id' => $schedule->id,
-                    'amount' => $amountToPayForSchedule,
+                    'amount' => $amountToPayForSchedule, // Store in UGX
                     'payment_method' => 'account',
                     'reference_number' => $paymentReference,
                     'status' => 'completed',
@@ -191,12 +202,12 @@ class VisitLoan extends Component
             DB::beginTransaction();
 
             $now = now();
-            $totalAmount = $this->paymentAmount;
+            $totalAmount = $this->paymentAmount; // Store total in UGX
 
             // Create withdrawal transaction
             $transaction = $account->transactions()->create([
                 'type' => 'loanPayment',
-                'amount' => $totalAmount,
+                'amount' => $totalAmount, // Store in UGX
                 'reference_number' => 'LOAN-PMT-' . time(),
                 'description' => "Loan repayment for Loan #{$this->loan->id}",
                 'status' => 'completed',
@@ -223,7 +234,7 @@ class VisitLoan extends Component
                 $payment = $this->loan->payments()->create([
                     'loan_id' => $this->loan->id,
                     'payment_schedule_id' => $unpaidSchedules->first()->id,
-                    'amount' => $totalAmount,
+                    'amount' => $totalAmount, // Store in UGX
                     'payment_method' => 'account',
                     'reference_number' => 'FULL-PAY-' . time(),
                     'status' => 'completed',
@@ -247,8 +258,8 @@ class VisitLoan extends Component
                     sprintf(
                         'Your loan #%d has been fully repaid. Amount: %s. Account balance: %s',
                         $this->loan->id,
-                        number_format($totalAmount, 2),
-                        number_format($account->balance, 2)
+                        number_format(convertCurrency($totalAmount, 'UGX', $currentCurrency), 2), // Convert for display
+                        number_format(convertCurrency($account->balance, 'UGX', $currentCurrency), 2) // Convert for display
                     )
                 ));
             } else {
@@ -258,10 +269,10 @@ class VisitLoan extends Component
                     'Loan Payment Made',
                     sprintf(
                         'Partial payment of %s made for loan #%d. Remaining balance: %s. Account balance: %s',
-                        number_format($totalAmount, 2),
+                        number_format(convertCurrency($totalAmount, 'UGX', $currentCurrency), 2), // Convert for display
                         $this->loan->id,
-                        number_format($this->loan->schedules->where('status', '!=', 'paid')->sum('remaining_amount'), 2),
-                        number_format($account->balance, 2)
+                        number_format(convertCurrency($this->loan->schedules->where('status', '!=', 'paid')->sum('remaining_amount'), 'UGX', $currentCurrency), 2), // Convert for display
+                        number_format(convertCurrency($account->balance, 'UGX', $currentCurrency), 2) // Convert for display
                     )
                 ));
             }
@@ -272,16 +283,16 @@ class VisitLoan extends Component
             $this->receiptData = [
                 'date' => $now->format('Y-m-d H:i:s'),
                 'loan_id' => $this->loan->id,
-                'amount' => $totalAmount,
+                'amount' => convertCurrency($totalAmount, 'UGX', $currentCurrency), // Convert for display
                 'reference' => $payment->reference_number,
                 'account_number' => $account->account_number,
-                'account_balance' => $account->balance,
+                'account_balance' => convertCurrency($account->balance, 'UGX', $currentCurrency), // Convert for display
                 'payment_type' => $isFullRepayment ? 'Full Repayment' : 'Partial Payment',
                 'loan_status' => $isFullRepayment ? 'Closed' : 'Active',
                 'early_payment_fee_percentage' => 0, // Default value
                 'late_payment_fee_percentage' => 0, // Default value
-                'total_amount' => $totalAmount, // Total amount paid
-                'remaining_balance' => $this->loan->schedules->where('status', '!=', 'paid')->sum('remaining_amount'), // Remaining balance
+                'total_amount' => convertCurrency($totalAmount, 'UGX', $currentCurrency), // Convert for display
+                'remaining_balance' => convertCurrency($this->loan->schedules->where('status', '!=', 'paid')->sum('remaining_amount'), 'UGX', $currentCurrency), // Convert for display
             ];
 
             $this->receiptType = 'payment with Account';
@@ -308,6 +319,7 @@ class VisitLoan extends Component
             );
         }
     }
+
 
 
     // Add these new methods
@@ -433,7 +445,7 @@ class VisitLoan extends Component
             ->where('status', '!=', 'paid')
             ->sum('remaining_amount');
 
-        $this->paymentAmount = $totalRemaining;
+        $this->paymentAmount = number_format(convertCurrency($totalRemaining, 'UGX', Auth::user()->currency),0);
         $this->isFullPayment = true;
     }
 

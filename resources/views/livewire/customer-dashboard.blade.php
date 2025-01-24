@@ -442,6 +442,7 @@
                 label="Event Title"
                 wire:model="eventLabel"
                 placeholder="Enter event title"
+                class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
 
             />
             @error('eventLabel')
@@ -458,6 +459,7 @@
                 :options="$eventTypeOptions"
                 option-label="name"
                 option-value="id"
+                class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
 
             >
                 <x-slot:option>
@@ -478,6 +480,7 @@
                 label="Event Description"
                 wire:model="eventDescription"
                 placeholder="Enter event description"
+                class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
 
             />
             @error('eventDescription')
@@ -492,6 +495,7 @@
                     type="datetime-local"
                     label="Start Date & Time"
                     wire:model="eventDate"
+                    class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
 
                 />
                 @error('eventDate')
@@ -504,6 +508,7 @@
                     type="datetime-local"
                     label="End Date & Time (Optional)"
                     wire:model="eventEndDate"
+                    class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
                 />
                 @error('eventEndDate')
                     <span class="text-red-500 text-sm">{{ $message }}</span>
@@ -513,16 +518,16 @@
 
         <!-- Modal Footer -->
         <div class="flex justify-end gap-x-4 mt-6">
-            <x-mary-button
+            <x-wireui-button
                 label="Cancel"
                 wire:click="closeEventModal"
-                class="btn-outline"
+                class="bg-gray-400"
                 spinner="closeEventModal"
             />
-            <x-mary-button
+            <x-wireui-button
                 type="submit"
                 label="Save Event"
-                class="btn-primary"
+                class="bg-blue-600"
                 spinner="saveEvent"
             />
         </div>

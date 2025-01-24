@@ -5,6 +5,7 @@ namespace App\Livewire\CustomerFolder\MyLoans;
 use App\Models\Loan;
 use App\Models\LoanProduct;
 use App\Models\Account;
+use App\Models\User;
 use Livewire\Component;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
@@ -83,6 +84,11 @@ class Overview extends Component
 
     public $filtersDrawer = false;
 
+    public $loanProductDetails = false;
+
+    #[Computed]
+    public $loanProductToPreview = null;
+
 
     #[On('refresh')]
     public function mount()
@@ -155,6 +161,12 @@ class Overview extends Component
         }
 
         $this->addLoanModal = true;
+    }
+    public function openPreviewLoanProductModal($id)
+    {
+        $loanproduct = loanProduct::findOrFail($id);
+        $this->loanProductToPreview = $loanproduct;
+        $this->loanProductDetails = true;
     }
 
     public function searchLoanProduct(string $value = '')
@@ -275,6 +287,10 @@ class Overview extends Component
 
     public function applyForLoan()
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         // Check if user can apply for a loan
         $loanCheck = $this->canApplyForLoan();
         if (!$loanCheck['can_apply']) {
@@ -294,8 +310,8 @@ class Overview extends Component
             'amount' => [
                 'required',
                 'numeric',
-                'min:' . $this->minAmount,
-                'max:' . $this->maxAmount
+                'min:' . convertCurrency($this->minAmount, 'UGX', $currentCurrency),
+                'max:' . convertCurrency($this->maxAmount, 'UGX', $currentCurrency)
             ],
             'term' => [
                 'required',
@@ -314,8 +330,8 @@ class Overview extends Component
                 'max:10240' // 10MB max file size
             ]
         ], [
-            'amount.min' => 'The loan amount must be at least ' . number_format($this->minAmount, 2),
-            'amount.max' => 'The loan amount cannot exceed ' . number_format($this->maxAmount, 2),
+            'amount.min' => 'The loan amount must be at least ' . number_format(convertCurrency($this->minAmount, 'UGX', $currentCurrency), 2),
+            'amount.max' => 'The loan amount cannot exceed ' . number_format(convertCurrency($this->maxAmount, 'UGX', $currentCurrency), 2),
             'term.min' => 'The loan term must be at least ' . $this->minTerm . ' months',
             'term.max' => 'The loan term cannot exceed ' . $this->maxTerm . ' months',
             'documents.*.mimes' => 'Documents must be PDF or image files (jpg, jpeg, png)',

@@ -21,6 +21,7 @@ class SuperAdminSeeder extends Seeder
         $clintonAccount = User::firstOrCreate([
             'email' => 'ayesigapo@gmail.com',
             'email_verified_at' => Carbon::today(),
+            'role' => 'admin',
 
         ], [
             'name' => 'Super-Admin',

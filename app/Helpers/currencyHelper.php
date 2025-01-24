@@ -89,8 +89,9 @@ if (!function_exists('convertCurrencyToUGX')) {
     function convertCurrencyToUGX($amount, $fromCurrency = 'UGX', $toCurrency = null)
     {
 
+        // dd($toCurrency);
         // If the from and to currencies are the same, no conversion is needed
-        if ($fromCurrency === $toCurrency[0]) {
+        if ($fromCurrency === $toCurrency) {
             return $amount;
         }
 
@@ -99,10 +100,11 @@ if (!function_exists('convertCurrencyToUGX')) {
 
         // Get the conversion rates for the currencies
         $fromRate = $rates[$fromCurrency] ?? 0;
-        $toRate = $rates[$toCurrency[0]] ?? 0;
+        $toRate = $rates[$toCurrency] ?? 0;
 
 
-        if ($toCurrency[0] !== 'UGX') {
+
+        if ($toCurrency !== 'UGX') {
             // Convert the other currency to UGX by dividing by its rate
             return $amount / $toRate;  // Example: 4 USD / 0.00027 for USD to UGX
         }

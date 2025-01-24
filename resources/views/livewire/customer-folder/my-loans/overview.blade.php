@@ -115,6 +115,9 @@
                     {{ ucfirst($loan->status) }}
                 </span>
             @endscope
+            @scope('cell_amount', $loan, $currency)
+                {{ convertCurrency($loan->amount, 'UGX', $currency) }}
+            @endscope
             {{-- Special `actions` slot --}}
             @scope('actions', $loan)
                 <div class="inline-flex">
@@ -142,9 +145,9 @@
                     :options="$loanProducts"
                     single
                     searchable
-                    class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed"
+                    class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out"
                     search-function="searchLoanProduct"
-                >
+                    >
                     @scope('item', $loanProduct)
                         <x-mary-list-item :item="$loanProduct" sub-value="description">
                             <x-slot:avatar>
@@ -152,13 +155,15 @@
                             </x-slot:avatar>
                             <p>{{$loanProduct->name}}</p>
                             <x-slot:actions>
-                                <x-mary-badge :value="$loanProduct->interest_rate" />
+                                {{-- <x-mary-badge :value="$loanProduct->interest_rate" /> --}}
+                                <x-wireui-button wire:click="openPreviewLoanProductModal({{$loanProduct->id}})" spinner="openPreviewLoanProductModal({{$loanProduct->id}})" class="btn-sm bg-orange-400" label="view details"/>
                             </x-slot:actions>
                         </x-mary-list-item>
                     @endscope
 
                     @scope('selection', $loanProduct)
-                        {{ $loanProduct->name }}
+                       <p class="m-0"> {{ $loanProduct->name }}
+                       </p>
                     @endscope
                 </x-mary-choices>
 
@@ -169,9 +174,9 @@
                     :options="$accounts"
                     single
                     searchable
-                    class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed"
+                    class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out "
                     search-function="searchLoanDisbursementAccount"
-                >
+                    >
                     @scope('item', $account, $currency)
                         <x-mary-list-item :item="$account" sub-value="account_number">
                             <x-slot:avatar>
@@ -184,7 +189,7 @@
                     @endscope
 
                     @scope('selection', $account)
-                        {{ $account->account_number }}
+                       <p class="m-0">{{ $account->account_number }}</p>
                     @endscope
                 </x-mary-choices>
 
@@ -195,7 +200,9 @@
                         label="Loan Amount"
                         wire:model="amount"
                         step="0.01"
-                        hint="Amount must be between {{ number_format($minAmount, 2) }} and {{ number_format($maxAmount, 2) }}"
+                        hint="Amount must be between {{ number_format(convertCurrency($minAmount, 'UGX', $currency), 2) }} and {{ number_format(convertCurrency($maxAmount, 'UGX', $currency), 2) }}"
+                        class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out "
+
                     />
 
                     <x-mary-input
@@ -203,6 +210,8 @@
                         label="Term (months)"
                         wire:model="term"
                         hint="Term must be between {{ $minTerm }} and {{ $maxTerm }} months"
+                        class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out "
+
                     />
 
                     <!-- Update the payment frequency select -->
@@ -213,24 +222,35 @@
                         option-label="name"
                         option-value="id"
                         placeholder="Select payment frequency"
+                        class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-all duration-200 ease-in-out "
+
                     />
                     <x-mary-file
                         label="Required Documents"
                         wire:model="documents"
                         multiple
                         help="Upload all required documents (PDF, Images)"
+                        class="bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 "
                     />
                 @endif
             </div>
 
             <x-slot:actions>
-                <x-mary-button label="Cancel" wire:click="$set('addLoanModal', false)" />
-                <x-mary-button label="Apply" class="bg-blue-200 text-black" type="submit" spinner="applyForLoan" :disabled="!$loanProductId"/>
+                <x-wireui-button label="Cancel" wire:click="$set('addLoanModal', false)" class="bg-gray-400"/>
+                <x-wireui-button label="Apply" class="bg-blue-400 text-white" type="submit" spinner="applyForLoan" :disabled="!$loanProductId"/>
             </x-slot:actions>
         </x-mary-form>
     </x-mary-modal>
   @endcan
 
+    <x-mary-modal wire:model="loanProductDetails">
+        <div class="p-4 sm:p-6 bg-gray-50 rounded-lg shadow-md">
+            <!-- Account Type Header -->
+            <div class="text-center mb-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $this->loanProductToPreview->name ?? 'NaN' }}</h2>
+            </div>
+        </div>
+    </x-mary-modal>
 
    <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-3/4 md:w-1/2">
 

@@ -51,7 +51,7 @@
     <!-- Export Section -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-lg font-semibold text-gray-800">Report Data</h2>
-        <div class="space-x-2">
+        <div class="lg:space-x-2 flex-wrap sm:space-x-0 lg:space-y-0 sm:space-y-2">
             <button wire:click="exportPdf"
                 class="px-4 py-2 bg-green-600 text-white text-sm rounded-md shadow hover:bg-green-700 focus:ring focus:ring-green-300">
                 Export as PDF
