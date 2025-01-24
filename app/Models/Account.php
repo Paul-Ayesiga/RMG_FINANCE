@@ -169,13 +169,13 @@ class Account extends Model
             ]);
 
             // Send notification
-            // $this->customer->user->notify(new TransactionNotification(
-            //     $transaction,
-            //     'Deposit Successful',
-            //     "A deposit of " . number_format($amount, 2) . " has been processed. Net amount after charges: " . number_format($finalAmount, 2)
-            // ));
+            $this->customer->user->notify(new TransactionNotification(
+                $transaction,
+                'Deposit Successful',
+                "A deposit of ". $currentCurrency . ' ' . number_format($amount, 0) . " has been processed. Net amount after charges: " . number_format(convertCurrency($finalAmount, 'UGX', $currentCurrency), 0)
+            ));
 
-            // PrivateNotify::dispatch($this->customer->user, 'Your deposit was successful!');
+            PrivateNotify::dispatch($this->customer->user, 'Your deposit was successful!');
 
             DB::commit();
             return $transaction;
@@ -254,13 +254,13 @@ class Account extends Model
             ]);
 
             // Send notification
-            // $this->customer->user->notify(new TransactionNotification(
-            //     $transaction,
-            //     'Withdrawal Successful',
-            //     "A withdrawal of " . number_format($amount, 2) . " has been processed. Total deduction including charges: " . number_format($totalAmount, 2)
-            // ));
+            $this->customer->user->notify(new TransactionNotification(
+                $transaction,
+                'Withdrawal Successful',
+                "A withdrawal of " . $currentCurrency . ' '. number_format($amount, 2) . " has been processed. Total deduction including charges: " . number_format($totalAmount, 2)
+            ));
 
-            // PrivateNotify::dispatch($this->customer->user, 'Your withdrawal was successful!');
+            PrivateNotify::dispatch($this->customer->user, 'Your withdrawal was successful!');
 
             DB::commit();
             return $transaction;
@@ -392,22 +392,22 @@ class Account extends Model
             ]);
 
             // Send notification to sender
-            // $this->customer->user->notify(new TransactionNotification(
-            //     $transaction,
-            //     'Transfer Sent',
-            //     "You have transferred " . number_format($amount, 2) . " to account " . $destinationAccount->account_number . ". Total deduction including charges: " . number_format($totalAmount, 2)
-            // ));
+            $this->customer->user->notify(new TransactionNotification(
+                $transaction,
+                'Transfer Sent',
+                "You have transferred ". $currentCurrency . ' '. number_format($amount, 0) . " to account " . $destinationAccount->account_number . ". Total deduction including charges: " . number_format(convertCurrency($totalAmount, 'UGX', $currentCurrency), 0)
+            ));
 
-            // PrivateNotify::dispatch($this->customer->user, 'Your transfer was successful!');
+            PrivateNotify::dispatch($this->customer->user, 'Your transfer was successful!');
 
-            // // Send notification to recipient
-            // $destinationAccount->customer->user->notify(new TransactionNotification(
-            //     $transaction,
-            //     'Transfer Received',
-            //     "You have received " . number_format($amount, 2) . " from account " . $this->account_number
-            // ));
+            // Send notification to recipient
+            $destinationAccount->customer->user->notify(new TransactionNotification(
+                $transaction,
+                'Transfer Received',
+                "You have received " . $currentCurrency . ' '. number_format($amount, 0) . " from account " . $this->account_number
+            ));
 
-            // PrivateNotify::dispatch($destinationAccount->customer->user, 'You have received funds!');
+            PrivateNotify::dispatch($destinationAccount->customer->user, 'You have received funds!');
 
             DB::commit();
             return $transaction;

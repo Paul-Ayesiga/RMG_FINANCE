@@ -472,7 +472,7 @@
 
                                                             <!-- Account Balance -->
                                                             <p class="text-sm font-medium text-gray-800">
-                                                                <span class="font-semibold">Balance:</span> UGX {{ number_format($account->balance, 2) }}
+                                                                <span class="font-semibold">Balance:</span> {{$currency}} {{ number_format(convertCurrency($account->balance, 'UGX', $currency), 0) }}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -1046,7 +1046,7 @@
                     <div class="flex justify-between">
                         <span class="font-semibold">Base Amount:</span>
                         <span class="text-lg {{ $receiptType === 'withdrawal' ? 'text-red-600' : 'text-green-600' }}">
-                            {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['amount'] ?? 0, 2) }}
+                            {{ $receiptType === 'withdrawal' || 'transfer' ? '-' : '+' }}{{ number_format($receiptData['amount'] ?? 0, 2) }}
                         </span>
                     </div>
 
@@ -1087,8 +1087,8 @@
                     <!-- Total Amount -->
                     <div class="flex justify-between font-bold text-lg border-t pt-2">
                         <span>Total Amount:</span>
-                        <span class="{{ $receiptType === 'withdrawal' ? 'text-red-600' : 'text-green-600' }}">
-                            {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['total_amount'] ?? 0, 2) }}
+                        <span class="{{ $receiptType === 'withdrawal' || 'transfer' ? 'text-red-600' : 'text-green-600' }}">
+                            {{ $receiptType === 'withdrawal' || 'transfer' ? '-' : '+' }}{{ number_format($receiptData['total_amount'] ?? 0, 2) }}
                         </span>
                     </div>
 

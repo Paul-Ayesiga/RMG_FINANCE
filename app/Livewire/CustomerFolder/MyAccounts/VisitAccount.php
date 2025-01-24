@@ -225,10 +225,10 @@ class VisitAccount extends Component
                 'required',
                 'numeric',
                 'min:0.01',
-                'max:' . convertCurrency($account->accountType->max_withdrawal, 'UGX', $currentCurrency[0]),
+                'max:' . convertCurrency($account->accountType->max_withdrawal, 'UGX', $currentCurrency),
             ],
         ], [
-            'withdrawalAmount.max' => 'Maximum withdrawal limit is ' . convertCurrency($account->accountType->max_withdrawal,'UGX', $currentCurrency[0]),
+            'withdrawalAmount.max' => 'Maximum withdrawal limit is ' . convertCurrency($account->accountType->max_withdrawal,'UGX', $currentCurrency),
         ]);
 
         // Check withdrawal limit
@@ -290,9 +290,9 @@ class VisitAccount extends Component
                 'total_charges' => $transaction->charges,
                 'taxes' => $taxes->toArray(),
                 'total_taxes' => $transaction->taxes,
-                'total_amount' => convertCurrency($transaction->total_amount, 'UGX', $currentCurrency[0]),
+                'total_amount' => convertCurrency($transaction->total_amount, 'UGX', $currentCurrency),
                 'reference' => $transaction->reference_number ?? 'WTH' . time(),
-                'balance' => convertCurrency($account->balance,'UGX',$currentCurrency[0])
+                'balance' => convertCurrency($account->balance,'UGX',$currentCurrency)
             ];
 
             DB::commit();
@@ -333,7 +333,7 @@ class VisitAccount extends Component
     {
         $user = Auth::id();
         $currentCurrency = User::where('id', $user)->pluck('currency')->first();
-        
+
         $sourceAccount = Account::findOrFail($id);
 
         // dd($this->beneficiarySelectedIndex);
@@ -362,9 +362,9 @@ class VisitAccount extends Component
             'transferAmount' => [
                 'required',
                 'numeric',
-                'min:1000',
+                'min:'. convertCurrency('1000','UGX',$currentCurrency),
                 'max:'
-                . convertCurrency($sourceAccount->accountType->max_withdrawal, 'UGX', $currentCurrency[0]),
+                . convertCurrency($sourceAccount->accountType->max_withdrawal, 'UGX', $currentCurrency),
             ],
         ], [
             'transferCustomerAccountId.required_without_all' => 'Please select either transfer to account.',
@@ -372,8 +372,8 @@ class VisitAccount extends Component
             'beneficiarySelectedIndex.required_without_all' => 'Please select a beneficiary.',
             'transferAmount.required' => 'The transfer amount is required.',
             'transferAmount.numeric' => 'The transfer amount must be a valid number.',
-            'transferAmount.min' => 'The transfer amount must be at least '. convertCurrency('1000', 'UGX', $currentCurrency[0]),
-            'transferAmount.max' => 'The transfer amount exceeds the maximum limit of ' . number_format(convertCurrency($sourceAccount->accountType->max_withdrawal, 'UGX', $currentCurrency[0]) ?? PHP_FLOAT_MAX, 2) . '.',
+            'transferAmount.min' => 'The transfer amount must be at least '. convertCurrency('1000', 'UGX', $currentCurrency),
+            'transferAmount.max' => 'The transfer amount exceeds the maximum limit of ' . number_format(convertCurrency($sourceAccount->accountType->max_withdrawal, 'UGX', $currentCurrency) ?? PHP_FLOAT_MAX, 2) . '.',
         ]);
 
 
@@ -458,7 +458,7 @@ class VisitAccount extends Component
                 'total_taxes' => $transaction->taxes,
                 'total_amount' => $transaction->total_amount,
                 'reference' => $transaction->reference_number ?? 'TRF' . time(),
-                'balance' => $sourceAccount->balance,
+                'balance' => convertCurrency($sourceAccount->balance, 'UGX', $currentCurrency),
                 'is_internal' => $isInternalTransfer
             ];
 
@@ -498,6 +498,7 @@ class VisitAccount extends Component
 
         }
         $this->resetForm();
+        $this->dispatch('refresh');
     }
 
     public function transferToOtherLocalBank($id){
