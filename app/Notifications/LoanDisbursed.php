@@ -8,6 +8,8 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Loan;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class LoanDisbursed extends Notification implements ShouldQueue
 {
@@ -24,6 +26,10 @@ class LoanDisbursed extends Notification implements ShouldQueue
 
     public function toMail($notifiable): MailMessage
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+        
         $amount = number_format($this->loan->amount, 2);
         $accountNumber = $this->loan->account->account_number;
         $disbursementDate = $this->loan->disbursement_date->format('Y-m-d');
@@ -34,7 +40,7 @@ class LoanDisbursed extends Notification implements ShouldQueue
             ->greeting('Hello ' . $notifiable->name)
             ->line("Your loan #{$this->loan->id} has been successfully disbursed.")
             ->line("Disbursement Details:")
-            ->line("- Amount: {$amount}")
+            ->line("- Amount: {$currentCurrency} {convertCurrency($amount, 'UGX' ,$currentCurrency)}")
             ->line("- Account Number: {$accountNumber}")
             ->line("- Disbursement Date: {$disbursementDate}")
             ->line("Your first payment is due on {$firstPaymentDate}")
@@ -44,9 +50,13 @@ class LoanDisbursed extends Notification implements ShouldQueue
 
     public function toArray($notifiable): array
     {
+         $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         return [
             'title' => 'Loan Disbursed',
-            'message' => "Your loan #{$this->loan->id} for {$this->loan->amount} has been disbursed to your account.",
+            'message' => "Your loan #{$this->loan->id} for {$currentCurrency} {convertCurrency($this->loan->amount, 'UGX' ,$currentCurrency)} has been disbursed to your account.",
             'type' => 'success',
             'loan_id' => $this->loan->id
         ];
@@ -56,4 +66,4 @@ class LoanDisbursed extends Notification implements ShouldQueue
     {
         return new BroadcastMessage($this->toArray($notifiable));
     }
-} 
+}

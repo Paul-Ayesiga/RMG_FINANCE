@@ -61,6 +61,9 @@ return [
         'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
         'redirect' => env('LINKEDIN_REDIRECT_URI'),
     ],
-
+    
+    'deepseek' => [
+        'key' => env('DEEPSEEK_API_KEY'),
+    ],
 
 ];

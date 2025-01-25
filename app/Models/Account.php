@@ -79,12 +79,12 @@ class Account extends Model
             ]);
         }
 
+        $user = Auth::user();
+        $currentCurrency = $user->currency;
+
         // Calculate Taxes
         $taxes = Tax::where('is_active', true)->get();
         foreach ($taxes as $tax) {
-
-            $user = Auth::id();
-            $currentCurrency = User::where('id', $user)->pluck('currency')->first();
 
             if ($currentCurrency === 'UGX') {
                 $taxAmount = $tax->is_percentage
@@ -128,12 +128,13 @@ class Account extends Model
     public function deposit($amount)
     {
         DB::beginTransaction();
+
+        $user = Auth::user(); // Get user object once
+        $currentCurrency = $user->currency;
+
         try {
             // Calculate charges and taxes
             $deductions = $this->calculateChargesAndTaxes('deposit', $amount);
-
-            $user = Auth::id();
-            $currentCurrency = User::where('id',$user)->pluck('currency')->first();
 
             // dd($currentCurrency);
 
@@ -168,16 +169,21 @@ class Account extends Model
                 'description' => 'Account deposit'
             ]);
 
-            // Send notification
-            $this->customer->user->notify(new TransactionNotification(
-                $transaction,
-                'Deposit Successful',
-                "A deposit of ". $currentCurrency . ' ' . number_format($amount, 0) . " has been processed. Net amount after charges: ". $currentCurrency . ' ' . number_format(convertCurrency($finalAmount, 'UGX', $currentCurrency), 0)
-            ));
-
-            PrivateNotify::dispatch($this->customer->user, 'Your deposit was successful!');
-
             DB::commit();
+
+            // Use afterCommit to dispatch notifications
+            DB::afterCommit(function () use ($transaction, $amount, $finalAmount, $currentCurrency) {
+                $this->customer->user->notify(new TransactionNotification(
+                    $transaction,
+                    'Deposit Successful',
+                    "A deposit of " . $currentCurrency . ' ' . number_format($amount, 0) . " has been processed. Net amount after charges: " . $currentCurrency . ' ' . number_format(convertCurrency($finalAmount, 'UGX', $currentCurrency), 0)
+                ));
+
+                PrivateNotify::dispatch($this->customer->user, 'Your deposit was successful!');
+
+            });
+
+
             return $transaction;
         } catch (\Exception $e) {
             DB::rollback();

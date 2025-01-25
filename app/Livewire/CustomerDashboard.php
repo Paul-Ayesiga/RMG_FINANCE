@@ -209,66 +209,6 @@ class CustomerDashboard extends Component
         ];
     }
 
-
-    // protected function loadChartData()
-    // {
-    //     $customer = Auth::user()->customer;
-    //     $accountIds = $customer->accounts()->pluck('id');
-
-    //     // Get last 6 months of transaction data
-    //     $months = collect(range(5, 0))->map(function($i) {
-    //         return Carbon::now()->subMonths($i)->format('M Y');
-    //     });
-
-    //     $transactions = DB::table('transactions')
-    //         ->whereIn('account_id', $accountIds)
-    //         ->whereDate('created_at', '>=', Carbon::now()->subMonths(6))
-    //         ->selectRaw('EXTRACT(MONTH FROM created_at) as month')
-    //         ->selectRaw('EXTRACT(YEAR FROM created_at) as year')
-    //         ->selectRaw('type')
-    //         ->selectRaw('SUM(amount) as total')
-    //         ->groupBy('year', 'month', 'type')
-    //         ->get();
-
-    //     // Prepare data for line chart
-    //     $deposits = array_fill(0, 6, 0);
-    //     $withdrawals = array_fill(0, 6, 0);
-    //     $transfers = array_fill(0, 6, 0);
-
-    //     foreach ($transactions as $transaction) {
-    //         $index = 5 - (Carbon::now()->startOfMonth()->diffInMonths(
-    //             Carbon::create($transaction->year, $transaction->month, 1)
-    //         ));
-
-    //         if ($index >= 0 && $index < 6) {
-    //             switch ($transaction->type) {
-    //                 case 'deposit':
-    //                     $deposits[$index] = $transaction->total;
-    //                     break;
-    //                 case 'withdrawal':
-    //                     $withdrawals[$index] = $transaction->total;
-    //                     break;
-    //                 case 'transfer':
-    //                     $transfers[$index] = $transaction->total;
-    //                     break;
-    //             }
-    //         }
-    //     }
-
-    //     // Update line chart data
-    //     $this->transactionChart['data']['labels'] = $months->toArray();
-    //     $this->transactionChart['data']['datasets'][0]['data'] = $deposits;
-    //     $this->transactionChart['data']['datasets'][1]['data'] = $withdrawals;
-    //     $this->transactionChart['data']['datasets'][2]['data'] = $transfers;
-
-    //     // Update pie chart data
-    //     $this->distributionChart['data']['datasets'][0]['data'] = [
-    //         $this->stats['deposits']['amount'],
-    //         $this->stats['withdrawals']['amount'],
-    //         $this->stats['transfers']['amount']
-    //     ];
-    // }
-
     // #[On('refresh')]
     public function loadChartData()
     {
@@ -355,9 +295,9 @@ class CustomerDashboard extends Component
     public function loadEvents()
     {
         $user = Auth::id();
-        $currencyArray = User::where('id', $user)->get()->pluck('currency');
-        $currency = $currencyArray[0];
-        
+        $currency= User::where('id', $user)->pluck('currency')->first();
+        // $currency = $currencyArray[0];
+
         $customer = Auth::user()->customer;
         $this->events = [];
 
@@ -375,7 +315,7 @@ class CustomerDashboard extends Component
             // Add loan disbursement date
             $this->events[] = [
                 'label' => 'Loan Disbursed: #' . $loan->reference_number,
-                'description' => "Amount: $" . number_format(convertCurrency($loan->amount,'UGX', $currency), 2) .
+                'description' => "Amount: $currency " .number_format(convertCurrency($loan->amount,'UGX', $currency), 2) .
                     "\nDisbursed on: " . Carbon::parse($loan->disbursement_date)->format('M d, Y h:i A'),
                 'css' => '!bg-emerald-200',
                 'date' => Carbon::parse($loan->disbursement_date),
@@ -392,7 +332,7 @@ class CustomerDashboard extends Component
 
                 $this->events[] = [
                     'label' => $statusLabel . ' - Payment Due: #' . $loan->reference_number,
-                    'description' => "Amount Due: $" . number_format(convertCurrency($schedule->total_amount,'UGX', $currency), 2) .
+                    'description' => "Amount Due: $currency " . number_format(convertCurrency($schedule->total_amount,'UGX', $currency), 2) .
                         "\nLoan Type: " . ucwords(str_replace('_', ' ', $loan->loanProduct->name)),
                     'css' => $this->getPaymentScheduleColor($schedule->due_date),
                     'date' => Carbon::parse($schedule->due_date),

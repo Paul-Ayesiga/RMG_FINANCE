@@ -196,13 +196,18 @@
         <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Deposits</h3>
             <p class="text-3xl dark:text-white">{{ $stats['deposits']['count'] }}</p>
-            <p class="text-sm dark:text-white"> <small>{{ $currency }}</small> {{
-                $stats['deposits']['amount'] >= 1000000000
-                    ? number_format($stats['deposits']['amount'] / 1000000000, 1) . 'B'
-                    : ($stats['deposits']['amount'] >= 1000000
-                        ? number_format($stats['deposits']['amount'] / 1000000, 1) . 'M'
-                        : number_format($stats['deposits']['amount'], 2))
-            }}</p>
+            <p class="text-sm dark:text-white">
+                <small>{{ $currency }}</small>
+                {{
+                    $stats['deposits']['amount'] >= 1000000000
+                        ? number_format($stats['deposits']['amount'] / 1000000000, 1) . 'B'
+                        : ($stats['deposits']['amount'] >= 1000000
+                            ? number_format($stats['deposits']['amount'] / 1000000, 1) . 'M'
+                            : ($stats['deposits']['amount'] >= 1000
+                                ? number_format($stats['deposits']['amount'], 0)
+                                : number_format($stats['deposits']['amount'], 0)))
+                }}
+            </p>
         </div>
     </div>
 
@@ -211,16 +216,22 @@
         <div class="p-4 bg-blue-400">
             <img src="{{ asset('icons/withdrawal.svg') }}" class="h-12 w-12" alt="Withdrawal Icon">
         </div>
-       <div class="px-4 text-gray-700">
+        <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Withdrawals</h3>
             <p class="text-3xl dark:text-white">{{ $stats['withdrawals']['count'] }}</p>
-            <p class="text-sm dark:text-white"><small>{{ $currency }}</small> {{
-                $stats['withdrawals']['amount'] >= 1000000000
-                    ? number_format($stats['withdrawals']['amount'] / 1000000000, 1) . 'B'
-                    : ($stats['withdrawals']['amount'] >= 1000000
-                        ? number_format($stats['withdrawals']['amount'] / 1000000, 1) . 'M'
-                        : number_format($stats['withdrawals']['amount'], 2))
-            }}</p>
+            <p class="text-sm dark:text-white">
+                <small>{{ $currency }}</small>
+                {{
+                    $stats['withdrawals']['amount'] >= 1000000000
+                        ? number_format($stats['withdrawals']['amount'] / 1000000000, 1) . 'B'
+                        : ($stats['withdrawals']['amount'] >= 1000000
+                            ? number_format($stats['withdrawals']['amount'] / 1000000, 1) . 'M'
+                            : ($stats['withdrawals']['amount'] >= 1000
+                                ? number_format($stats['withdrawals']['amount'], 0)
+                                : number_format($stats['withdrawals']['amount'], 0)))
+                }}
+            </p>
+
         </div>
     </div>
 
@@ -229,16 +240,22 @@
         <div class="p-4 bg-indigo-400">
             <img src="{{ asset('icons/card.svg') }}" class="h-12 w-20" alt="Transfers Icon">
         </div>
-      <div class="px-4 text-gray-700">
+        <div class="px-4 text-gray-700">
             <h3 class="text-sm tracking-wider dark:text-white">Transfers</h3>
             <p class="text-3xl dark:text-white">{{ $stats['transfers']['count'] }}</p>
-            <p class="text-sm dark:text-white"><small>{{ $currency }}</small> {{
-                $stats['transfers']['amount'] >= 1000000000
-                    ? number_format($stats['transfers']['amount'] / 1000000000, 1) . 'B'
-                    : ($stats['transfers']['amount'] >= 1000000
-                        ? number_format($stats['transfers']['amount'] / 1000000, 1) . 'M'
-                        : number_format($stats['transfers']['amount'], 2))
-            }}</p>
+            <p class="text-sm dark:text-white">
+                <small>{{ $currency }}</small>
+                {{
+                    $stats['transfers']['amount'] >= 1000000000
+                        ? number_format($stats['transfers']['amount'] / 1000000000, 1) . 'B'
+                        : ($stats['transfers']['amount'] >= 1000000
+                            ? number_format($stats['transfers']['amount'] / 1000000, 1) . 'M'
+                            : ($stats['transfers']['amount'] >= 1000
+                                ? number_format($stats['transfers']['amount'], 0)
+                                : number_format($stats['transfers']['amount'], 0)))
+                }}
+            </p>
+
         </div>
     </div>
 
@@ -247,20 +264,26 @@
         <div class="p-4 bg-red-400">
             <img src="{{ asset('icons/wallet.svg') }}" class="h-12 w-12" alt="Wallet Icon">
         </div>
-       <div class="px-4 text-gray-700">
+        <div class="px-4 text-gray-700">
             <h3 class="text-xs tracking-wider dark:text-white">Wallet Balance</h3>
-            <p class="text-lg dark:text-white break-all"><i>{{ $currency }}</i> {{
-                $stats['balance'] >= 1000000000
-                    ? number_format($stats['balance'] / 1000000000, 1) . 'B'
-                    : ($stats['balance'] >= 1000000
-                        ? number_format($stats['balance'] / 1000000, 1) . 'M'
-                        : number_format($stats['balance'], 2))
-            }}</p>
+            <p class="text-lg dark:text-white break-all">
+                <i>{{ $currency }}</i>
+                {{
+                    $stats['balance'] >= 1000000000
+                        ? number_format($stats['balance'] / 1000000000, 1) . 'B'
+                        : ($stats['balance'] >= 1000000
+                            ? number_format($stats['balance'] / 1000000, 1) . 'M'
+                            : ($stats['balance'] >= 1000
+                                ? number_format($stats['balance'],0)
+                                : number_format($stats['balance'], 0)))
+                }}
+            </p>
+
         </div>
     </div>
 </div>
 
-<!-- After existing stats cards -->
+<!-- Loans stats cards -->
 <h1 class="text-2xl italic font-sans font-extrabold text-center mt-8">Loan Overview</h1>
 
 <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 px-4 sm:px-8 mt-8">
@@ -275,13 +298,15 @@
             <h3 class="text-sm tracking-wider dark:text-white">Active Loans</h3>
             <p class="text-3xl dark:text-white">{{ $stats['loans']['active'] }}</p>
             <p class="text-sm dark:text-white">
-                {{$currency}} {{
-                $stats['loans']['total_amount'] >= 1000000000
-                    ? number_format($stats['loans']['total_amount'] / 1000000000, 1) . 'B'
-                    : ($stats['loans']['total_amount'] >= 1000000
-                        ? number_format($stats['loans']['total_amount'] / 1000000, 1) . 'M'
-                        : number_format($stats['loans']['total_amount'], 2))
-            }}
+                {{ $currency }} {{
+                    $stats['loans']['total_amount'] >= 1000000000
+                        ? number_format($stats['loans']['total_amount'] / 1000000000, 1) . 'B'
+                        : ($stats['loans']['total_amount'] >= 1000000
+                            ? number_format($stats['loans']['total_amount'] / 1000000, 1) . 'M'
+                            : ($stats['loans']['total_amount'] >= 1000
+                                ? number_format($stats['loans']['total_amount'], 0)
+                                :number_format($stats['loans']['total_amount'], 0)))
+                }}
             </p>
         </div>
     </div>
@@ -323,22 +348,26 @@
             <h3 class="text-sm tracking-wider dark:text-white">Paid Loans</h3>
             <p class="text-3xl dark:text-white">{{ $stats['loans']['paid'] }}</p>
             <p class="text-sm dark:text-white">
-                {{$currency}} {{
-                $stats['loans']['total_amount'] >= 1000000000
-                    ? number_format($stats['loans']['paid_amount'] / 1000000000, 1) . 'B'
-                    : ($stats['loans']['total_amount'] >= 1000000
-                        ? number_format($stats['loans']['paid_amount'] / 1000000, 1) . 'M'
-                        : number_format($stats['loans']['paid_amount'], 2))
-            }}
+                {{ $currency }} {{
+                    $stats['loans']['paid_amount'] >= 1000000000
+                        ? number_format($stats['loans']['paid_amount'] / 1000000000, 1) . 'B'
+                        : ($stats['loans']['paid_amount'] >= 1000000
+                            ? number_format($stats['loans']['paid_amount'] / 1000000, 1) . 'M'
+                            : ($stats['loans']['paid_amount'] >= 1000
+                                ? number_format($stats['loans']['paid_amount'], 0)
+                                : number_format($stats['loans']['paid_amount'], 0)))
+                }}
             </p>
+
         </div>
     </div>
 </div>
+{{-- end of loans stat cards --}}
 
 <!-- Divider -->
 <hr class="border-dashed mt-5" />
 
-<!-- After the stats cards -->
+<!-- charts -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 px-4 sm:px-8">
     <!-- Transaction Trends Chart -->
     <div class="bg-white p-4 rounded-lg shadow dark:bg-gray-800">

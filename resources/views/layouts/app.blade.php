@@ -202,5 +202,7 @@
         })
 
     </script>
+      <!-- Chatbot widget -->
+    @livewire('chatassistant')
 </body>
 </html>
