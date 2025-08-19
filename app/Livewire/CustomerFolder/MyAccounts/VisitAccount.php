@@ -296,7 +296,7 @@ class VisitAccount extends Component
             ];
 
             DB::commit();
-            
+
             $this->dispatch('refresh');
             $this->receiptType = 'withdrawal';
             $this->showReceiptModal = true;
