@@ -13,11 +13,6 @@ new #[Layout('layouts.guest')]  class extends Component
 
     public bool $emailValidated = false;
 
-
-    public function boot(){
-        // $this->validateEmail();
-    }
-
       // In your Livewire component
     public function validateEmail()
     {

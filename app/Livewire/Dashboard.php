@@ -305,6 +305,9 @@ class Dashboard extends Component
         $currentDeposits = Transaction::whereMonth('created_at', $currentMonth)
             ->where('type', 'deposit')
             ->sum('amount');
+
+        $currenctCurrency = Auth::user()->currency;
+
         $lastMonthDeposits = Transaction::whereMonth('created_at', $lastMonth)
             ->where('type', 'deposit')
             ->sum('amount');
@@ -325,14 +328,15 @@ class Dashboard extends Component
 
         // Calculate outstanding loans
         $currentOutstandingLoans = Loan::where('status', 'active')->sum('amount');
+
         $lastMonthOutstandingLoans = Loan::where('status', 'active')
             ->whereMonth('created_at', '<=', $lastMonth)
             ->sum('amount');
 
         // Calculate loan repayments
-        $currentLoanRepayments = Loan::whereMonth('created_at', $currentMonth)
-            ->where('status', 'paid')
-            ->sum('total_interest');
+        $currentLoanRepayments = Transaction::whereMonth('created_at', $currentMonth)
+            ->where('type', 'loanPayment')
+            ->sum('amount');
 
         $lastMonthLoanRepayments = Transaction::whereMonth('created_at', $lastMonth)
             ->where('type', 'loanPayment')
@@ -359,6 +363,7 @@ class Dashboard extends Component
         $currentBalance =$currentDeposits - $currentWithdrawals - $currentOutstandingLoans +
                          $currentLoanRepayments + $currentOtherIncome + $totalTaxes + $totalCharges - $currentOperationalExpenses;
 
+        //  dd(convertCurrency($currentOutstandingLoans, 'UGX', $currenctCurrency));
         // Calculate last month's wallet balance
         $lastMonthBalance = $lastMonthDeposits - $lastMonthWithdrawals - $lastMonthOutstandingLoans +
                            $lastMonthLoanRepayments + $lastMonthOtherIncome - $lastMonthOperationalExpenses;

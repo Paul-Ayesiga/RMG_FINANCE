@@ -19,13 +19,13 @@ class SuperAdminSeeder extends Seeder
     {
         //Super admin
         $clintonAccount = User::firstOrCreate([
-            'email' => 'ayesigapo@gmail.com',
+            'email' => 'superadmin@gmail.com',
             'email_verified_at' => Carbon::today(),
             'role' => 'admin',
 
         ], [
             'name' => 'Super-Admin',
-            'password' => Hash::make('kellyrina2023'),
+            'password' => Hash::make('kellyrina'),
         ]);
         //assign roles
         $clintonAccount->assignRole('super-admin');

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Http;
 use App\Livewire\NotificationsDrawer;
 use App\Livewire\Accounts\AccountsOverview;
 use App\Livewire\Accounts\AccountTypes;
@@ -26,6 +27,8 @@ use App\Livewire\CustomerFolder\StandingOrders;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\CurrencyController;
 use App\Livewire\ReportDashboard;
+use App\Models\User;
+
 
 Route::get('/roles', function () {
     return Role::all();  // Fetch all roles
@@ -41,7 +44,7 @@ Route::middleware(['auth','verified','role:super-admin'])->group(function(){
     Route::get('/clients/{customer}/edit',ClientEdit::class)->name('edit-client');
     Route::get('/account_types', AccountTypes::class)->name('account-types');
     Route::get('accounts-overview', AccountsOverview::class)->name('accounts-overview');
-    Route::get('/my-account/{account}/do-something', VisitAccount::class)->name('visit-account');
+    // Route::get('/my-account/{account}/do-something', VisitAccount::class)->name('visit-account');
     Route::get('/loan-products', LoanProducts::class)->name('loan-products');
     Route::get('/loans',Loans::class)->name('loans');
     Route::get('/transactions-overview',TransactionsOverview::class)->name('transactions-overview');
@@ -82,7 +85,7 @@ Route::view('profile', 'profile')
 
 require __DIR__.'/auth.php';
 
-Route::supportBubble();
+// Route::supportBubble();
 
 Route::middleware(['auth', 'verified','role:super-admin'])->group(function () {
     Route::get('/admin/notifications/send', SendNotification::class)->name('admin.notifications.send');
@@ -90,3 +93,22 @@ Route::middleware(['auth', 'verified','role:super-admin'])->group(function () {
 
 
 Route::post('/currency/update', [CurrencyController::class, 'update'])->name('currency.update');
+
+Route::get('/avatar/{user}', function (User $user) {
+    if (!$user->avatar) {
+        // Return a default image or 404 if no avatar is set
+        abort(404);
+    }
+
+    $response = Http::get($user->avatar);
+
+    // Ensure the request was successful
+    if ($response->successful()) {
+        return response($response->body(), 200)
+            ->header('Content-Type', $response->header('Content-Type'))
+            ->header('Content-Length', $response->header('Content-Length'));
+    }
+
+    // Return a 404 if fetching the image fails
+    abort(404);
+})->name('user.avatar');

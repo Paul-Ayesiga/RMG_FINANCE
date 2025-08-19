@@ -97,50 +97,54 @@
                 </div>
 
                 {{-- Single Client Modal --}}
-               <x-mary-modal wire:model="previewAccountTypeModal" title="Account Type Details" separator>
-                    <div class="p-4 sm:p-6 bg-gray-50 rounded-lg shadow-md" @click.stop>
-                        <!-- Account Type Header -->
-                        <div class="text-center mb-4">
-                            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $this->accountTypeToPreview->name ?? 'Account Type Name' }}</h2>
-                            <p class="text-sm sm:text-base text-gray-500">{{ $this->accountTypeToPreview ->description ?? 'No description provided for this account type.' }}</p>
-                        </div>
+                <x-mary-modal wire:model="previewAccountTypeModal" title="Account Type Details" separator>
+    @if($this->accountTypeToPreview)
+        <div class="p-4 sm:p-6 bg-gray-50 rounded-lg shadow-md" @click.stop>
+            <div class="text-center mb-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $this->accountTypeToPreview->name ?? 'Account Type Name' }}</h2>
+                <p class="text-sm sm:text-base text-gray-500">{{ $this->accountTypeToPreview ->description ?? 'No description provided for this account type.' }}</p>
+            </div>
 
-                        <!-- Account Type Details Section -->
-                        <div class="border-t border-gray-200 mt-4 pt-4">
-                            <h3 class="font-semibold text-gray-700 text-lg mb-3">Details</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <span class="block font-medium text-gray-600">Minimum Balance:</span>
-                                    <span class="block text-gray-800">{{ convertCurrency($this->accountTypeToPreview->min_balance ,'UGX' , $currency) ?? 'Not specified' }}</span>
-                                </div>
-                                <div>
-                                    <span class="block font-medium text-gray-600">Interest Rate:</span>
-                                    <span class="block text-gray-800">{{ $this->accountTypeToPreview->interest_rate ?? 'Not specified' }}</span>
-                                </div>
-                                <div>
-                                    <span class="block font-medium text-gray-600">Maximum Withdrawal Limit:</span>
-                                    <span class="block text-gray-800">{{ $this->accountTypeToPreview->max_withdrawal ?? 'Not specified' }}</span>
-                                </div>
-                                <div>
-                                    <span class="block font-medium text-gray-600">Monthly Fees:</span>
-                                    <span class="block text-gray-800">{{ $this->accountTypeToPreview->monthly_fees ?? 'Not specified' }}</span>
-                                </div>
-                                <div>
-                                    <span class="block font-medium text-gray-600">Transaction Limit:</span>
-                                    <span class="block text-gray-800">{{ $this->accountTypeToPreview->transaction_limit ?? 'Not specified' }}</span>
-                                </div>
-                                <div>
-                                    <span class="block font-medium text-gray-600">Overdraft Facility:</span>
-                                    <span class="block text-gray-800">{{ $this->accountTypeToPreview->overdraft_limit ?? 'Not specified' }}</span>
-                                </div>
-                            </div>
-                        </div>
+            <div class="border-t border-gray-200 mt-4 pt-4">
+                <h3 class="font-semibold text-gray-700 text-lg mb-3">Details</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="block font-medium text-gray-600">Minimum Balance:</span>
+                        <span class="block text-gray-800">{{ convertCurrency($this->accountTypeToPreview->min_balance ,'UGX' , $currency) ?? 'Not specified' }}</span>
                     </div>
+                    <div>
+                        <span class="block font-medium text-gray-600">Interest Rate:</span>
+                        <span class="block text-gray-800">{{ $this->accountTypeToPreview->interest_rate ?? 'Not specified' }}</span>
+                    </div>
+                    <div>
+                        <span class="block font-medium text-gray-600">Maximum Withdrawal Limit:</span>
+                        <span class="block text-gray-800">{{ $this->accountTypeToPreview->max_withdrawal ?? 'Not specified' }}</span>
+                    </div>
+                    <div>
+                        <span class="block font-medium text-gray-600">Monthly Fees:</span>
+                        <span class="block text-gray-800">{{ $this->accountTypeToPreview->monthly_fees ?? 'Not specified' }}</span>
+                    </div>
+                    <div>
+                        <span class="block font-medium text-gray-600">Transaction Limit:</span>
+                        <span class="block text-gray-800">{{ $this->accountTypeToPreview->transaction_limit ?? 'Not specified' }}</span>
+                    </div>
+                    <div>
+                        <span class="block font-medium text-gray-600">Overdraft Facility:</span>
+                        <span class="block text-gray-800">{{ $this->accountTypeToPreview->overdraft_limit ?? 'Not specified' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="p-4 text-center text-gray-500">
+            Account type details not available.
+        </div>
+    @endif
 
-                    <x-slot:actions>
-                        <x-mary-button label="Close" @click.stop="$wire.previewAccountTypeModal = false" class="bg-gray-500 rounded-md text-white font-bold border-none" />
-                    </x-slot:actions>
-                </x-mary-modal>
+    <x-slot:actions>
+        <x-mary-button label="Close" @click.stop="$wire.previewAccountTypeModal = false" class="bg-gray-500 rounded-md text-white font-bold border-none" />
+    </x-slot:actions>
+</x-mary-modal>
 
                 {{-- End --}}
 

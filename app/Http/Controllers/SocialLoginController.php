@@ -62,6 +62,7 @@ class SocialLoginController extends Controller
                     'name' => $socialUser->getName() ?? 'Guest User',
                     'email' => $socialUser->getEmail(),
                     'password' => bcrypt('rand(1000,9999)'),
+                    'avatar' => $socialUser->getAvatar(),
                 ]);
 
                 // Assign 'customer' role

@@ -389,50 +389,50 @@ class VisitLoan extends Component
         }
     }
 
-    public function makePaymentWithMobileMoney()
-    {
-        $this->validate([
-            'paymentAmount' => 'required|numeric|min:0.01',
-            'mobileMoneyNumber' => 'required|string|regex:/^[0-9]{10}$/',
-            'mobileMoneyNetwork' => 'required|string|in:MTN,AIRTEL',
-        ]);
+    // public function makePaymentWithMobileMoney()
+    // {
+    //     $this->validate([
+    //         'paymentAmount' => 'required|numeric|min:0.01',
+    //         'mobileMoneyNumber' => 'required|string|regex:/^[0-9]{10}$/',
+    //         'mobileMoneyNetwork' => 'required|string|in:MTN,AIRTEL',
+    //     ]);
 
-        try {
-            // Initialize Flutterwave
-            $flw = new \Flutterwave\Rave(env('FLW_SECRET_KEY'));
-            $mobileMoneyService = new \Flutterwave\MobileMoney();
+    //     try {
+    //         // Initialize Flutterwave
+    //         // $flw = new \Flutterwave\Rave(env('FLW_SECRET_KEY'));
+    //         // $mobileMoneyService = new \Flutterwave\MobileMoney();
 
-            // Prepare payload
-            $payload = [
-                "type" => "mobile_money_uganda",
-                "phone_number" => $this->mobileMoneyNumber,
-                "network" => $this->mobileMoneyNetwork,
-                "amount" => $this->paymentAmount,
-                "currency" => 'UGX',
-                "email" => Auth::user()->email,
-                "tx_ref" => $this->generateTransactionReference(),
-            ];
+    //         // Prepare payload
+    //         $payload = [
+    //             "type" => "mobile_money_uganda",
+    //             "phone_number" => $this->mobileMoneyNumber,
+    //             "network" => $this->mobileMoneyNetwork,
+    //             "amount" => $this->paymentAmount,
+    //             "currency" => 'UGX',
+    //             "email" => Auth::user()->email,
+    //             "tx_ref" => $this->generateTransactionReference(),
+    //         ];
 
-            // Initiate payment
-            $response = $mobileMoneyService->mobilemoney($payload);
+    //         // Initiate payment
+    //         // $response = $mobileMoneyService->mobilemoney($payload);
 
-            if ($response['status'] === 'success') {
-                // Handle redirect for payment authorization
-                $redirectUrl = $response['meta']['authorization']['redirect'];
-                return redirect()->away($redirectUrl);
-            } else {
-                throw new \Exception('Failed to initiate mobile money payment');
-            }
-        } catch (\Exception $e) {
-            $this->toast(
-                type: 'error',
-                title: 'Failed to process mobile money payment: ' . $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-            );
-        }
-    }
+    //         if ($response['status'] === 'success') {
+    //             // Handle redirect for payment authorization
+    //             $redirectUrl = $response['meta']['authorization']['redirect'];
+    //             return redirect()->away($redirectUrl);
+    //         } else {
+    //             throw new \Exception('Failed to initiate mobile money payment');
+    //         }
+    //     } catch (\Exception $e) {
+    //         $this->toast(
+    //             type: 'error',
+    //             title: 'Failed to process mobile money payment: ' . $e->getMessage(),
+    //             position: 'toast-top toast-end',
+    //             icon: 'o-x-circle',
+    //             css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
+    //         );
+    //     }
+    // }
 
     // Add this method
     public function setFullRepaymentAmount()

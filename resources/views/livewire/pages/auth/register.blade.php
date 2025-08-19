@@ -108,6 +108,8 @@ new #[Layout('layouts.guest')] #[Lazy()] class extends Component
 
             DB::rollBack();
 
+            // dd($e->message);
+
             $this->toast(
                 type: 'error',
                 title: 'Failed to register, please try again',
@@ -379,7 +381,7 @@ new #[Layout('layouts.guest')] #[Lazy()] class extends Component
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="#aca2ee" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="m14.5 7l5 5l-5 5"/><path d="M19.5 12h-10c-1.667 0-5 1-5 5" opacity="0.5"/></g></svg>
                 </button>
             @else
-                <button type="submit"  wire:click="register" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md" :disabled="!$accepted">
+                <button type="submit"  wire:click="register" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md" wire:attr.disabled="!$accepted">
                      <!-- Button text visible only when not loading -->
                     <span wire:loading.remove class="flex items-center justify-center" wire:target="register">
                         Create account

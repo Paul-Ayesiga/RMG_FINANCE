@@ -116,7 +116,7 @@
                 </span>
             @endscope
             @scope('cell_amount', $loan, $currency)
-                {{ convertCurrency($loan->amount, 'UGX', $currency) }}
+                {{ number_format(convertCurrency($loan->amount, 'UGX', $currency),0) }}
             @endscope
             {{-- Special `actions` slot --}}
             @scope('actions', $loan)

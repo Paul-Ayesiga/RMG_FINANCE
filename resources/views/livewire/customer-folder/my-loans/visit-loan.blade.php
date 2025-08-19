@@ -89,7 +89,7 @@
                                             {{ $loan->schedules->where('status', '!=', 'paid')->first()?->due_date->format('F j, Y g:i A')  }}
                                         </p>
                                         <p><span class="font-semibold">Amount Due:</span>
-                                            {{ $currency .' '. number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->first()?->remaining_amount, 'UGX', $currency), 2) }}
+                                            {{ $currency .' '. number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->first()?->remaining_amount, 'UGX', $currency), 0) }}
                                         </p>
                                     </div>
                                 </div>
@@ -119,7 +119,7 @@
                         <!-- Principal Amount -->
                         <div>
                             <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Principal Amount</h3>
-                            <p class="text-green-600 font-bold">{{ $currency .' '. number_format(convertCurrency($loan->amount, 'UGX', $currency), 2) }}</p>
+                            <p class="text-green-600 font-bold">{{ $currency .' '. number_format(convertCurrency($loan->amount, 'UGX', $currency), 0) }}</p>
                         </div>
 
                         <!-- Total Payable Amount -->
@@ -149,7 +149,7 @@
                         <!-- Total Interest Rate -->
                         <div>
                             <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Total Interest Rate</h3>
-                            <p class="text-green-600 font-bold">{{ $currency .' '. number_format(convertCurrency($loan->total_interest, 'UGX', $currency), 2) }}</p>
+                            <p class="text-green-600 font-bold">{{ $currency .' '. number_format(convertCurrency($loan->total_interest, 'UGX', $currency), 0) }}</p>
                         </div>
 
                         <!-- Payment Frequency -->
@@ -162,7 +162,7 @@
                         @if($loan->processing_fee)
                             <div>
                                 <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Processing fee</h3>
-                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->processing_fee, 'UGX', $currency), 2) }}</p>
+                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->processing_fee, 'UGX', $currency), 0) }}</p>
                             </div>
                         @endif
 
@@ -170,7 +170,7 @@
                         @if($loan->early_payment_fee)
                             <div>
                                 <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Early payment fee</h3>
-                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->early_payment_fee, 'UGX', $currency), 2) }}</p>
+                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->early_payment_fee, 'UGX', $currency),0) }}</p>
                             </div>
                         @endif
 
@@ -178,7 +178,7 @@
                         @if($loan->late_payment_fee)
                             <div>
                                 <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Late payment fee</h3>
-                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->late_payment_fee, 'UGX', $currency), 2) }}</p>
+                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->late_payment_fee, 'UGX', $currency), 0) }}</p>
                             </div>
                         @endif
 
@@ -273,9 +273,9 @@
                                     @foreach($loan->schedules as $schedule)
                                         <tr>
                                             <td>{{ $schedule->due_date->format('Y-m-d') }}</td>
-                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->total_amount, 'UGX', $currency), 2) }}</td> <!-- Using convertCurrency with $currency -->
-                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->paid_amount, 'UGX', $currency), 2) }}</td> <!-- Using convertCurrency with $currency -->
-                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->remaining_amount, 'UGX', $currency), 2) }}</td> <!-- Using convertCurrency with $currency -->
+                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->total_amount, 'UGX', $currency), 0) }}</td> <!-- Using convertCurrency with $currency -->
+                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->paid_amount, 'UGX', $currency), 0) }}</td> <!-- Using convertCurrency with $currency -->
+                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->remaining_amount, 'UGX', $currency), 0) }}</td> <!-- Using convertCurrency with $currency -->
                                             <td>
                                                 @if($schedule->status)
                                                     @if($schedule->status == 'pending')
@@ -317,7 +317,7 @@
                                                 {{ $loan->schedules->where('status', '!=', 'paid')->first()?->due_date->format('F j, Y g:i A')  }}
                                             </p>
                                             <p><span class="font-semibold">Amount Due:</span>
-                                                {{ $currency . ' ' . number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->first()?->remaining_amount ?? 0, 'UGX', $currency), 2) }}
+                                                {{ $currency . ' ' . number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->first()?->remaining_amount ?? 0, 'UGX', $currency), 0) }}
                                             </p>
                                         </div>
                                     </div>
@@ -339,7 +339,7 @@
                                             <div class="mb-4 p-4 bg-gray-50 rounded-lg">
                                                 <p class="text-sm text-gray-600">Total Outstanding Amount</p>
                                                 <p class="text-2xl font-bold text-gray-800">
-                                                    {{ $currency . ' ' . number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->sum('remaining_amount'), 'UGX', $currency), 2) }}
+                                                    {{ $currency . ' ' . number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->sum('remaining_amount'), 'UGX', $currency), 0) }}
                                                 </p>
                                             </div>
 
@@ -360,7 +360,7 @@
                                                         </x-slot:avatar>
                                                         <p>{{$account->account_number}}</p>
                                                         <x-slot:actions>
-                                                            <x-mary-badge :value="number_format(convertCurrency($account->balance, 'UGX', $currency), 2)" />
+                                                            <x-mary-badge :value="number_format(convertCurrency($account->balance, 'UGX', $currency), 0)" />
                                                         </x-slot:actions>
                                                     </x-mary-list-item>
                                                 @endscope
@@ -396,7 +396,7 @@
                                                     type="text"
                                                     label="Amount to Pay"
                                                     wire:model="paymentAmount"
-                                                   
+
                                                     placeholder="Enter amount to pay"
                                                 />
 
@@ -578,7 +578,7 @@
                         <div class="flex justify-between">
                             <span class="font-semibold">Base Amount:</span>
                             <span class="text-lg {{ $receiptType === 'withdrawal' ? 'text-red-600' : 'text-green-600' }}">
-                                {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['amount'] ?? 0, 2) }}
+                                {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['amount'] ?? 0, 0) }}
                             </span>
                         </div>
 
@@ -589,12 +589,12 @@
                                 @foreach($receiptData['charges'] as $charge)
                                     <div class="flex justify-between text-sm pl-4">
                                         <span class="text-gray-600">{{ $charge['name'] }} ({{ $charge['rate'] }}):</span>
-                                        <span class="text-red-600">-{{ number_format($charge['amount'], 2) }}</span>
+                                        <span class="text-red-600">-{{ number_format($charge['amount'], 0) }}</span>
                                     </div>
                                 @endforeach
                                 <div class="flex justify-between text-sm font-medium border-t border-dashed pt-1">
                                     <span>Total Charges:</span>
-                                    <span class="text-red-600">-{{ number_format($receiptData['total_charges'] ?? 0, 2) }}</span>
+                                    <span class="text-red-600">-{{ number_format($receiptData['total_charges'] ?? 0, 0) }}</span>
                                 </div>
                             </div>
                         @endif
@@ -606,12 +606,12 @@
                                 @foreach($receiptData['taxes'] as $tax)
                                     <div class="flex justify-between text-sm pl-4">
                                         <span class="text-gray-600">{{ $tax['name'] }} ({{ $tax['rate'] }}):</span>
-                                        <span class="text-red-600">-{{ number_format($tax['amount'], 2) }}</span>
+                                        <span class="text-red-600">-{{ number_format($tax['amount'], 0) }}</span>
                                     </div>
                                 @endforeach
                                 <div class="flex justify-between text-sm font-medium border-t border-dashed pt-1">
                                     <span>Total Taxes:</span>
-                                    <span class="text-red-600">-{{ number_format($receiptData['total_taxes'] ?? 0, 2) }}</span>
+                                    <span class="text-red-600">-{{ number_format($receiptData['total_taxes'] ?? 0, 0) }}</span>
                                 </div>
                             </div>
                         @endif
@@ -620,14 +620,14 @@
                         <div class="flex justify-between font-bold text-lg border-t pt-2">
                             <span>Total Amount:</span>
                             <span class="{{ $receiptType === 'withdrawal' ? 'text-red-600' : 'text-green-600' }}">
-                                {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['total_amount'] ?? 0, 2) }}
+                                {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['total_amount'] ?? 0, 0) }}
                             </span>
                         </div>
 
                         <!-- New Balance -->
                         <div class="flex justify-between border-t pt-2">
                             <span class="font-semibold">Available Balance:</span>
-                            <span>{{ number_format($receiptData['balance'] ?? 0, 2) }}</span>
+                            <span>{{ number_format($receiptData['balance'] ?? 0, 0) }}</span>
                         </div>
                     </div>
                 </div>

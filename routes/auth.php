@@ -8,20 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 
-// Route::middleware(['guest'])->group(function () {
-//     Volt::route('customer_register', 'client.register')
-//         ->name('register-customer');
-
-//     Volt::route('customer_login', 'client.login')
-//         ->name('login-customer');
-
-//     Volt::route('customer-forgot-password', 'client.forgot-password')
-//         ->name('customer.password.request');
-
-//     Volt::route('customer-reset-password/{token}', 'client.reset-password')
-//         ->name('customer.password.reset');
-// });
-
 Route::middleware('guest')->group(function(){
     Volt::route('register', 'pages.auth.register')
         ->name('register');
