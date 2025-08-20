@@ -1,4 +1,4 @@
-<div>
+<div class="p-3">
     <!-- HEADER -->
     <x-mary-header title="Loan Products" separator progress-indicator>
         <x-slot:middle>
@@ -13,11 +13,11 @@
         </x-slot:middle>
         <x-slot:actions>
             @can('create loan products')
-            <x-mary-button 
-                label="Create Loan Product" 
-                @click="$wire.addLoanProductModal = true"  
-                icon="o-plus" 
-                class="bg-blue-700 mb-3 text-white rounded-md mr-10" 
+            <x-mary-button
+                label="Create Loan Product"
+                @click="$wire.addLoanProductModal = true"
+                icon="o-plus"
+                class="bg-blue-700 mb-3 text-white rounded-md mr-10"
             />
             @endcan
         </x-slot:actions>
@@ -74,15 +74,15 @@
         </x-mary-card>
 
         <!-- Main Table -->
-        <x-mary-table 
-            :headers="$headers" 
-            :rows="$loanProducts"  
-            :sort-by="$sortBy" 
+        <x-mary-table
+            :headers="$headers"
+            :rows="$loanProducts"
+            :sort-by="$sortBy"
             with-pagination
             per-page="perPage"
-            :per-page-values="[1,3, 5, 10]"  
-            wire:model="selected" 
-            selectable 
+            :per-page-values="[1,3, 5, 10]"
+            wire:model="selected"
+            selectable
             striped
             >
             @scope('cell_loans_count', $loanProduct)
@@ -95,20 +95,20 @@
 
             @scope('actions', $loanProduct)
                 <div class="inline-flex">
-                    <x-mary-button 
-                        icon="o-eye" 
-                        wire:click.stop="OpenPreviewLoanProductModal({{$loanProduct->id}})" 
-                        class="btn-sm bg-blue-400 dark:text-white" 
+                    <x-mary-button
+                        icon="o-eye"
+                        wire:click.stop="OpenPreviewLoanProductModal({{$loanProduct->id}})"
+                        class="btn-sm bg-blue-400 dark:text-white"
                     />
-                    <x-mary-button 
-                        icon="o-pencil" 
-                        @click.stop="$wire.dispatch('edit-loan-product',{loanProductId:{{$loanProduct->id}} })" 
-                        class="btn-sm bg-yellow-400 dark:text-white" 
+                    <x-mary-button
+                        icon="o-pencil"
+                        @click.stop="$wire.dispatch('edit-loan-product',{loanProductId:{{$loanProduct->id}} })"
+                        class="btn-sm bg-yellow-400 dark:text-white"
                     />
-                    <x-mary-button 
-                        icon="o-trash" 
-                        wire:click.stop="openDeleteLoanProductModal({{$loanProduct->id}})" 
-                        class="btn-sm bg-red-600 dark:text-white" 
+                    <x-mary-button
+                        icon="o-trash"
+                        wire:click.stop="openDeleteLoanProductModal({{$loanProduct->id}})"
+                        class="btn-sm bg-red-600 dark:text-white"
                     />
                 </div>
             @endscope
@@ -121,80 +121,87 @@
         <x-mary-menu-separator />
         <x-mary-form wire:submit="saveLoanProduct">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-mary-input 
-                    label="Name" 
-                    placeholder="Loan Product Name" 
-                    wire:model="name" 
-                    class="col-span-1 sm:col-span-2" 
-                />
-                
-                <x-mary-textarea 
-                    label="Description" 
-                    placeholder="Loan Product Description" 
-                    wire:model="description" 
-                    class="col-span-1 sm:col-span-2" 
+                <x-wireui-input
+                    label="Name"
+                    placeholder="Loan Product Name"
+                    wire:model="name"
+                    class="col-span-1 sm:col-span-2"
+
                 />
 
-                <x-mary-input 
+                <x-wireui-textarea
+                    label="Description"
+                    placeholder="Loan Product Description"
+                    wire:model="description"
+                    class="col-span-1 sm:col-span-2 focus:outline-none focus:border-none"
+
+                />
+
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Interest Rate (%)" 
-                    placeholder="e.g., 12.5" 
-                    wire:model="interest_rate" 
+                    label="Interest Rate (%)"
+                    placeholder="e.g., 12.5"
+                    wire:model="interest_rate"
+
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Minimum Amount" 
-                    placeholder="e.g., 1000" 
-                    wire:model="minimum_amount" 
+                    label="Minimum Amount"
+                    placeholder="e.g., 1000"
+                    wire:model="minimum_amount"
+
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Maximum Amount" 
-                    placeholder="e.g., 50000" 
-                    wire:model="maximum_amount" 
+                    label="Maximum Amount"
+                    placeholder="e.g., 50000"
+                    wire:model="maximum_amount"
+
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
-                    label="Minimum Term (months)" 
-                    placeholder="e.g., 6" 
-                    wire:model="minimum_term" 
+                    label="Minimum Term (months)"
+                    placeholder="e.g., 6"
+                    wire:model="minimum_term"
+
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
-                    label="Maximum Term (months)" 
-                    placeholder="e.g., 60" 
-                    wire:model="maximum_term" 
+                    label="Maximum Term (months)"
+                    placeholder="e.g., 60"
+                    wire:model="maximum_term"
+
                 />
 
-                <x-mary-input 
-                    type="number"
-                    step="0.01"
-                    label="Processing Fee (%)" 
-                    placeholder="e.g., 2.5" 
-                    wire:model="processing_fee" 
-                />
-
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Late Payment Fee (%)" 
-                    placeholder="e.g., 1.5" 
-                    wire:model="late_payment_fee_percentage" 
+                    label="Processing Fee (%)"
+                    placeholder="e.g., 2.5"
+                    wire:model="processing_fee"
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Early Payment Fee (%)" 
-                    placeholder="e.g., 1.0" 
-                    wire:model="early_payment_fee_percentage" 
+                    label="Late Payment Fee (%)"
+                    placeholder="e.g., 1.5"
+                    wire:model="late_payment_fee_percentage"
+                />
+
+                <x-wireui-input
+                    type="number"
+                    step="0.01"
+                    label="Early Payment Fee (%)"
+                    placeholder="e.g., 1.0"
+                    wire:model="early_payment_fee_percentage"
                 />
 
                 @php
@@ -209,11 +216,13 @@
                         ]
                     ];
                 @endphp
- 
-                <x-mary-select 
-                    label="Status" 
-                    :options="$statusOptions" 
-                    wire:model="status" 
+
+                <x-wireui-select
+                    label="Status"
+                    :options="$statusOptions"
+                    option-label="name"
+                    option-value="id"
+                    wire:model="status"
                 />
 
                <x-mary-choices
@@ -227,22 +236,22 @@
                     no-result-text="No payment frequencies found"
                     searchable
                     multiple
-                    class="col-span-1 sm:col-span-2"
+                    class="col-span-1 sm:col-span-2 focus:outline-gray-400 border-gray-400"
                 />
             </div>
 
             <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                <x-mary-button 
-                    label="Add" 
-                    type="submit" 
-                    spinner="saveLoanProduct" 
-                    icon="o-paper-airplane" 
-                    class="bg-blue-300 w-full sm:w-auto" 
+                <x-wireui-button
+                    label="Add"
+                    type="submit"
+                    spinner="saveLoanProduct"
+                    icon="paper-airplane"
+                    class="bg-blue-300 w-full sm:w-auto"
                 />
-                <x-mary-button 
-                    label="Cancel" 
-                    @click="$wire.addLoanProductModal = false;" 
-                    class="w-full sm:w-auto"
+                <x-wireui-button
+                    label="Cancel"
+                    @click="$wire.addLoanProductModal = false;"
+                    class="w-full sm:w-auto bg-gray-500"
                 />
             </div>
         </x-mary-form>
@@ -254,80 +263,80 @@
         <x-mary-menu-separator />
         <x-mary-form wire:submit="updateLoanProduct">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-mary-input 
-                    label="Name" 
-                    placeholder="Loan Product Name" 
-                    wire:model="name" 
-                    class="col-span-1 sm:col-span-2" 
-                />
-                
-                <x-mary-textarea 
-                    label="Description" 
-                    placeholder="Loan Product Description" 
-                    wire:model="description" 
-                    class="col-span-1 sm:col-span-2" 
+                <x-wireui-input
+                    label="Name"
+                    placeholder="Loan Product Name"
+                    wire:model="name"
+                    class="col-span-1 sm:col-span-2"
                 />
 
-                <x-mary-input 
+                <x-wireui-textarea
+                    label="Description"
+                    placeholder="Loan Product Description"
+                    wire:model="description"
+                    class="col-span-1 sm:col-span-2"
+                />
+
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Interest Rate (%)" 
-                    placeholder="e.g., 12.5" 
-                    wire:model="interest_rate" 
+                    label="Interest Rate (%)"
+                    placeholder="e.g., 12.5"
+                    wire:model="interest_rate"
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Minimum Amount" 
-                    placeholder="e.g., 1000" 
-                    wire:model="minimum_amount" 
+                    label="Minimum Amount"
+                    placeholder="e.g., 1000"
+                    wire:model="minimum_amount"
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Maximum Amount" 
-                    placeholder="e.g., 50000" 
-                    wire:model="maximum_amount" 
+                    label="Maximum Amount"
+                    placeholder="e.g., 50000"
+                    wire:model="maximum_amount"
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
-                    label="Minimum Term (months)" 
-                    placeholder="e.g., 6" 
-                    wire:model="minimum_term" 
+                    label="Minimum Term (months)"
+                    placeholder="e.g., 6"
+                    wire:model="minimum_term"
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
-                    label="Maximum Term (months)" 
-                    placeholder="e.g., 60" 
-                    wire:model="maximum_term" 
+                    label="Maximum Term (months)"
+                    placeholder="e.g., 60"
+                    wire:model="maximum_term"
                 />
 
-                <x-mary-input 
-                    type="number"
-                    step="0.01"
-                    label="Processing Fee (%)" 
-                    placeholder="e.g., 2.5" 
-                    wire:model="processing_fee" 
-                />
-
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Late Payment Fee (%)" 
-                    placeholder="e.g., 1.5" 
-                    wire:model="late_payment_fee_percentage" 
+                    label="Processing Fee (%)"
+                    placeholder="e.g., 2.5"
+                    wire:model="processing_fee"
                 />
 
-                <x-mary-input 
+                <x-wireui-input
                     type="number"
                     step="0.01"
-                    label="Early Payment Fee (%)" 
-                    placeholder="e.g., 1.0" 
-                    wire:model="early_payment_fee_percentage" 
+                    label="Late Payment Fee (%)"
+                    placeholder="e.g., 1.5"
+                    wire:model="late_payment_fee_percentage"
+                />
+
+                <x-wireui-input
+                    type="number"
+                    step="0.01"
+                    label="Early Payment Fee (%)"
+                    placeholder="e.g., 1.0"
+                    wire:model="early_payment_fee_percentage"
                 />
 
                 @php
@@ -342,11 +351,13 @@
                         ]
                     ];
                 @endphp
- 
-                <x-mary-select 
-                    label="Status" 
-                    :options="$statusOptions" 
-                    wire:model="status" 
+
+                <x-wireui-select
+                    label="Status"
+                    :options="$statusOptions"
+                    option-label="name"
+                    option-value="id"
+                    wire:model="status"
                 />
 
                <x-mary-choices
@@ -365,17 +376,17 @@
             </div>
 
             <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                <x-mary-button 
-                    label="Update" 
-                    type="submit" 
-                    spinner="updateLoanProduct" 
-                    icon="o-paper-airplane" 
-                    class="bg-blue-300 w-full sm:w-auto" 
+                <x-wireui-button
+                    label="Update"
+                    type="submit"
+                    spinner="updateLoanProduct"
+                    icon="paper-airplane"
+                    class="bg-blue-300 w-full sm:w-auto"
                 />
-                <x-mary-button 
-                    label="Cancel" 
-                    @click="$wire.editLoanProductModal = false;" 
-                    class="w-full sm:w-auto"
+                <x-mary-button
+                    label="Cancel"
+                    @click="$wire.editLoanProductModal = false;"
+                    class="w-full sm:w-auto bg-gray-500"
                 />
             </div>
         </x-mary-form>
@@ -430,10 +441,10 @@
         </div>
 
         <x-slot:actions>
-            <x-mary-button 
-                label="Close" 
-                @click="$wire.previewLoanProductModal = false" 
-                class="bg-gray-500 rounded-md text-white font-bold border-none w-full sm:w-auto" 
+            <x-mary-button
+                label="Close"
+                @click="$wire.previewLoanProductModal = false"
+                class="bg-gray-500 rounded-md text-white font-bold border-none w-full sm:w-auto"
             />
         </x-slot:actions>
     </x-mary-modal>
@@ -445,15 +456,15 @@
         </div>
         <x-slot:actions>
             <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
-                <x-mary-button 
-                    label="Cancel" 
-                    @click="$wire.deleteLoanProductModal = false" 
+                <x-mary-button
+                    label="Cancel"
+                    @click="$wire.deleteLoanProductModal = false"
                     class="w-full sm:w-auto"
                 />
-                <x-mary-button 
-                    label="Delete" 
-                    wire:click="confirmDelete({{$loanProductToDelete}})" 
-                    class="bg-red-600 rounded-md text-white font-bold w-full sm:w-auto" 
+                <x-mary-button
+                    label="Delete"
+                    wire:click="confirmDelete({{$loanProductToDelete}})"
+                    class="bg-red-600 rounded-md text-white font-bold w-full sm:w-auto"
                     spinner="confirmDelete({{$loanProductToDelete}})"
                 />
             </div>
@@ -467,15 +478,15 @@
         </div>
         <x-slot:actions>
             <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
-                <x-mary-button 
-                    label="Cancel" 
-                    @click="$wire.filledbulk = false" 
+                <x-mary-button
+                    label="Cancel"
+                    @click="$wire.filledbulk = false"
                     class="w-full sm:w-auto"
                 />
-                <x-mary-button 
-                    label="Delete" 
-                    wire:click="deleteSelected" 
-                    class="bg-red-600 rounded-md text-white font-bold w-full sm:w-auto" 
+                <x-mary-button
+                    label="Delete"
+                    wire:click="deleteSelected"
+                    class="bg-red-600 rounded-md text-white font-bold w-full sm:w-auto"
                     spinner
                 />
             </div>
@@ -488,11 +499,15 @@
             Please select at least one loan product to perform bulk deletion.
         </div>
         <x-slot:actions>
-            <x-mary-button 
-                label="Okay" 
-                @click="$wire.emptybulk = false" 
-                class="btn btn-accent w-full sm:w-auto" 
+            <x-mary-button
+                label="Okay"
+                @click="$wire.emptybulk = false"
+                class="btn btn-accent w-full sm:w-auto"
             />
         </x-slot:actions>
     </x-mary-modal>
+
+    <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-3/4 md:w-1/2">
+
+    </x-mary-drawer>
 </div>

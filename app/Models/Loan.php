@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class Loan extends Model
 {
@@ -109,7 +110,7 @@ class Loan extends Model
         // Update loan status
         $this->update([
             'status' => 'active',
-            'disbursed_by' => auth()->id(),
+            'disbursed_by' => Auth::id(),
             'disbursed_at' => now(),
         ]);
     }
@@ -146,9 +147,13 @@ class Loan extends Model
 
     private function calculatePaymentAmount(): array
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         $principal = $this->amount;
         $numberOfPayments = $this->getNumberOfPayments();
-        
+
         // Convert annual interest rate to period rate
         $periodRate = match($this->payment_frequency) {
             LoanProduct::FREQUENCY_DAILY => $this->interest_rate / 365 / 100,
@@ -166,7 +171,7 @@ class Loan extends Model
         // Calculate principal and interest per payment
         $totalPayment = $payment * $numberOfPayments;
         $totalInterest = $totalPayment - $principal;
-        
+
         $principalPerPayment = $principal / $numberOfPayments;
         $interestPerPayment = $totalInterest / $numberOfPayments;
 
@@ -182,6 +187,10 @@ class Loan extends Model
 
     private function calculatePaymentSchedule(): void
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         $paymentCalculation = $this->calculatePaymentAmount();
         $paymentDate = $this->first_payment_date->copy();
 

@@ -6,12 +6,15 @@ use App\Models\BankCharge;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\DB;
+use WireUi\Traits\WireUiActions;
 
 #[Lazy()]
 class Overview extends Component
 {
     use WithPagination;
+    use WireUiActions;
 
     public $search = '';
     public $perPage = 10;
@@ -40,6 +43,7 @@ class Overview extends Component
         'description' => 'nullable|string',
         'is_active' => 'boolean'
     ];
+
 
     public function getTransactionTypes()
     {
@@ -87,9 +91,9 @@ class Overview extends Component
         });
 
         $this->createModal = false;
-        $this->dispatch('notify', [
-            'message' => 'Bank charge added successfully!',
-            'type' => 'success'
+        $this->notification()->send([
+            'title' => 'Bank charge added successfully!',
+            'icon' => 'success'
         ]);
     }
 
@@ -122,9 +126,10 @@ class Overview extends Component
         });
 
         $this->editModal = false;
-        $this->dispatch('notify', [
-            'message' => 'Bank charge updated successfully!',
-            'type' => 'success'
+
+        $this->notification()->send([
+            'title' => 'Bank charge updated successfully!',
+            'icon' => 'success'
         ]);
     }
 
@@ -132,12 +137,13 @@ class Overview extends Component
     {
         $charge->delete();
 
-        $this->dispatch('notify', [
-            'message' => 'Bank charge deleted successfully!',
-            'type' => 'success'
+        $this->notification()->send([
+            'title' => 'Bank charge deleted successfully!',
+            'icon' => 'success'
         ]);
     }
 
+    #[On('refresh')]
     public function render()
     {
         $charges = BankCharge::query()

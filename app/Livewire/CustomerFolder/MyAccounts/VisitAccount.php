@@ -4,12 +4,12 @@ namespace App\Livewire\CustomerFolder\MyAccounts;
 
 use Livewire\Component;
 use App\Models\Account;
+use App\Models\User;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
-use Mary\Traits\Toast;
 use App\Models\Beneficiary;
 use WireUi\Traits\WireUiActions;
 use App\Models\Transaction;
@@ -17,13 +17,14 @@ use Livewire\Attributes\Lazy;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Log;
 
 
 #[Lazy()]
 class VisitAccount extends Component
 {
     use WithPagination;
-    use Toast;
     use WireUiActions;
     public ?Account $account;
 
@@ -93,8 +94,12 @@ class VisitAccount extends Component
 
     public $accountTransactions;
 
+    public $currency;
+
+    #[On('refresh')]
     public function mount(Account $account): void
     {
+
         $this->depositToAccount = $account;
         $this->withdrawFromAccount = $account;
         $this->MyAccounts = Auth::user()->customer->accounts()->where('id', '!=', $account->id)->get();
@@ -113,10 +118,34 @@ class VisitAccount extends Component
             ];
         });
         // dd($this->beneficiaries);
+
+        $this->currency = Auth::user()->currency ?? session('currency', config('currencies.default'));
+    }
+
+    public function updatedcurrency()
+    {
+        // Update the user's preferred currency if authenticated
+        if (Auth::check()) {
+            User::where('id', Auth::id())->first()->update(['currency' => $this->currency]);
+        }
+
+        // Update the session currency
+        session(['currency' => $this->currency]);
+
+        // Emit an optional event if needed for other components
+        $this->notification()->send([
+            'icon' => 'success',
+            'title' => 'currency changed successfully'
+        ]);
     }
 
     public function deposit($accountId)
     {
+        $user = Auth::id();
+        $currentCurrency = User::find($user)->currency;
+
+        // dd($currentCurrency);
+
         $this->validate([
             'depositAmount' => 'required|numeric|min:1000',
         ]);
@@ -124,71 +153,71 @@ class VisitAccount extends Component
         $account = Account::findOrFail($accountId);
 
         try {
-            // Get the transaction object from deposit method
+            // Perform the deposit and get the transaction
             $transaction = $account->deposit($this->depositAmount);
 
-            // Check if transaction was successful and is an object
             if (!$transaction || !is_object($transaction)) {
-                throw new \Exception('Transaction failed to process');
+                throw new \Exception('Transaction failed to process.');
             }
 
-            // Get breakdowns of charges and taxes
+            // Fetch applied charges
             $charges = $account->appliedCharges()
                 ->where('created_at', $transaction->created_at)
                 ->with('bankCharge:id,name')
                 ->get()
-                ->map(function ($charge) {
-                    return [
-                        'name' => $charge->bankCharge->name,
-                        'amount' => $charge->amount,
-                        'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
-                    ];
-                });
+                ->map(fn($charge) => [
+                    'name' => $charge->bankCharge->name ?? 'Unknown Charge',
+                    'amount' => $charge->amount,
+                    'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : ''),
+                ]);
 
+            // Fetch applied taxes
             $taxes = $account->appliedTaxes()
                 ->where('created_at', $transaction->created_at)
                 ->with('tax:id,name')
                 ->get()
-                ->map(function ($tax) {
-                    return [
-                        'name' => $tax->tax->name,
-                        'amount' => $tax->amount,
-                        'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
-                    ];
-                });
+                ->map(fn($tax) => [
+                    'name' => $tax->tax->name ?? 'Unknown Tax',
+                    'amount' => $tax->amount,
+                    'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : ''),
+                ]);
 
-            // Set receipt data and show modal
+            // Prepare receipt data
             $this->receiptData = [
-                'date' => now()->format('Y-m-d H:i:s'),
+                'date' => now()->toDayDateTimeString(),
                 'account_number' => $account->account_number,
                 'amount' => $this->depositAmount,
                 'charges' => $charges->toArray(),
                 'total_charges' => $transaction->charges,
                 'taxes' => $taxes->toArray(),
                 'total_taxes' => $transaction->taxes,
-                'total_amount' => $transaction->total_amount,
+                'total_amount' => convertCurrency($transaction->total_amount, 'UGX', $currentCurrency),
                 'reference' => $transaction->reference_number ?? 'DEP' . time(),
-                'balance' => $account->balance
+                'balance' => convertCurrency($account->balance, 'UGX', $currentCurrency),
             ];
 
+            // Reset deposit input and show modal
             $this->receiptType = 'deposit';
             $this->depositAmount = null;
             $this->showReceiptModal = true;
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            $this->toast(
-                type: 'error',
-                title: $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
+            Log::error('Deposit failed for account: ' . $accountId, ['error' => $e->getMessage()]);
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Deposit failed, please try again later',
+                'description' => $e->getMessage(),
+                'class' => 'bg-red-500',
+            ]);
         }
     }
 
+
     public function withdraw($accountId)
     {
+        $user = Auth::id();
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         $account = Account::findOrFail($accountId);
 
         $this->validate([
@@ -196,10 +225,10 @@ class VisitAccount extends Component
                 'required',
                 'numeric',
                 'min:0.01',
-                'max:' . ($account->accountType->max_withdrawal ?? PHP_FLOAT_MAX),
+                'max:' . convertCurrency($account->accountType->max_withdrawal, 'UGX', $currentCurrency),
             ],
         ], [
-            'withdrawalAmount.max' => 'Maximum withdrawal limit is ' . number_format($account->accountType->max_withdrawal ?? PHP_FLOAT_MAX, 2),
+            'withdrawalAmount.max' => 'Maximum withdrawal limit is ' . convertCurrency($account->accountType->max_withdrawal,'UGX', $currentCurrency),
         ]);
 
         // Check withdrawal limit
@@ -209,11 +238,11 @@ class VisitAccount extends Component
             ->count();
 
         if ($withdrawalCount >= 4) {
-            $this->toast(
-                type: 'error',
-                title: 'Withdrawal limit reached',
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Withdrawal limit reached',
+                'class' => 'bg-red-500'
+            ]);
             return;
         }
 
@@ -261,33 +290,24 @@ class VisitAccount extends Component
                 'total_charges' => $transaction->charges,
                 'taxes' => $taxes->toArray(),
                 'total_taxes' => $transaction->taxes,
-                'total_amount' => $transaction->total_amount,
+                'total_amount' => convertCurrency($transaction->total_amount, 'UGX', $currentCurrency),
                 'reference' => $transaction->reference_number ?? 'WTH' . time(),
-                'balance' => $account->balance
+                'balance' => convertCurrency($account->balance,'UGX',$currentCurrency)
             ];
 
             DB::commit();
 
+            $this->dispatch('refresh');
             $this->receiptType = 'withdrawal';
             $this->showReceiptModal = true;
             $this->withdrawalAmount = null;
         } catch (\Exception $e) {
             DB::rollBack();
-            // $this->toast(
-            //     type: 'error',
-            //     title: $e->getMessage(),
-            //     position: 'toast-top toast-end'
-            // );
             $this->notification()->send([
-
                 'icon' => 'error',
-
-                'title' => 'new notification!',
-
+                'title' => 'Withdrawal failed, please try again later',
                 'description' =>  $e->getMessage(),
-
                 'class' => 'bg-red-500'
-
             ]);
         }
     }
@@ -310,170 +330,11 @@ class VisitAccount extends Component
             ->get();
     }
 
-    // public function transfer($id)
-    // {
-    //     $sourceAccount = Account::findOrFail($id);
-
-    //     // Check if both forms are filled
-    //     if ($this->transferCustomerAccountId && $this->accountNumber) {
-    //         $this->notification()->send([
-
-    //             'icon' => 'error',
-
-    //             'title' => 'Multiple Accounts Selected!',
-
-    //             'description' =>  'Please provide only one account: either a Customer Account ID or Other Account Number.',
-
-    //             'css' =>'alert alert-warning text-white shadow-lg rounded-sm p-3',
-
-    //         ]);
-    //         return;
-    //     }
-
-    //     $this->transferOtherAccountId = Account::where('account_number', $this->accountNumber)->first()->id ?? null;
-
-    //     $this->validate([
-    //         'transferCustomerAccountId' => 'required_without:transferOtherAccountId',
-    //         'accountNumber' => 'required_without:transferCustomerAccountId',
-    //         'transferAmount' => [
-    //             'required',
-    //             'numeric',
-    //             'min:1000',
-    //             'max:' . ($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX),
-    //         ],
-    //     ], [
-    //         'transferCustomerAccountId.required_without' => 'Please select either transfer to account ',
-    //         'accountNumber.required_without' => 'Please provide transfer to account number.',
-    //         'transferAmount.required' => 'The transfer amount is required.',
-    //         'transferAmount.numeric' => 'The transfer amount must be a valid number.',
-    //         'transferAmount.min' => 'The transfer amount must be at least 1000.',
-    //         'transferAmount.max' => 'The transfer amount exceeds the maximum limit of ' . number_format($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX, 2) . '.',
-    //     ]);
-
-
-    //     $destinationAccount = Account::find($this->transferCustomerAccountId ?? $this->transferOtherAccountId);
-
-
-
-    //     if ($sourceAccount->id === $destinationAccount->id) {
-    //         $this->toast(
-    //             type: 'error',
-    //             title: 'Cannot transfer to same account',
-    //             position: 'toast-top toast-end',
-    //             icon: 'o-x-circle',
-    //             css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-    //             timeout: 3000
-    //         );
-    //         return;
-    //     }
-
-    //     try {
-    //         // Attempt the transfer
-    //         $transaction = $sourceAccount->transfer($destinationAccount, $this->transferAmount);
-
-    //         if (!$transaction || !is_object($transaction)) {
-    //             throw new \Exception('Transfer failed to process');
-    //         }
-
-    //         // Determine if it's an internal transfer
-    //         $isInternalTransfer = $sourceAccount->customer_id === $destinationAccount->customer_id;
-
-    //         // Get charges breakdown
-    //         $charges = $sourceAccount->appliedCharges()
-    //             ->where('created_at', $transaction->created_at)
-    //             ->with('bankCharge:id,name')
-    //             ->get()
-    //             ->map(function ($charge) {
-    //                 return [
-    //                     'name' => $charge->bankCharge->name,
-    //                     'amount' => $charge->amount,
-    //                     'rate' => $charge->rate_used . ($charge->was_percentage ? '%' : '')
-    //                 ];
-    //             });
-
-    //         // Get taxes breakdown (only for external transfers)
-    //         $taxes = $isInternalTransfer ? collect([]) : $sourceAccount->appliedTaxes()
-    //             ->where('created_at', $transaction->created_at)
-    //             ->with('tax:id,name')
-    //             ->get()
-    //             ->map(function ($tax) {
-    //                 return [
-    //                     'name' => $tax->tax->name,
-    //                     'amount' => $tax->amount,
-    //                     'rate' => $tax->rate_used . ($tax->was_percentage ? '%' : '')
-    //                 ];
-    //             });
-
-    //         // Set receipt data and show modal
-    //         $this->receiptData = [
-    //             'date' => now()->format('Y-m-d H:i:s'),
-    //             'from_account' => $sourceAccount->account_number,
-    //             'to_account' => $destinationAccount->account_number,
-    //             'amount' => $this->transferAmount,
-    //             'charges' => $charges->toArray(),
-    //             'total_charges' => $transaction->charges,
-    //             'taxes' => $taxes->toArray(),
-    //             'total_taxes' => $transaction->taxes,
-    //             'total_amount' => $transaction->total_amount,
-    //             'reference' => $transaction->reference_number ?? 'TRF' . time(),
-    //             'balance' => $sourceAccount->balance,
-    //             'is_internal' => $isInternalTransfer
-    //         ];
-
-    //         $this->receiptType = 'transfer';
-    //         $this->showReceiptModal = true;
-
-    //     } catch (\Exception $e) {
-    //         $this->toast(
-    //             type: 'error',
-    //             title: $e->getMessage(),
-    //             position: 'toast-top toast-end',
-    //             icon: 'o-x-circle',
-    //             css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-    //             timeout: 3000
-    //         );
-    //     }
-
-    //     // Optionally save the beneficiary
-    //     if ($this->saveBeneficiary) {
-    //         // dd('saving');
-    //         $validatedData = $this->validate(
-    //             [
-    //                 'beneficiaryName' => 'required|string|max:255',
-    //                 'bankName' => 'nullable|string|max:255',
-    //                 'accountNumber' => 'required|string|max:50',
-    //             ],
-    //             // [
-    //             //     'account_id.required_without' => 'The account ID is required when an account number is not provided.',
-    //             //     'account_number.required_without' => 'The account number is required when an account ID is not provided.',
-    //             // ]
-    //         );
-
-
-    //         $beneficiary = Beneficiary::create([
-    //             'user_id' => Auth::id(),
-    //             'nickname' => $validatedData['beneficiaryName'],
-    //             'account_id' => $this->transferOtherAccountId,
-    //             'bank_name' => $validatedData['bankName'] ?? 'RMGBANK',
-    //             'account_number' => $validatedData['accountNumber']
-    //         ]);
-
-    //         $this->toast(
-    //             type: 'success',
-    //             title: 'Beneficiary Saved',
-    //             description: 'Beneficiary information has been successfully saved.',
-    //             position: 'toast-top toast-end',
-    //             icon: 'o-check-circle',
-    //             css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-    //             timeout: 9000
-    //         );
-    //         $this->resetForm();
-    //     }
-
-    // }
-
     public function transfer($id)
-    {      
+    {
+        $user = Auth::id();
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         $sourceAccount = Account::findOrFail($id);
 
         // dd($this->beneficiarySelectedIndex);
@@ -502,8 +363,9 @@ class VisitAccount extends Component
             'transferAmount' => [
                 'required',
                 'numeric',
-                'min:1000',
-                'max:' . ($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX),
+                'min:'. convertCurrency('1000','UGX',$currentCurrency),
+                'max:'
+                . convertCurrency($sourceAccount->accountType->max_withdrawal, 'UGX', $currentCurrency),
             ],
         ], [
             'transferCustomerAccountId.required_without_all' => 'Please select either transfer to account.',
@@ -511,8 +373,8 @@ class VisitAccount extends Component
             'beneficiarySelectedIndex.required_without_all' => 'Please select a beneficiary.',
             'transferAmount.required' => 'The transfer amount is required.',
             'transferAmount.numeric' => 'The transfer amount must be a valid number.',
-            'transferAmount.min' => 'The transfer amount must be at least 1000.',
-            'transferAmount.max' => 'The transfer amount exceeds the maximum limit of ' . number_format($sourceAccount->accountType->max_withdrawal ?? PHP_FLOAT_MAX, 2) . '.',
+            'transferAmount.min' => 'The transfer amount must be at least '. convertCurrency('1000', 'UGX', $currentCurrency),
+            'transferAmount.max' => 'The transfer amount exceeds the maximum limit of ' . number_format(convertCurrency($sourceAccount->accountType->max_withdrawal, 'UGX', $currentCurrency) ?? PHP_FLOAT_MAX, 2) . '.',
         ]);
 
 
@@ -597,7 +459,7 @@ class VisitAccount extends Component
                 'total_taxes' => $transaction->taxes,
                 'total_amount' => $transaction->total_amount,
                 'reference' => $transaction->reference_number ?? 'TRF' . time(),
-                'balance' => $sourceAccount->balance,
+                'balance' => convertCurrency($sourceAccount->balance, 'UGX', $currentCurrency),
                 'is_internal' => $isInternalTransfer
             ];
 
@@ -637,9 +499,8 @@ class VisitAccount extends Component
 
         }
         $this->resetForm();
+        $this->dispatch('refresh');
     }
-
-
 
     public function transferToOtherLocalBank($id){
         $this->validate([
@@ -707,7 +568,6 @@ class VisitAccount extends Component
         ), $fileName);
     }
 
-
     public function copyToClipboard($value)
     {
         $this->js("navigator.clipboard.writeText('$value')");
@@ -737,13 +597,15 @@ class VisitAccount extends Component
         }
     }
 
-
-
     public function render()
     {
 
         $accounttransactions = Transaction::query()
-            ->where('account_id', $this->account->id)
+            ->where(function ($query) {
+                $query->where('account_id', $this->account->id)
+                    ->orWhere('source_account_id', $this->account->id)
+                    ->orWhere('destination_account_id', $this->account->id);
+            })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('reference_number', 'like', '%' . $this->search . '%')
@@ -776,4 +638,5 @@ class VisitAccount extends Component
             'accountTransactionsBlade' => $accounttransactions
         ]);
     }
+
 }

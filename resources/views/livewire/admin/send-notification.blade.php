@@ -154,7 +154,7 @@
                 <div class="flex justify-end">
                     <x-wireui-button
                         wire:click="sendNotification"
-                        class="btn-secondary bg-blue-700"
+                        class="btn-secondary bg-blue-700 dark:text-white"
                         spinner="sendNotification"
                         label="send notification"
                         light

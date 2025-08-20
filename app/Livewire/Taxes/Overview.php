@@ -6,22 +6,24 @@ use App\Models\Tax;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Lazy;
+use WireUi\Traits\WireUiActions;
 
 #[Lazy()]
 class Overview extends Component
 {
     use WithPagination;
+    use WireUiActions;
 
     public $search = '';
     public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
-    
+
     // Modals
     public bool $viewModal = false;
     public bool $createModal = false;
     public bool $editModal = false;
-    
+
     // Form Data
     public $selectedTax = null;
     public $name = '';
@@ -73,9 +75,9 @@ class Overview extends Component
         ]);
 
         $this->createModal = false;
-        $this->dispatch('notify', [
-            'message' => 'Tax added successfully!',
-            'type' => 'success'
+        $this->notification()->send([
+            'title' => 'Tax added successfully!',
+            'icon' => 'success'
         ]);
     }
 
@@ -87,7 +89,7 @@ class Overview extends Component
         $this->is_percentage = $tax->is_percentage;
         $this->description = $tax->description;
         $this->is_active = $tax->is_active;
-        
+
         $this->editModal = true;
     }
 
@@ -104,19 +106,19 @@ class Overview extends Component
         ]);
 
         $this->editModal = false;
-        $this->dispatch('notify', [
-            'message' => 'Tax updated successfully!',
-            'type' => 'success'
+        $this->notification()->send([
+            'title' => 'Tax updated successfully!',
+            'icon' => 'success'
         ]);
     }
 
     public function delete(Tax $tax)
     {
         $tax->delete();
-        
-        $this->dispatch('notify', [
-            'message' => 'Tax deleted successfully!',
-            'type' => 'success'
+
+        $this->notification()->send([
+            'title' => 'Tax deleted successfully!',
+            'icon' => 'success'
         ]);
     }
 
@@ -136,4 +138,4 @@ class Overview extends Component
             'taxes' => $taxes
         ]);
     }
-} 
+}

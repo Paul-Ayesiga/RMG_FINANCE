@@ -2,7 +2,7 @@
     <!-- Breadcrumbs -->
     <div class="text-sm breadcrumbs">
         <ul>
-            <li><a>Home</a></li>
+            <li><a href="{{ route('dashboard')}}" wire:navigate>Home</a></li>
             <li><a>Settings</a></li>
             <li>Taxes</li>
         </ul>
@@ -13,17 +13,17 @@
         <!-- Search Row -->
         <div class="flex justify-between items-center">
             <div class="w-1/3">
-                <x-mary-input 
-                    icon="o-magnifying-glass" 
-                    placeholder="Search taxes..." 
+                <x-wireui-input
+                    icon="magnifying-glass"
+                    placeholder="Search taxes..."
                     wire:model.live.debounce.300ms="search"
                 />
             </div>
             <div>
-                <x-mary-button 
-                    icon="o-plus"
-                    label="Add Tax" 
-                    class="btn-primary"
+                <x-wireui-button
+                    icon="plus"
+                    label="Add Tax"
+                    class="bg-blue-500"
                     wire:click="create"
                     spinner="create"
                 />
@@ -63,14 +63,14 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center space-x-2">
-                                    <x-mary-button 
-                                        icon="o-pencil" 
+                                    <x-mary-button
+                                        icon="o-pencil"
                                         class="btn-ghost btn-sm"
                                         wire:click="edit({{ $tax->id }})"
                                         spinner="edit({{ $tax->id }})"
                                     />
-                                    <x-mary-button 
-                                        icon="o-trash" 
+                                    <x-mary-button
+                                        icon="o-trash"
                                         class="btn-ghost btn-sm text-red-500"
                                         wire:click="delete({{ $tax->id }})"
                                         wire:confirm="Are you sure you want to delete this tax?"
@@ -99,54 +99,57 @@
     <x-mary-modal wire:model="createModal">
         <div class="p-4">
             <h2 class="text-lg font-semibold mb-4">Create Tax</h2>
-            
+
             <form wire:submit="store" class="space-y-4">
                 <div>
-                    <x-mary-input 
-                        label="Name" 
-                        wire:model="name" 
+                    <x-wireui-input
+                        label="Name"
+                        wire:model="name"
                         placeholder="Enter tax name"
+                        errorless
                     />
                     @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <x-mary-input 
-                        label="Rate" 
+                    <x-wireui-input
+                        label="Rate"
                         wire:model="rate"
                         type="number"
                         step="0.01"
                         placeholder="Enter rate"
+                        errorless
                     />
                     @error('rate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <x-mary-checkbox 
-                        label="Is Percentage?" 
+                    <x-mary-checkbox
+                        label="Is Percentage?"
                         wire:model="is_percentage"
                     />
                 </div>
 
                 <div>
-                    <x-mary-textarea 
-                        label="Description" 
+                    <x-wireui-textarea
+                        label="Description"
                         wire:model="description"
                         placeholder="Enter description"
+                        errorless
                     />
                     @error('description') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <x-mary-checkbox 
-                        label="Is Active?" 
+                    <x-wireui-checkbox
+                        label="Is Active?"
                         wire:model="is_active"
                     />
                 </div>
 
                 <div class="flex justify-end space-x-2">
-                    <x-mary-button label="Cancel" @click="$wire.createModal = false" />
-                    <x-mary-button label="Create" type="submit" class="btn-primary" spinner="store"/>
+                    <x-wireui-button label="Cancel" @click="$wire.createModal = false" class="bg-gray-500" />
+                    <x-wireui-button label="Create" type="submit" class="bg-blue-500" spinner="store"/>
                 </div>
             </form>
         </div>
@@ -156,56 +159,59 @@
     <x-mary-modal wire:model="editModal">
         <div class="p-4">
             <h2 class="text-lg font-semibold mb-4">Edit Tax</h2>
-            
+
             <form wire:submit="update" class="space-y-4">
                 <div>
-                    <x-mary-input 
-                        label="Name" 
-                        wire:model="name" 
+                    <x-wireui-input
+                        label="Name"
+                        wire:model="name"
                         placeholder="Enter tax name"
+                        errorless
                     />
                     @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <x-mary-input 
-                        label="Rate" 
+                    <x-wireui-input
+                        label="Rate"
                         wire:model="rate"
                         type="number"
                         step="0.01"
                         placeholder="Enter rate"
+                        errorless
                     />
                     @error('rate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <x-mary-checkbox 
-                        label="Is Percentage?" 
+                    <x-mary-checkbox
+                        label="Is Percentage?"
                         wire:model="is_percentage"
                     />
                 </div>
 
                 <div>
-                    <x-mary-textarea 
-                        label="Description" 
+                    <x-wireui-textarea
+                        label="Description"
                         wire:model="description"
                         placeholder="Enter description"
+                        errorless
                     />
                     @error('description') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <x-mary-checkbox 
-                        label="Is Active?" 
+                    <x-wireui-checkbox
+                        label="Is Active?"
                         wire:model="is_active"
                     />
                 </div>
 
                 <div class="flex justify-end space-x-2">
-                    <x-mary-button label="Cancel" @click="$wire.editModal = false" />
-                    <x-mary-button label="Update" type="submit" class="btn-primary" spinner="update"/>
+                    <x-wireui-button label="Cancel" @click="$wire.editModal = false" class="bg-gray-500"/>
+                    <x-wireui-button label="Update" type="submit" class="bg-blue-500" spinner="update"/>
                 </div>
             </form>
         </div>
     </x-mary-modal>
-</div> 
+</div>

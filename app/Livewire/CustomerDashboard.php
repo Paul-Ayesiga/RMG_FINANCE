@@ -8,11 +8,15 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use App\Models\Event;
-use Mary\Traits\Toast;
+use App\Models\User;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
+use WireUi\Traits\WireUiActions;
 
+#[Lazy()]
 class CustomerDashboard extends Component
 {
-    use Toast;
+    use WireUiActions;
 
     public $stats;
 
@@ -126,6 +130,7 @@ class CustomerDashboard extends Component
         ]
     ];
 
+    #[On('refresh')]
     public function mount()
     {
         $this->loadStats();
@@ -133,29 +138,38 @@ class CustomerDashboard extends Component
         $this->loadEvents();
     }
 
+    // #[On('refresh')]
     public function loadStats()
     {
         $customer = Auth::user()->customer;
         $accountIds = $customer->accounts()->pluck('id');
 
+        $user = Auth::id();
+        $currencyArray = User::where('id', $user)->get()->pluck('currency');
+        $currency = $currencyArray[0];
+
+        // Deposit Stats
         $depositStats = DB::table('transactions')
-            ->whereIn('account_id', $accountIds)
+        ->whereIn('account_id', $accountIds)
             ->where('type', 'deposit')
             ->selectRaw('COUNT(*) as count, SUM(amount) as total')
             ->first();
 
+        // Withdrawal Stats
         $withdrawalStats = DB::table('transactions')
-            ->whereIn('account_id', $accountIds)
+        ->whereIn('account_id', $accountIds)
             ->where('type', 'withdrawal')
             ->selectRaw('COUNT(*) as count, SUM(amount) as total')
             ->first();
 
+        // Transfer Stats
         $transferStats = DB::table('transactions')
-            ->whereIn('account_id', $accountIds)
+        ->whereIn('account_id', $accountIds)
             ->where('type', 'transfer')
             ->selectRaw('COUNT(*) as count, SUM(amount) as total')
             ->first();
 
+        // Loan Stats
         $loanStats = [
             'active' => $customer->loans()->where('status', 'active')->count(),
             'approved' => $customer->loans()->where('status', 'approved')->count(),
@@ -169,36 +183,49 @@ class CustomerDashboard extends Component
                 ->sum('amount')
         ];
 
+        // Convert amounts to the selected currency
         $this->stats = [
             'deposits' => [
                 'count' => $depositStats->count ?? 0,
-                'amount' => $depositStats->total ?? 0
+                'amount' => convertCurrency($depositStats->total ?? 0, 'UGX', $currency) // Convert deposit amount
             ],
             'withdrawals' => [
                 'count' => $withdrawalStats->count ?? 0,
-                'amount' => $withdrawalStats->total ?? 0
+                'amount' => convertCurrency($withdrawalStats->total ?? 0, 'UGX', $currency) // Convert withdrawal amount
             ],
             'transfers' => [
                 'count' => $transferStats->count ?? 0,
-                'amount' => $transferStats->total ?? 0
+                'amount' => convertCurrency($transferStats->total ?? 0, 'UGX', $currency) // Convert transfer amount
             ],
-            'balance' => $customer->accounts()->sum('balance'),
-            'loans' => $loanStats
+            'balance' => convertCurrency($customer->accounts()->sum('balance'), 'UGX', $currency), // Convert total balance
+            'loans' => [
+                'active' => $loanStats['active'],
+                'approved' => $loanStats['approved'],
+                'rejected' => $loanStats['rejected'],
+                'paid' => $loanStats['paid'],
+                'total_amount' => convertCurrency($loanStats['total_amount'], 'UGX', $currency), // Convert total loan amount
+                'paid_amount' => convertCurrency($loanStats['paid_amount'], 'UGX', $currency) // Convert paid loan amount
+            ]
         ];
     }
 
-    protected function loadChartData()
+    // #[On('refresh')]
+    public function loadChartData()
     {
         $customer = Auth::user()->customer;
         $accountIds = $customer->accounts()->pluck('id');
 
         // Get last 6 months of transaction data
-        $months = collect(range(5, 0))->map(function($i) {
+        $months = collect(range(5, 0))->map(function ($i) {
             return Carbon::now()->subMonths($i)->format('M Y');
         });
 
+        $user = Auth::id();
+        $currencyArray = User::where('id', $user)->get()->pluck('currency');
+        $currency = $currencyArray[0];
+
         $transactions = DB::table('transactions')
-            ->whereIn('account_id', $accountIds)
+        ->whereIn('account_id', $accountIds)
             ->whereDate('created_at', '>=', Carbon::now()->subMonths(6))
             ->selectRaw('EXTRACT(MONTH FROM created_at) as month')
             ->selectRaw('EXTRACT(YEAR FROM created_at) as year')
@@ -218,33 +245,36 @@ class CustomerDashboard extends Component
             ));
 
             if ($index >= 0 && $index < 6) {
+                $convertedAmount = convertCurrency($transaction->total, 'UGX', $currency); // Convert amount to selected currency
+
                 switch ($transaction->type) {
                     case 'deposit':
-                        $deposits[$index] = $transaction->total;
+                        $deposits[$index] = $convertedAmount;
                         break;
                     case 'withdrawal':
-                        $withdrawals[$index] = $transaction->total;
+                        $withdrawals[$index] = $convertedAmount;
                         break;
                     case 'transfer':
-                        $transfers[$index] = $transaction->total;
+                        $transfers[$index] = $convertedAmount;
                         break;
                 }
             }
         }
 
-        // Update line chart data
+        // Update line chart data with converted amounts
         $this->transactionChart['data']['labels'] = $months->toArray();
         $this->transactionChart['data']['datasets'][0]['data'] = $deposits;
         $this->transactionChart['data']['datasets'][1]['data'] = $withdrawals;
         $this->transactionChart['data']['datasets'][2]['data'] = $transfers;
 
-        // Update pie chart data
+        // Update pie chart data with converted amounts
         $this->distributionChart['data']['datasets'][0]['data'] = [
-            $this->stats['deposits']['amount'],
-            $this->stats['withdrawals']['amount'],
-            $this->stats['transfers']['amount']
+            convertCurrency($this->stats['deposits']['amount'], 'UGX', $currency), // Convert deposits
+            convertCurrency($this->stats['withdrawals']['amount'], 'UGX', $currency), // Convert withdrawals
+            convertCurrency($this->stats['transfers']['amount'], 'UGX', $currency)  // Convert transfers
         ];
     }
+
 
     public function switchTrendChart()
     {
@@ -264,6 +294,10 @@ class CustomerDashboard extends Component
 
     public function loadEvents()
     {
+        $user = Auth::id();
+        $currency= User::where('id', $user)->pluck('currency')->first();
+        // $currency = $currencyArray[0];
+
         $customer = Auth::user()->customer;
         $this->events = [];
 
@@ -281,7 +315,7 @@ class CustomerDashboard extends Component
             // Add loan disbursement date
             $this->events[] = [
                 'label' => 'Loan Disbursed: #' . $loan->reference_number,
-                'description' => "Amount: $" . number_format($loan->amount, 2) .
+                'description' => "Amount: $currency " .number_format(convertCurrency($loan->amount,'UGX', $currency), 2) .
                     "\nDisbursed on: " . Carbon::parse($loan->disbursement_date)->format('M d, Y h:i A'),
                 'css' => '!bg-emerald-200',
                 'date' => Carbon::parse($loan->disbursement_date),
@@ -298,7 +332,7 @@ class CustomerDashboard extends Component
 
                 $this->events[] = [
                     'label' => $statusLabel . ' - Payment Due: #' . $loan->reference_number,
-                    'description' => "Amount Due: $" . number_format($schedule->total_amount, 2) .
+                    'description' => "Amount Due: $currency " . number_format(convertCurrency($schedule->total_amount,'UGX', $currency), 2) .
                         "\nLoan Type: " . ucwords(str_replace('_', ' ', $loan->loanProduct->name)),
                     'css' => $this->getPaymentScheduleColor($schedule->due_date),
                     'date' => Carbon::parse($schedule->due_date),
@@ -311,7 +345,7 @@ class CustomerDashboard extends Component
         foreach ($userEvents as $event) {
             // Get the configuration for the event type
             $typeConfig = $this->eventTypes[$event->type];
-            
+
             // Check if the event has an end date
             if ($event->end_date) {
                 $this->events[] = [
@@ -382,15 +416,10 @@ class CustomerDashboard extends Component
         $this->showEventModal = false;
         $this->reset(['eventLabel', 'eventType', 'eventDescription', 'eventDate', 'eventEndDate']);
 
-        $this->toast(
-            type: 'info',
-            title: 'Event Creation Cancelled',
-            description: null,
-            position: 'toast-bottom toast-end',
-            icon: 'o-x-circle',
-            css: 'alert-info shadow-lg min-h-0 h-12 py-2 px-4 dark:shadow-gray-900',
-            timeout: 3000
-        );
+        $this->notification()->send([
+            'title' => 'Event Creation Cancelled',
+            'icon' => 'info'
+        ]);
          $this->loadEvents();
     }
 
@@ -432,30 +461,22 @@ class CustomerDashboard extends Component
             // Refresh events
             $this->loadEvents();
 
-            // Show success toast
-            $this->toast(
-                type: 'success',
-                title: 'Event Added Successfully',
-                description: null,
-                position: 'toast-bottom toast-end',
-                icon: 'o-check-circle',
-                css: 'alert-success shadow-lg min-h-0 h-12 py-2 px-4 dark:shadow-gray-900',
-                timeout: 3000
-            );
+            // Show success notification
+            $this->notification()->send([
+                'title' => 'Event Added Successfully',
+                'icon' => 'success'
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             // Log the error
             // \Log::error('Failed to update account status: ' . $e->getMessage());
-            $this->toast(
-                type: 'error',
-                title: 'Failed to create event,' . $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
+            $this->notification()->send([
+                'title' => 'Failed to create event, Try again!',
+                'icon' => 'error'
+            ]);
+
         }
     }
 
@@ -470,27 +491,19 @@ class CustomerDashboard extends Component
             // Refresh events
             $this->loadEvents();
 
-            // Show warning toast
-            $this->toast(
-                type: 'warning',
-                title: 'Event Deleted',
-                description: null,
-                position: 'toast-bottom toast-end',
-                icon: 'o-archive-box-x-mark',
-                css: 'alert-warning shadow-lg min-h-0 h-12 py-2 px-4 dark:shadow-gray-900',
-                timeout: 3000
-            );
+            // Show warning notification
+            $this->notification()->send([
+                'title' => 'Event Deleted',
+                'icon' => 'warning'
+            ]);
+
+
         } else {
-            // Show error toast
-            $this->toast(
-                type: 'error',
-                title: 'Unable to Delete Event',
-                description: null,
-                position: 'toast-bottom toast-end',
-                icon: 'o-exclamation-circle',
-                css: 'alert-error shadow-lg min-h-0 h-12 py-2 px-4 dark:shadow-gray-900',
-                timeout: 3000
-            );
+            // Show error notitification
+            $this->notification()->send([
+                'title' => 'Unable to Delete Event',
+                'icon' => 'error'
+            ]);
         }
     }
 
@@ -502,15 +515,11 @@ class CustomerDashboard extends Component
 
     protected function onValidationError($message)
     {
-        $this->toast(
-            type: 'error',
-            title: 'Validation Error',
-            description: $message,
-            position: 'toast-bottom toast-end',
-            icon: 'o-exclamation-circle',
-            css: 'alert-error shadow-lg min-h-0 h-12 py-2 px-4 dark:shadow-gray-900',
-            timeout: 3000
-        );
+        $this->notification()->send([
+            'title' => 'Validation Error',
+            'description' => $message,
+            'icon' => 'error'
+        ]);
     }
 
     protected function getEventTypeOptions()
@@ -543,7 +552,6 @@ class CustomerDashboard extends Component
             ]
         ];
     }
-
 
     public function render()
     {

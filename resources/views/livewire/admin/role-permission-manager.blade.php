@@ -3,17 +3,17 @@
     <x-mary-header title="Role & Permission Manager" separator>
         <x-slot:actions>
             <div class="flex flex-wrap gap-2">
-                <x-mary-button 
-                    label="New Role" 
-                    icon="o-plus" 
-                    class="btn-primary" 
-                    wire:click="openRoleModal" 
+                <x-mary-button
+                    label="New Role"
+                    icon="o-plus"
+                    class="btn-primary"
+                    wire:click="openRoleModal"
                 />
-                <x-mary-button 
-                    label="New Permission" 
-                    icon="o-plus" 
-                    class="btn-secondary" 
-                    wire:click="$set('showPermissionModal', true)" 
+                <x-mary-button
+                    label="New Permission"
+                    icon="o-plus"
+                    class="btn-secondary"
+                    wire:click="$set('showPermissionModal', true)"
                 />
             </div>
         </x-slot:actions>
@@ -31,20 +31,20 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4" wire:loading.class="opacity-50">
         <!-- Roles List -->
         <div class="lg:col-span-3">
-            <div class="bg-white rounded-lg shadow p-4">
+            <div class="bg-white rounded-lg shadow p-4 dark:bg-inherit">
                 <h3 class="text-lg font-semibold mb-4">Roles</h3>
                 <div class="space-y-2">
                     @foreach($roles as $role)
-                        <div class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 
+                        <div class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50
                             {{ $selectedRole && $selectedRole->id === $role->id ? 'bg-blue-50' : '' }}">
-                            <button 
+                            <button
                                 wire:click="selectRole({{ $role->id }})"
                                 class="flex-1 text-left text-sm sm:text-base"
                             >
                                 {{ ucfirst($role->name) }}
                             </button>
                             @if($role->name !== 'super-admin')
-                                <button 
+                                <button
                                     wire:click="deleteRole({{ $role->id }})"
                                     class="text-red-500 hover:text-red-700"
                                 >
@@ -59,7 +59,7 @@
 
         <!-- Permissions Grid -->
         <div class="lg:col-span-9">
-            <div class="bg-white rounded-lg shadow p-4">
+            <div class="bg-white rounded-lg shadow p-4 dark:bg-inherit">
                 <h3 class="text-lg font-semibold mb-4">
                     @if($selectedRole)
                         Permissions for {{ ucfirst($selectedRole->name) }}
@@ -67,7 +67,7 @@
                         Select a role to manage permissions
                     @endif
                 </h3>
-                
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 {{ $selectedRole ? '' : 'opacity-50' }}">
                     @foreach($permissions->groupBy(function($permission) {
                         return explode(' ', $permission->name)[0];
@@ -95,10 +95,10 @@
     <x-mary-modal wire:model="showRoleModal" max-width="md">
         <x-mary-form wire:submit="createRole">
             <h2 class="text-lg font-semibold mb-4">Create New Role</h2>
-            
-            <x-mary-input 
-                wire:model="roleForm.name" 
-                label="Role Name" 
+
+            <x-mary-input
+                wire:model="roleForm.name"
+                label="Role Name"
                 placeholder="Enter role name"
                 class="mb-4"
             />
@@ -137,9 +137,9 @@
     <x-mary-modal wire:model="showPermissionModal" max-width="sm">
         <x-mary-form wire:submit="createPermission">
             <h2 class="text-lg font-semibold mb-4">Create New Permission</h2>
-            <x-mary-input 
-                wire:model="permissionForm.name" 
-                label="Permission Name" 
+            <x-mary-input
+                wire:model="permissionForm.name"
+                label="Permission Name"
                 placeholder="Enter permission name"
             />
             <div class="mt-4 flex flex-wrap gap-2">

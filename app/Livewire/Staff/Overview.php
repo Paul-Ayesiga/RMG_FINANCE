@@ -9,21 +9,22 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Lazy;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Illuminate\Auth\Events\Registered;
-use Mary\Traits\Toast;
 use Spatie\Permission\Models\Role;
+use WireUi\Traits\WireUiActions;
 
 #[Lazy()]
 class Overview extends Component
 {
     use WithPagination, WithFileUploads;
-    use Toast;
+    use WireUiActions;
 
     public $search = '';
     public $dateRange = '';
-    public $perPage = 1;
+    public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
 
@@ -79,7 +80,7 @@ class Overview extends Component
             ->map(function($role) {
                 return [
                     'id' => $role->name,
-                    'name' => ucfirst($role->name),
+                    'name' => $role->name,
                     'description' => $role->description // if you have this field
                 ];
             })
@@ -126,6 +127,8 @@ class Overview extends Component
 
     public function store()
     {
+
+        // dd($this->role);
         $this->validate([
             'name' => 'required|min:3',
             'email' => 'required|email|unique:users,email',
@@ -136,7 +139,7 @@ class Overview extends Component
         ]);
 
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             // Handle avatar upload
             $avatarPath = null;
@@ -153,6 +156,7 @@ class Overview extends Component
             ]);
 
             // Assign role
+
             $user->assignRole($this->role);
 
             // Create staff record
@@ -161,16 +165,23 @@ class Overview extends Component
                 'staff_number' => $this->staff_number,
             ]);
 
-            \DB::commit();
+            DB::commit();
 
             $this->createModal = false;
             $this->reset(['name', 'email', 'staff_number', 'password', 'password_confirmation', 'avatar', 'role']);
 
-            $this->success('Staff member created successfully');
+            $this->notification()->send([
+                'icon' => 'success',
+                'title'=> 'Staff member created successfully'
+            ]);
 
         } catch (\Exception $e) {
-            \DB::rollBack();
-            $this->error('Error creating staff: ' . $e->getMessage());
+            DB::rollBack();
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error creating new staff',
+                'description' => $e->getMessage()
+            ]);
         }
     }
 
@@ -206,7 +217,7 @@ class Overview extends Component
         $this->validate($validationRules);
 
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             if ($this->avatar && !is_string($this->avatar)) {
                 if ($this->selectedStaff->user->avatar) {
@@ -238,20 +249,29 @@ class Overview extends Component
                 'staff_number' => $this->staff_number,
             ]);
 
-            \DB::commit();
+            DB::commit();
             $this->editModal = false;
-            $this->success('Staff updated successfully');
+
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Staff member updated successfully'
+            ]);
 
         } catch (\Exception $e) {
-            \DB::rollBack();
-            $this->error('Error updating staff: ' . $e->getMessage());
+            DB::rollBack();
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error updating staff',
+                'description' => $e->getMessage()
+            ]);
         }
     }
 
     public function delete(Staff $staff)
     {
         // Update dependent records
-        \DB::table('loans')->where('approved_by', $staff->id)->update(['approved_by' => null]);
+        DB::table('loans')->where('approved_by', $staff->id)->update(['approved_by' => null]);
 
         if ($staff->user->avatar) {
             Storage::delete(str_replace('/storage/', 'public/', $staff->user->avatar));
@@ -259,7 +279,9 @@ class Overview extends Component
 
         $staff->user->delete();
 
-        $this->error('Staff deleted successfully');
+        $this->notification()->send([
+           'icon' => 'success',
+           'title' => 'Staff deleted successfully']);
     }
 
 

@@ -5,6 +5,7 @@ namespace App\Livewire\CustomerFolder\MyLoans;
 use App\Models\Loan;
 use App\Models\LoanProduct;
 use App\Models\Account;
+use App\Models\User;
 use Livewire\Component;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
@@ -81,7 +82,15 @@ class Overview extends Component
     // Add this property
     public $allowedFrequencies = [];
 
+    public $filtersDrawer = false;
 
+    public $loanProductDetails = false;
+
+    #[Computed]
+    public $loanProductToPreview = null;
+
+
+    #[On('refresh')]
     public function mount()
     {
         $this->loanProducts = collect();
@@ -152,6 +161,12 @@ class Overview extends Component
         }
 
         $this->addLoanModal = true;
+    }
+    public function openPreviewLoanProductModal($id)
+    {
+        $loanproduct = loanProduct::findOrFail($id);
+        $this->loanProductToPreview = $loanproduct;
+        $this->loanProductDetails = true;
     }
 
     public function searchLoanProduct(string $value = '')
@@ -227,7 +242,7 @@ class Overview extends Component
         $selectedAccount = Account::where('id', $this->accountId)->get();
 
         $this->accounts = Account::query()
-            ->where('customer_id', auth()->user()->customer->id)
+            ->where('customer_id', Auth::user()->customer->id)
             ->where('status', 'active')
             ->when($value, fn($query) => $query->where('account_number', 'like', "%$value%"))
             ->take(5)
@@ -272,17 +287,18 @@ class Overview extends Component
 
     public function applyForLoan()
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         // Check if user can apply for a loan
         $loanCheck = $this->canApplyForLoan();
         if (!$loanCheck['can_apply']) {
-            $this->toast(
-                type: 'error',
-                title: 'Cannot Apply for Loan',
-                message: $loanCheck['message'],
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Cannot Apply for Loan',
+                'description' => $loanCheck['message'],
+            ]);
             return;
         }
 
@@ -294,8 +310,8 @@ class Overview extends Component
             'amount' => [
                 'required',
                 'numeric',
-                'min:' . $this->minAmount,
-                'max:' . $this->maxAmount
+                'min:' . convertCurrency($this->minAmount, 'UGX', $currentCurrency),
+                'max:' . convertCurrency($this->maxAmount, 'UGX', $currentCurrency)
             ],
             'term' => [
                 'required',
@@ -314,8 +330,8 @@ class Overview extends Component
                 'max:10240' // 10MB max file size
             ]
         ], [
-            'amount.min' => 'The loan amount must be at least ' . number_format($this->minAmount, 2),
-            'amount.max' => 'The loan amount cannot exceed ' . number_format($this->maxAmount, 2),
+            'amount.min' => 'The loan amount must be at least ' . number_format(convertCurrency($this->minAmount, 'UGX', $currentCurrency), 2),
+            'amount.max' => 'The loan amount cannot exceed ' . number_format(convertCurrency($this->maxAmount, 'UGX', $currentCurrency), 2),
             'term.min' => 'The loan term must be at least ' . $this->minTerm . ' months',
             'term.max' => 'The loan term cannot exceed ' . $this->maxTerm . ' months',
             'documents.*.mimes' => 'Documents must be PDF or image files (jpg, jpeg, png)',
@@ -335,7 +351,7 @@ class Overview extends Component
                 'customer_id' => Auth::user()->customer->id,
                 'loan_product_id' => $this->loanProductId,
                 'account_id' => $this->accountId,  // Updated field name
-                'amount' => $this->amount,
+                'amount' => convertCurrencyToUGX($this->amount,'UGX',$currentCurrency),
                 'term' => $this->term,
                 'interest_rate' => $loanProduct->interest_rate,
                 'payment_frequency' => $frequency, // Use the cleaned frequency value
@@ -402,17 +418,25 @@ class Overview extends Component
 
     private function calculateTotalPayable()
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
+
         $loanProduct = LoanProduct::find($this->loanProductId);
-        $interest = ($this->amount * $loanProduct->interest_rate * $this->term) / 100;
-        return $this->amount + $interest + $loanProduct->processing_fee;
+        $interest = (convertCurrencyToUGX($this->amount,'UGX',$currentCurrency) * $loanProduct->interest_rate * $this->term) / 100;
+        return convertCurrencyToUGX($this->amount, 'UGX', $currentCurrency) + $interest + $loanProduct->processing_fee;
     }
 
     private function calculateTotalInterest()
     {
+        $user = Auth::id();
+        // $currentCurrency = User::find($user)->currency;
+        $currentCurrency = User::where('id', $user)->pluck('currency')->first();
         $loanProduct = LoanProduct::find($this->loanProductId);
-        return ($this->amount * $loanProduct->interest_rate * $this->term) / 100;
+        return (convertCurrencyToUGX($this->amount, 'UGX', $currentCurrency) * $loanProduct->interest_rate * $this->term) / 100;
     }
 
+    #[On('refresh')]
     public function render()
     {
         return view('livewire.customer-folder.my-loans.overview', [

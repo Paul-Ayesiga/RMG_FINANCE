@@ -1,4 +1,4 @@
-<div>
+<div class="p-3">
     <x-mary-header title="Loan Management" separator progress-indicator>
         <x-slot:middle>
             <x-mary-input
@@ -25,24 +25,24 @@
                 <!-- Status Filter Dropdown -->
                 <x-mary-dropdown>
                     <x-slot name="trigger">
-                        <x-mary-button 
-                            label="Status" 
-                            icon="o-adjustments-vertical" 
+                        <x-mary-button
+                            label="Status"
+                            icon="o-adjustments-vertical"
                             class="bg-blue-200 btn-sm border-none dark:text-white dark:bg-slate-700"
                             badge="{{ !empty($statusFilter) ? '!' : '' }}"
                         />
                     </x-slot>
                     <!-- Add All/Reset option -->
                     <x-mary-menu-item wire:click="setStatusFilter('')">
-                        <x-mary-button 
-                            label="All" 
+                        <x-mary-button
+                            label="All"
                             class="btn-sm rounded-md mx-1 {{ empty($statusFilter) ? 'bg-blue-500 text-white' : '' }}"
                         />
                     </x-mary-menu-item>
                     @foreach(['pending', 'approved', 'active', 'rejected', 'closed'] as $status)
                         <x-mary-menu-item wire:click="setStatusFilter('{{ $status }}')">
-                            <x-mary-button 
-                                label="{{ ucfirst($status) }}" 
+                            <x-mary-button
+                                label="{{ ucfirst($status) }}"
                                 class="btn-sm rounded-md mx-1 {{ $statusFilter === $status ? 'bg-blue-500 text-white' : '' }}"
                             />
                         </x-mary-menu-item>
@@ -53,9 +53,9 @@
                 <div class="inline-flex items-center space-x-2">
                     <x-mary-dropdown>
                         <x-slot name="trigger">
-                            <x-mary-button 
-                                label="Date Range" 
-                                icon="o-calendar" 
+                            <x-mary-button
+                                label="Date Range"
+                                icon="o-calendar"
                                 class="bg-blue-200 btn-sm border-none dark:text-white dark:bg-slate-700"
                                 badge="{{ !empty($dateRange['from']) || !empty($dateRange['to']) ? '!' : '' }}"
                             />
@@ -82,13 +82,13 @@
                                 </x-mary-menu-item>
                             </div>
                             <div class="flex justify-end space-x-2 mt-4">
-                                <x-mary-button 
-                                    label="Clear" 
+                                <x-mary-button
+                                    label="Clear"
                                     wire:click="clearDateRange"
                                     class="btn-sm"
                                 />
-                                <x-mary-button 
-                                    label="Apply" 
+                                <x-mary-button
+                                    label="Apply"
                                     wire:click="applyDateFilter"
                                     class="btn-sm bg-blue-500 text-white"
                                 />
@@ -131,9 +131,9 @@
             {{-- active filters --}}
             <div class="mb-4 mt-5">
                 @if(count($activeFilters) > 0)
-                    <x-mary-button 
-                        wire:click="clearAllFilters" 
-                        label="Clear All Filters" 
+                    <x-mary-button
+                        wire:click="clearAllFilters"
+                        label="Clear All Filters"
                         class="mt-2 btn-danger btn-sm"
                     />
                 @endif
@@ -141,9 +141,9 @@
                     @foreach($activeFilters as $filter => $value)
                         <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-full mt-3">
                             {{ $value }}
-                            <button 
-                                type="button" 
-                                wire:click="removeFilter('{{ $filter }}')" 
+                            <button
+                                type="button"
+                                wire:click="removeFilter('{{ $filter }}')"
                                 class="ml-2 text-white hover:text-gray-300"
                             >
                                 &times;
@@ -155,15 +155,15 @@
         </x-mary-card>
 
         <!-- Loans Table -->
-        <x-mary-table 
-            :headers="$headers" 
-            :rows="$loans" 
-            :sort-by="$sortBy" 
-            with-pagination 
+        <x-mary-table
+            :headers="$headers"
+            :rows="$loans"
+            :sort-by="$sortBy"
+            with-pagination
             :per-page="$perPage"
-            :per-page-values="[10, 25, 50, 100]" 
-            wire:model="selected" 
-            selectable 
+            :per-page-values="[10, 25, 50, 100]"
+            wire:model="selected"
+            selectable
             striped
             >
             @scope('cell_status', $loan)
@@ -203,26 +203,26 @@
 
             @scope('actions', $loan)
                 <div class="inline-flex gap-2">
-                    <x-mary-button 
-                        icon="o-eye" 
-                        wire:click="viewLoan({{ $loan->id }})" 
+                    <x-mary-button
+                        icon="o-eye"
+                        wire:click="viewLoan({{ $loan->id }})"
                         class="btn-sm bg-blue-400 text-white"
                         title="View Details"
                         tooltip="View Details"
                     />
-                    
+
                     @can('approve loans')
                         @if($loan->status === 'pending')
-                            <x-mary-button 
-                                icon="o-check" 
-                                wire:click="openApprovalModal({{ $loan->id }})" 
+                            <x-mary-button
+                                icon="o-check"
+                                wire:click="openApprovalModal({{ $loan->id }})"
                                 class="btn-sm bg-green-600 text-white"
                                 title="Approve"
                                 tooltip="Approve"
                             />
-                            <x-mary-button 
-                                icon="o-x-mark" 
-                                wire:click="openRejectModal({{ $loan->id }})" 
+                            <x-mary-button
+                                icon="o-x-mark"
+                                wire:click="openRejectModal({{ $loan->id }})"
                                 class="btn-sm bg-red-600 text-white"
                                 title="Reject"
                                 tooltip="Reject"
@@ -232,9 +232,9 @@
 
                     @can('disburse loans')
                         @if($loan->status === 'approved')
-                            <x-mary-button 
-                                icon="o-banknotes" 
-                                wire:click="openDisbursementModal({{ $loan->id }})" 
+                            <x-mary-button
+                                icon="o-banknotes"
+                                wire:click="openDisbursementModal({{ $loan->id }})"
                                 class="btn-sm bg-purple-600 text-white"
                                 title="Disburse"
                                 tooltip="disburse"
@@ -267,7 +267,7 @@
                             <p><span class="font-semibold">Amount:</span> {{ number_format($selectedLoan->amount, 2) }}</p>
                             <p><span class="font-semibold">Interest Rate:</span> {{ $selectedLoan->interest_rate }}%</p>
                             <p><span class="font-semibold">Term:</span> {{ $selectedLoan->term }} months</p>
-                            <p><span class="font-semibold">Status:</span> 
+                            <p><span class="font-semibold">Status:</span>
                                 @if($selectedLoan->status)
                                     <div class="badge gap-2 {{ match($selectedLoan->status) {
                                         'pending' => 'badge-warning',
@@ -305,8 +305,8 @@
                             @foreach($selectedLoan->documents as $document)
                                 <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                                     <span class="truncate">{{ $document->file_name }}</span>
-                                    <x-mary-button 
-                                        icon="o-arrow-down-tray" 
+                                    <x-mary-button
+                                        icon="o-arrow-down-tray"
                                         class="btn-sm ml-2 flex-shrink-0"
                                         wire:click="downloadDocument({{ $document->id }})"
                                         spinner="downloadDocument"
@@ -428,4 +428,8 @@
             </x-slot:actions>
         @endif
     </x-mary-modal>
+
+    <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-3/4 md:w-1/2">
+
+    </x-mary-drawer>
 </div>

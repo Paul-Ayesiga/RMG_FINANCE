@@ -7,12 +7,12 @@ use App\Models\Customer;
 use Livewire\Attributes\Validate;
 use App\Models\User;
 use Livewire\WithFileUploads;
-use Mary\Traits\Toast;
 use Illuminate\Support\Facades\DB;
+use WireUi\Traits\WireUiActions;
 
 class Edit extends Component
 {
-    use Toast;
+    use WireUiActions;
     use WithFileUploads;
 
     public ?Customer $customer;
@@ -102,29 +102,23 @@ class Edit extends Component
 
             DB::commit();
 
-            $this->toast(
-                type: 'success',
-                title: 'Client updated with success',
-                description: null,
-                position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: '/clients'
-            );
+            $this->redirect('/clients', navigate: true);
+
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Client updated with success',
+            ]);
+
+
+
+
         } catch (\Exception $e) {
             DB::rollBack();
             // Handle the error and show an error toast
-            $this->toast(
-                type: 'error',
-                title: 'Update failed',
-                description: $e->getMessage(), // Show error message
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle', // Use an error icon
-                css: 'alert alert-danger text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Client update failed, try again',
+            ]);
         }
     }
 

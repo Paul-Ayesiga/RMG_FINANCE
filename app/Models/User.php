@@ -10,7 +10,8 @@ use App\Notifications\CustomVerifyEmailNotification;
 use App\Notifications\CustomResetPasswordNotification;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
+// implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -27,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'avatar',
         'password',
+        'currency'
     ];
 
     /**
@@ -87,5 +89,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Beneficiary::class);
     }
 
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_members')->withPivot('role');
+    }
+
+    public function settings()
+    {
+        return $this->hasOne(Settings::class);
+    }
 
 }

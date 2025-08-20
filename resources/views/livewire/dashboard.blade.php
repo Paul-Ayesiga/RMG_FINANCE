@@ -1,4 +1,11 @@
-<div>
+@php
+    // Convert the deposit amount from 'UGX' to the selected currency
+    $convertedDeposits = convertCurrency($monthlyStats['deposits']['current'], 'UGX', $currency);
+    $convertedWithdrawals = convertCurrency($monthlyStats['withdrawals']['current'], 'UGX', $currency);
+    $convertedTransfers = convertCurrency($monthlyStats['transfers']['current'], 'UGX', $currency);
+    $convertedWalletBalance = convertCurrency($monthlyStats['wallet_balance']['current'], 'UGX', $currency);
+@endphp
+<div class="container mx-auto p-0 bg-fuchsia-100 min-h-screen dark:bg-inherit">
     <div class="breadcrumbs text-sm mb-2">
         <ul>
             <li><a>Home</a></li>
@@ -6,7 +13,7 @@
         </ul>
     </div>
         {{-- Finance overview--}}
-    <h1 class="text-2xl italic font-sans font-extrabold text-center">Finance Overview</h1>
+    <h1 class="text-2xl  font-sans font-extrabold text-center">Finance Overview</h1>
     <div class="grid grid-cols-1 gap-4 px-4 mt-8 sm:grid-cols-3 sm:px-8">
         <!-- Deposits -->
         <div class="flex items-center bg-white border rounded-sm overflow-hidden shadow dark:bg-inherit">
@@ -18,11 +25,12 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Deposits</h3>
                 <p class="text-3xl dark:text-white">
-                    <small>UGX</small> {{ $monthlyStats['deposits']['current'] >= 1000000000
-                        ? number_format($monthlyStats['deposits']['current'] / 1000000000, 1) . 'B'
-                        : ($monthlyStats['deposits']['current'] >= 1000000
-                            ? number_format($monthlyStats['deposits']['current'] / 1000000, 1) . 'M'
-                            : number_format($monthlyStats['deposits']['current'])) }}
+                    <small>{{ strtoupper($currency) }}</small>
+                    {{ $convertedDeposits >= 1000000000
+                        ? number_format($convertedAmount / 1000000000, 1) . 'B'
+                        : ($convertedDeposits >= 1000000
+                            ? number_format($convertedDeposits / 1000000, 1) . 'M'
+                            : number_format($convertedDeposits)) }}
                 </p>
                 <span class="text-xs {{ $monthlyStats['deposits']['trend'] === 'increase' ? 'text-green-500' : 'text-red-500' }}">
                     {{ $monthlyStats['deposits']['percentage'] }}%
@@ -41,11 +49,12 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Withdrawals</h3>
                 <p class="text-3xl dark:text-white">
-                     <small>UGX</small> {{ $monthlyStats['withdrawals']['current'] >= 1000000000
-                        ? number_format($monthlyStats['withdrawals']['current'] / 1000000000, 1) . 'B'
-                        : ($monthlyStats['withdrawals']['current'] >= 1000000
-                            ? number_format($monthlyStats['withdrawals']['current'] / 1000000, 1) . 'M'
-                            : number_format($monthlyStats['withdrawals']['current'])) }}
+                    <small>{{ strtoupper($currency) }}</small>
+                    {{ $convertedWithdrawals >= 1000000000
+                        ? number_format($convertedWithdrawals / 1000000000, 1) . 'B'
+                        : ($convertedWithdrawals >= 1000000
+                            ? number_format($convertedWithdrawals / 1000000, 1) . 'M'
+                            : number_format($convertedWithdrawals)) }}
                 </p>
                 <span class="text-xs {{ $monthlyStats['withdrawals']['trend'] === 'increase' ? 'text-green-500' : 'text-red-500' }}">
                     {{ $monthlyStats['withdrawals']['percentage'] }}%
@@ -64,11 +73,12 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Transfers</h3>
                 <p class="text-3xl dark:text-white">
-                     <small>UGX</small> {{ $monthlyStats['transfers']['current'] >= 1000000000
-                        ? number_format($monthlyStats['transfers']['current'] / 1000000000, 1) . 'B'
-                        : ($monthlyStats['transfers']['current'] >= 1000000
-                            ? number_format($monthlyStats['transfers']['current'] / 1000000, 1) . 'M'
-                            : number_format($monthlyStats['transfers']['current'])) }}
+                    <small>{{ strtoupper($currency) }}</small>
+                    {{ $convertedTransfers >= 1000000000
+                        ? number_format($convertedTransfers / 1000000000, 1) . 'B'
+                        : ($convertedTransfers >= 1000000
+                            ? number_format($convertedTransfers / 1000000, 1) . 'M'
+                            : number_format($convertedTransfers)) }}
                 </p>
                 <span class="text-xs {{ $monthlyStats['transfers']['trend'] === 'increase' ? 'text-green-500' : 'text-red-500' }}">
                     {{ $monthlyStats['transfers']['percentage'] }}%
@@ -90,11 +100,12 @@
             <div class="px-4 text-gray-700">
                 <h3 class="text-sm tracking-wider dark:text-white">Wallet Balance</h3>
                 <p class="text-3xl dark:text-white">
-                     <small>UGX</small> {{ $monthlyStats['wallet_balance']['current'] >= 1000000000
-                        ? number_format($monthlyStats['wallet_balance']['current'] / 1000000000, 1) . 'B'
-                        : ($monthlyStats['wallet_balance']['current'] >= 1000000
-                            ? number_format($monthlyStats['wallet_balance']['current'] / 1000000, 1) . 'M'
-                            : number_format($monthlyStats['wallet_balance']['current'])) }}
+                    <small>{{ strtoupper($currency) }}</small>
+                    {{ $convertedWalletBalance >= 1000000000
+                        ? number_format($convertedWalletBalance / 1000000000, 1) . 'B'
+                        : ($convertedWalletBalance >= 1000000
+                            ? number_format($convertedWalletBalance / 1000000, 1) . 'M'
+                            : number_format($convertedWalletBalance)) }}
                 </p>
                 <span class="text-xs {{ $monthlyStats['wallet_balance']['trend'] === 'increase' ? 'text-green-500' : 'text-red-500' }}">
                     {{ $monthlyStats['wallet_balance']['percentage'] }}%
@@ -155,7 +166,7 @@
 
 
     {{-- accounts--}}
-    <h1 class="text-2xl font-sans italic text-pretty text-center">Accounts</h1>
+    <h1 class="text-2xl font-sans  text-pretty text-center">Accounts</h1>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-8 mt-5">
         <div class="stat dark:bg-inherit dark:text-white dark:shadow-white shadow p-4 bg-white rounded-lg">
             <div class="stat-title">Account Types</div>
@@ -191,7 +202,7 @@
     {{-- end of accounts stat --}}
 
      {{-- Loans--}}
-    <h1 class="text-2xl italic font-sans text-center">Loans</h1>
+    <h1 class="text-2xl  font-sans text-center">Loans</h1>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-8 mt-5">
         <div class="stat dark:bg-inherit dark:text-white dark:shadow-white shadow p-4 bg-white rounded-lg">
             <div class="stat-title">Loan Types</div>
@@ -228,7 +239,7 @@
 
 
     {{-- Active Stats Overview --}}
-    <h1 class="text-2xl italic font-sans font-extrabold text-center mt-8">Active Status Overview</h1>
+    <h1 class="text-2xl  font-sans font-extrabold text-center mt-8">Active Status Overview</h1>
     <div class="grid grid-cols-1 gap-4 px-4 mt-8 sm:grid-cols-2 sm:px-8">
         <!-- Active Accounts -->
         <div class="flex items-center bg-white border rounded-sm overflow-hidden shadow dark:bg-inherit">

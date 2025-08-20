@@ -5,14 +5,14 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Mary\Traits\Toast;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use WireUi\Traits\WireUiActions;
 
 class RolePermissionManager extends Component
 {
-    use Toast;
+    use WireUiActions;
 
     public $roles;
     public $permissions;
@@ -106,19 +106,19 @@ class RolePermissionManager extends Component
                 'permissions' => [],
             ];
 
-            $this->toast(
-                type: 'success',
-                title: 'Role created successfully',
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Role created successfully',
+            ]);
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->toast(
-                type: 'error',
-                title: 'Error creating role: ' . $e->getMessage(),
-                position: 'toast-top toast-end'
-            );
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error creating role: ' . $e->getMessage(),
+            ]);
         }
     }
 
@@ -127,11 +127,12 @@ class RolePermissionManager extends Component
         $this->isLoading = true;
 
         if (!$this->selectedRole) {
-            $this->toast(
-                type: 'error',
-                title: 'Please select a role first',
-                position: 'toast-top toast-end'
-            );
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Please select a role first',
+            ]);
+
             $this->isLoading = false;
             return;
         }
@@ -152,19 +153,19 @@ class RolePermissionManager extends Component
 
             DB::commit();
 
-            $this->toast(
-                type: 'success',
-                title: 'Permission updated successfully',
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Permission updated successfully',
+            ]);
+
+
         } catch (\Exception $e) {
             DB::rollBack();
 
-            $this->toast(
-                type: 'error',
-                title: 'Error updating permission: ' . $e->getMessage(),
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error updating permission: ' . $e->getMessage(),
+            ]);
 
             // Reload the current role's permissions in case of error
             $this->selectRole($this->selectedRole->id);
@@ -185,11 +186,10 @@ class RolePermissionManager extends Component
             $this->selectedRole = Role::with('permissions')->findOrFail($roleId);
             $this->selectedPermissions = collect($this->selectedRole->permissions->pluck('id'));
         } catch (\Exception $e) {
-            $this->toast(
-                type: 'error',
-                title: 'Error loading role: ' . $e->getMessage(),
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error loading role: ' . $e->getMessage(),
+            ]);
         } finally {
             $this->isLoading = false;
         }
@@ -222,19 +222,18 @@ class RolePermissionManager extends Component
                 'name' => '',
             ];
 
-            $this->toast(
-                type: 'success',
-                title: 'Permission created and assigned to super-admin',
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Permission created and assigned to super-admin',
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
 
-            $this->toast(
-                type: 'error',
-                title: 'Error creating permission: ' . $e->getMessage(),
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error creating permission: ' . $e->getMessage(),
+            ]);
         }
     }
 
@@ -249,17 +248,17 @@ class RolePermissionManager extends Component
             $this->loadRolesAndPermissions();
             $this->selectedRole = null;
 
-            $this->toast(
-                type: 'success',
-                title: 'Role deleted successfully',
-                position: 'toast-top toast-end'
-            );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Role deleted successfully',
+            ]);
+
         } catch (\Exception $e) {
-            $this->toast(
-                type: 'error',
-                title: 'Error deleting role: ' . $e->getMessage(),
-                position: 'toast-top toast-end'
-            );
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error deleting role: ' . $e->getMessage(),
+            ]);
         }
     }
 

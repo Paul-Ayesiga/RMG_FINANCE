@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* You can put this in your Tailwind CSS config or an external CSS file */
+@keyframes slideIn {
+    0% {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.wire-enter {
+    animation: slideIn 0.5s ease-out forwards;
+}
+
+.breadcrumbs{
+    padding-left: 15px;
+    padding-top: 15px;
+}
+
 /* Active page highlight */
 .mary-table-pagination span[aria-current="page"] > span {
     @apply bg-primary text-base-100
@@ -51,6 +73,9 @@
         color: green;
     }
     .text-negative-400{
+        color: red;
+    }
+    .text-negative-600{
         color: red;
     }
     .text-info-400{

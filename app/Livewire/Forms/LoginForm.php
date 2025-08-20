@@ -2,17 +2,20 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
+
 class LoginForm extends Form
 {
-    #[Validate('required|string|email')]
+    #[Validate('required|string|email|exists:users,email')]
     public string $email = '';
 
     #[Validate('required|string')]
@@ -20,6 +23,14 @@ class LoginForm extends Form
 
     #[Validate('boolean')]
     public bool $remember = false;
+
+    protected $messages = [
+        'email.required' => 'The email is mandatory.',
+        'email.string' => 'The email must be a valid string.',
+        'email.email' => 'The email must be a valid email address.',
+        'email.exists' => 'This email address is not registered in our system.',
+    ];
+
 
     /**
      * Attempt to authenticate the request's credentials.

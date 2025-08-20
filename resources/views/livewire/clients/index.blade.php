@@ -1,4 +1,10 @@
-<div>
+<div class="p-3">
+    <div class="breadcrumbs text-sm mb-2">
+        <ul>
+            <li><a wire:navigate href="{{ route('dashboard')}}">Home</a></li>
+            <li><a disabled>Clients</a></li>
+        </ul>
+    </div>
      <!-- HEADER -->
     <x-mary-header title="Clients" separator progress-indicator>
             <x-slot:middle>
@@ -48,14 +54,14 @@
                     <x-slot name="trigger">
                         <x-mary-button label="" icon="o-eye" class="bg-blue-200 btn-sm border-none dark:text-white dark:bg-slate-700" />
                     </x-slot>
-                    @foreach(['id', 'user.name', 'user.email', 'phone_number', 'address'] as $column)
+                    @foreach($columns as $column => $visible)
                         <x-mary-menu-item wire:click="toggleColumnVisibility('{{ $column }}')">
-                            @if($columns[$column])
+                            @if($visible)
                                 <x-mary-icon name="o-eye" class="text-green-500" />
                             @else
                                 <x-mary-icon name="o-eye-slash" class="text-gray-500" />
                             @endif
-                            <span class="ml-2">{{ ucfirst(str_replace('_', ' ', $column)) }}</span>
+                            <span class="ml-2">{{ ucfirst(str_replace(['_', '.'], ' ', $column)) }}</span>
                         </x-mary-menu-item>
                     @endforeach
                 </x-mary-dropdown>
@@ -82,11 +88,15 @@
 
         <x-mary-table :headers="$headers" :rows="$customers"  link="/clients/{id}/edit"  :sort-by="$sortBy" with-pagination  per-page="perPage"
             :per-page-values="[1,3, 5, 10]"  wire:model="selected" selectable striped>
-            {{-- @scope('cell_user_avatar', $customer)
-                <x-mary-avatar image="{{ $customer->avatar ?? asset('user.png')}}" class="!w-10" />
-            @endscope --}}
-            @scope('cell_stock', $customer)
-                <x-mary-badge :value="$customer->address" class="badge-success" />
+            @scope('cell_user.avatar', $customer)
+                @if($customer->user->avatar)
+                    <x-mary-avatar image="{{ $customer->user->avatar}}" class="!w-10" />
+                @else
+                    <x-mary-avatar image="{{ asset('user.png')}}" class="!w-10" />
+                @endif
+            @endscope
+            @scope('cell_address', $customer)
+                <x-mary-badge :value="$customer->address" class="badge-success truncate" />
             @endscope
             {{-- Special `actions` slot --}}
             @scope('actions', $customer)
@@ -100,7 +110,7 @@
                     @if($this->customerPreview)
                         <div>
                             <div class="rounded-t-lg h-32 overflow-hidden">
-                                <img class="object-cover object-top w-full" src='https://images.unsplash.com/photo-1549880338-65ddcdfd017b?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ' alt='Background Image'>
+                                <img class="object-cover object-top w-full" src='{{ asset('banners/banner3.jpeg')}}' alt='Background Image'>
                             </div>
 
                             <div class="mx-auto w-32 h-32 relative -mt-16 border-4 border-white rounded-full overflow-hidden">
@@ -162,7 +172,7 @@
                             <p>Loading customer details...</p>
                         </div>
                     @endif
-                    
+
                     <x-slot:actions>
                         <x-mary-button label="Cancel" @click.stop="$wire.previewCustomerModal = false" />
                         @if($this->customerPreview)
@@ -193,26 +203,26 @@
     </x-mary-card>
     {{-- end of clients table --}}
 
+    {{-- when selected bulk deletion modal --}}
+        <x-mary-modal wire:model="filledbulk"  title="Bulk Deletion yet To Happen" subtitle="" separator>
+            <div>
+                Are you sure? , you want to perform this action, its irreversible
+            </div>
+            <x-slot:actions>
+                <x-mary-button label="Cancel" @click="$wire.filledbulk = false" />
+                <x-mary-button label="Delete" wire:click="deleteSelected" class="bg-red-600 rounded-md text-white font-bold" spinner/>
+            </x-slot:actions>
+        </x-mary-modal>
         {{-- when selected bulk deletion modal --}}
-            <x-mary-modal wire:model="filledbulk"  title="Bulk Deletion yet To Happen" subtitle="" separator>
-                <div>
-                    Are you sure? , you want to perform this action, its irreversible
-                </div>
-                <x-slot:actions>
-                    <x-mary-button label="Cancel" @click="$wire.filledbulk = false" />
-                    <x-mary-button label="Delete" wire:click="deleteSelected" class="bg-red-600 rounded-md text-white font-bold" spinner/>
-                </x-slot:actions>
-            </x-mary-modal>
-            {{-- when selected bulk deletion modal --}}
-            <x-mary-modal wire:model="emptybulk"  title="Ooops! No rows selected " subtitle="" separator>
-                <div>
-                    Select some rows to delete
-                </div>
-                <x-slot:actions>
-                    <x-mary-button label="Okay" @click="$wire.emptybulk = false" class="btn btn-accent" />
-                </x-slot:actions>
-            </x-mary-modal>
-        {{-- end of bulk delete modal --}}
+        <x-mary-modal wire:model="emptybulk"  title="Ooops! No rows selected " subtitle="" separator>
+            <div>
+                Select some rows to delete
+            </div>
+            <x-slot:actions>
+                <x-mary-button label="Okay" @click="$wire.emptybulk = false" class="btn btn-accent" />
+            </x-slot:actions>
+        </x-mary-modal>
+    {{-- end of bulk delete modal --}}
 
 
 
@@ -256,13 +266,13 @@
                     <x-mary-card title="More Details" separator class="bg-white shadow-lg dark:bg-inherit">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <select wire:model.defer="gender" class="select select-primary w-full max-w-xs border-b-2 border-white shadow-lg focus:border-none focus:outline-none">
-                                <option disabled selected>Pick Gender</option>
+                                <option value="" selected>Pick Gender</option>
                                 <option>female</option>
                                 <option>male</option>
                                 <option>other</option>
                             </select>
                             <select wire:model.defer="maritalStatus" class="select select-primary w-full max-w-xs border-b-2 border-white shadow-lg focus:border-none focus:outline-none">
-                                <option disabled selected>Marital Status</option>
+                                <option value="" selected>Marital Status</option>
                                 <option>single</option>
                                 <option>married</option>
                                 <option>divorced</option>
@@ -323,6 +333,10 @@
                 </div>
             </div>
         </x-mary-form>
+    </x-mary-drawer>
+
+    <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-3/4 md:w-1/2">
+
     </x-mary-drawer>
 
 </div>

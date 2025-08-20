@@ -2,60 +2,71 @@
      <!-- HEADER -->
     <x-mary-header title="Accounts Overview" separator>
             <x-slot:middle>
-                <x-mary-input
-                    label=""
-                    placeholder="Search accounts ..."
-                    wire:model.live.debounce="search"
-                    clearable
-                    icon="o-magnifying-glass"
-                    class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none"
-                />
+
             </x-slot:middle>
             <x-slot:actions>
-                <x-mary-button label="Create Account" @click="$wire.addAccountModal = true"  icon="o-plus" class="bg-blue-700 mb-3 text-white rounded-md mr-10" />
+                @can('create accounts')
+                    <x-mary-button label="Create Account" @click="$wire.addAccountModal = true"  icon="o-plus" class="bg-blue-700 mb-3 text-white rounded-md mr-10" />
+                @endcan
             </x-slot:actions>
     </x-mary-header>
 
 
     {{-- accounts overview table --}}
-    <x-mary-card title="" subtitle="" shadow separator progress-indicator>
+    <x-mary-card title="" subtitle="" shadow separator progress-indicator class="bg-gray-50 dark:bg-inherit">
         {{-- datatable options like xls, bulk delete --}}
         <x-mary-card class="shadow-lg bg-white  h-auto mb-10 dark:bg-inherit">
-            <!-- Action buttons -->
-            <div class="inline-flex flex-wrap items-center mb-2 space-x-2">
-                <!-- Filter Button with Badge -->
-                <x-mary-button label="Filter" icon="o-funnel" class="bg-blue-200 btn-sm mx-2 rounded-md border-none dark:text-white dark:bg-slate-700"
-                    wire:click="$set('filtersDrawer', true)" badge="{{$activeFiltersCount}}" />
-            </div>
-            {{-- export buttons --}}
-             <div class="inline-flex flex-wrap items-center mb-2">
-                <x-mary-dropdown>
-                    <x-slot name="trigger">
-                        <x-mary-button label="export" icon="o-arrow-down-tray" class="bg-blue-200 btn-sm border-none dark:text-white dark:bg-slate-700" />
-                    </x-slot>
-                    <x-mary-button label="PDF" class="btn-sm rounded-md mx-1 dark:bg-inherit" wire:click="exportToPDF" />
-                    <!-- Export to Excel Button -->
-                    <x-mary-button label="XLS" class="btn-sm rounded-md mx-2 dark:bg-inherit" wire:click="exportToExcel" />
-                    </x-mary-dropdown>
-            </div>
+            <div class="flex justify-between items-center flex-wrap md:space-x-2 space-y-4">
+                <div>
+                    <x-mary-input
+                        label=""
+                        placeholder="Search accounts ..."
+                        wire:model.live.debounce="search"
+                        clearable
+                        icon="o-magnifying-glass"
+                        {{-- class="border-b-2 border-white shadow-lg focus:border-none focus:outline-none" --}}
+                        class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+                    />
+                </div>
 
-            <!-- Column Visibility Dropdown -->
-            <div class="inline-flex flex-wrap items-center mb-2">
-                <x-mary-dropdown>
-                    <x-slot name="trigger">
-                        <x-mary-button label="" icon="o-eye" class="bg-blue-200 btn-sm border-none dark:text-white dark:bg-slate-700" />
-                    </x-slot>
-                    @foreach(['accountType.name', 'account_number', 'balance', 'status'] as $column)
-                        <x-mary-menu-item wire:click="toggleColumnVisibility('{{ $column }}')">
-                            @if($columns[$column])
-                                <x-mary-icon name="o-eye" class="text-green-500" />
-                            @else
-                                <x-mary-icon name="o-eye-slash" class="text-gray-500" />
-                            @endif
-                            <span class="ml-2">{{ ucfirst(str_replace('_', ' ', $column)) }}</span>
-                        </x-mary-menu-item>
-                    @endforeach
-                </x-mary-dropdown>
+                <div class="space-x-2 lg:space-y-0 sm:space-y-2">
+                    <!-- Action buttons -->
+                    <div class="inline-flex">
+                        <!-- Filter Button with Badge -->
+                        <x-mary-button label="Filter" icon="o-funnel" class="bg-blue-200 btn-sm mx-2 rounded-md border-none dark:text-white dark:bg-slate-700"
+                            @click="$wire.filtersDrawer = true" badge="{{$activeFiltersCount}}" />
+                    </div>
+                    {{-- export buttons --}}
+                    <div  class="inline-flex lg:space-x-2 sm:space-x-0 flex-wrap lg:space-y-0 sm:space-y-2">
+                        {{-- <x-mary-dropdown>
+                            <x-slot name="trigger"> --}}
+                            {{-- <x-mary-button label="export" icon="o-arrow-down-tray" class="bg-blue-200 btn-sm border-none dark:text-white dark:bg-slate-700" /> --}}
+                            {{-- </x-slot> --}}
+                            <x-mary-button label="Export As PDF" class="btn-sm px-4 py-1 bg-green-600 text-white text-sm rounded-md shadow hover:bg-green-700 focus:ring focus:ring-green-300" wire:click="exportToPDF" />
+                            <!-- Export to Excel Button -->
+                            <x-mary-button label="Export As XLS" class="btn-sm px-4 py-1 bg-yellow-500 text-white text-sm rounded-md shadow hover:bg-yellow-600 focus:ring focus:ring-yellow-300" wire:click="exportToExcel" />
+                            {{-- </x-mary-dropdown> --}}
+                    </div>
+
+                    <!-- Column Visibility Dropdown -->
+                    <div  class="inline-flex">
+                        <x-mary-dropdown>
+                            <x-slot name="trigger">
+                                <x-mary-button label="" icon="o-eye" class="bg-blue-200 btn-sm border-none dark:text-white dark:bg-slate-700" />
+                            </x-slot>
+                            @foreach(['accountType.name', 'account_number', 'balance', 'status'] as $column)
+                                <x-mary-menu-item wire:click="toggleColumnVisibility('{{ $column }}')">
+                                    @if($columns[$column])
+                                        <x-mary-icon name="o-eye" class="text-green-500" />
+                                    @else
+                                        <x-mary-icon name="o-eye-slash" class="text-gray-500" />
+                                    @endif
+                                    <span class="ml-2">{{ ucfirst(str_replace('_', ' ', $column)) }}</span>
+                                </x-mary-menu-item>
+                            @endforeach
+                        </x-mary-dropdown>
+                    </div>
+                </div>
             </div>
 
             {{-- active filters --}}
@@ -97,6 +108,10 @@
                 </span>
             @endscope
 
+            @scope('cell_balance', $account, $currency)
+                {{ number_format(convertCurrency($account->balance,'UGX', $currency),0)}}
+            @endscope
+
             {{-- Special `actions` slot --}}
             @scope('actions', $account)
                 <div class="inline-flex">
@@ -125,8 +140,7 @@
                                     bg-red-100 text-red-800
                                 @elseif($this->accountToPreview->status === 'pending')
                                     bg-blue-100 text-blue-800
-                                @else
-                                    bg-gray-100 text-gray-800
+
                                 @endif
                             ">
                                 {{ ucfirst($this->accountToPreview->status) }}
@@ -162,8 +176,9 @@
                 wire:model.live="selectedCategory"
                 :options="$this->getCategories()"
                 single
-                class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed mb-4"
-            >
+                class="w-full h-10 px-4 py-3 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+
+                >
                 @scope('item', $category)
                     <x-mary-list-item :item="$category">
                         <x-slot:avatar>
@@ -174,7 +189,7 @@
                 @endscope
 
                 @scope('selection', $category)
-                    {{ $category['name'] }}
+                  <div class="m-2">{{ $category['name'] }}</div>
                 @endscope
             </x-mary-choices>
 
@@ -187,8 +202,10 @@
                 option-label="name"
                 option-value="id"
                 :disabled="!$selectedCategory"
-                class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed mb-4"
-            >
+                tooltip="select account Category to activate"
+                 class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+
+                >
                 <x-slot:description>
                     @if(!$selectedCategory)
                         <div class="text-sm text-gray-500">
@@ -208,21 +225,23 @@
                     label="Balance"
                     placeholder="e.g 15,000"
                     wire:model="balance"
-                    class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed"
+                    class="w-full h-10 px-4 py-2 text-sm bg-gray-100 dark:bg-inherit border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+
                 />
             </div>
 
             {{-- Form Actions --}}
-            <div class="mt-4">
-                <x-mary-button
+            <div class="mt-4 inline-flex space-x-3 items-end justify-items-end">
+                <x-wireui-button
                     label="Add"
                     type="submit"
                     spinner="saveAccount"
-                    icon="o-paper-airplane"
-                    class="bg-blue-300 dark:text-white"
+                    icon="paper-airplane"
+                    class="bg-blue-500 dark:text-white"
                 />
-                <x-mary-button
+                <x-wireui-button
                     label="Cancel"
+                    class="bg-gray-300"
                     @click="$wire.addAccountModal = false;"
                 />
             </div>
@@ -230,5 +249,9 @@
     </x-mary-modal>
     {{-- End of Add Account Type --}}
 
+
+    <x-mary-drawer wire:model="filtersDrawer" title="Filters" separator with-close-button close-on-escape class="w-11/12 lg:w-3/4 md:w-1/2">
+
+    </x-mary-drawer>
 </div>
 

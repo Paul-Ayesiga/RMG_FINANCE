@@ -8,18 +8,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Validate;
-use Mary\Traits\Toast;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\WithMediaSync;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
+use WireUi\Traits\WireUiActions;
 
 #[Lazy()]
 class accountTypes extends Component
 {
-    use Toast;
+    use WireUiActions;
     use WithPagination;
     use WithFileUploads, WithMediaSync;
 
@@ -89,55 +89,57 @@ class accountTypes extends Component
     // Add accountTypeId property to store the ID of the account type being edited
     public $accountTypeId;
 
+    public $filtersDrawer = false;
+
     public function placeholder()
     {
         // return view('livewire.placeholder');
             return <<<'HTML'
-                    <!-- Skeleton Loader for clients Page -->
-                    <div class="min-h-screen bg-gray-50 p-4 dark:bg-inherit">
-                        <!-- Page Header Skeleton -->
-                        <div class="animate-pulse flex justify-between items-center mb-6">
-                            <div class="h-6 w-32 bg-gray-300 rounded"></div>
-                            <div class="h-10 w-48 bg-gray-300 rounded"></div>
-                        </div>
-
-                        <!-- Search Bar and Buttons Skeleton -->
-                        <div class="animate-pulse flex items-center space-x-4 mb-4">
-                            <div class="h-10 w-96 bg-gray-300 rounded"></div>
-                            <div class="h-10 w-32 bg-gray-300 rounded"></div>
-                        </div>
-
-                        <!-- Action Buttons Skeleton -->
-                        <div class="animate-pulse flex items-center space-x-4 mb-6">
-                            <div class="h-8 w-20 bg-red-300 rounded"></div>
-                            <div class="h-8 w-20 bg-yellow-300 rounded"></div>
-                            <div class="h-8 w-20 bg-purple-300 rounded"></div>
-                            <div class="h-8 w-20 bg-green-300 rounded"></div>
-                            <div class="h-8 w-20 bg-gray-300 rounded"></div>
-                        </div>
-
-                        <!-- Table Header Skeleton -->
-                        <div class="animate-pulse grid grid-cols-5 gap-4 mb-2">
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            <div class="h-6 w-full bg-gray-300 rounded"></div>
-                        </div>
-
-                        <!-- Table Rows Skeleton -->
-                        <div class="animate-pulse space-y-4">
-                            <div class="grid grid-cols-5 gap-4">
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                                <div class="h-6 w-full bg-gray-300 rounded"></div>
-                            </div>
-
-                        </div>
+                <!-- Skeleton Loader for clients Page -->
+                <div class="min-h-screen bg-gray-50 p-4 dark:bg-inherit">
+                    <!-- Page Header Skeleton -->
+                    <div class="animate-pulse flex justify-between items-center mb-6">
+                        <div class="h-6 w-32 bg-gray-300 rounded"></div>
+                        <div class="h-10 w-48 bg-gray-300 rounded"></div>
                     </div>
-                HTML;
+
+                    <!-- Search Bar and Buttons Skeleton -->
+                    <div class="animate-pulse flex items-center space-x-4 mb-4">
+                        <div class="h-10 w-96 bg-gray-300 rounded"></div>
+                        <div class="h-10 w-32 bg-gray-300 rounded"></div>
+                    </div>
+
+                    <!-- Action Buttons Skeleton -->
+                    <div class="animate-pulse flex items-center space-x-4 mb-6">
+                        <div class="h-8 w-20 bg-red-300 rounded"></div>
+                        <div class="h-8 w-20 bg-yellow-300 rounded"></div>
+                        <div class="h-8 w-20 bg-purple-300 rounded"></div>
+                        <div class="h-8 w-20 bg-green-300 rounded"></div>
+                        <div class="h-8 w-20 bg-gray-300 rounded"></div>
+                    </div>
+
+                    <!-- Table Header Skeleton -->
+                    <div class="animate-pulse grid grid-cols-5 gap-4 mb-2">
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        <div class="h-6 w-full bg-gray-300 rounded"></div>
+                    </div>
+
+                    <!-- Table Rows Skeleton -->
+                    <div class="animate-pulse space-y-4">
+                        <div class="grid grid-cols-5 gap-4">
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                            <div class="h-6 w-full bg-gray-300 rounded"></div>
+                        </div>
+
+                    </div>
+                </div>
+            HTML;
     }
 
     public function toggleColumnVisibility($column)
@@ -145,6 +147,7 @@ class accountTypes extends Component
         $this->columns[$column] = !$this->columns[$column];
     }
 
+    #[On('refresh')]
     public function mount()
     {
     }
@@ -208,32 +211,21 @@ class accountTypes extends Component
                 'overdraft_limit' => $this->overdraft_limit,
             ]);
 
-            $this->toast(
-                    type: 'success',
-                    title: 'Account Type created with success',
-                    description: null,
-                    position: 'toast-top toast-end',
-                    icon: 'o-check-badge',
-                    css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                    timeout: 3000,
-                    redirectTo: null
-                );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'AccountType created with success',
+                'description' => ''
+            ]);
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             // Log the error
-            // \Log::error('Failed to create account type: ' . $e->getMessage());
-            $this->toast(
-                type: 'error',
-                title: 'Failed to create account type',
-                description: 'An error occurred while creating the account type.',
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Failed to create account type',
+                'description' => 'An error occurred while creating the account type.'
+            ]);
         }
 
         // Reset form fields after saving
@@ -303,26 +295,20 @@ class accountTypes extends Component
                 'overdraft_limit'
             ]);
 
-            $this->toast(
-                type: 'success',
-                title: 'Account Type updated successfully',
-                position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Account Type updated successfully'
+            ]);
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->toast(
-                type: 'error',
-                title: 'Error updating account type',
-                description: $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000
-            );
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error updating account type',
+                'description' =>  $e->getMessage(),
+            ]);
         }
     }
 
@@ -363,31 +349,24 @@ class accountTypes extends Component
             DB::commit();
 
             $this->deleteAccountTypeModal = false;
-            $this->toast(
-                type: 'success',
-                title: 'Account Type, associated accounts, and all transactions deleted successfully',
-                description: null,
-                position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Account Type deleted successfully',
+                'description' => 'associated accounts and their transactions also deleted successfully'
+            ]);
+
         } catch (\Exception $e) {
             // Rollback the transaction in case of error
             DB::rollBack();
 
             $this->deleteAccountTypeModal = false;
-            $this->toast(
-                type: 'error',
-                title: 'Failed to delete Account Type and associated data',
-                description: $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Failed to delete Account Type and associated data',
+                'description' =>  $e->getMessage(),
+            ]);
         }
     }
 
@@ -411,16 +390,10 @@ class accountTypes extends Component
 
             // Optionally add some feedback to the user
             $this->filledbulk = false;
-            $this->toast(
-                    type: 'error',
-                    title: 'Account Types deleted with success',
-                    description: null,
-                    position: 'toast-top toast-end',
-                    icon: 'o-check-badge',
-                    css: 'alert alert-danger text-white shadow-lg rounded-sm p-3',
-                    timeout: 3000,
-                    redirectTo: null
-                );
+            $this->notification()->send([
+                    'icon' => 'success',
+                    'title' =>  'Account Types deleted with success',
+                ]);
         });
     }
 

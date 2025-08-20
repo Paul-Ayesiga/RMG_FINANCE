@@ -8,15 +8,17 @@ use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Validate;
-use Mary\Traits\Toast;
+use Livewire\Attributes\Computed;
 use Livewire\WithPagination;
 use Livewire\Attributes\Lazy;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use WireUi\Traits\WireUiActions;
 
 #[Lazy()]
 class LoanProducts extends Component
 {
-    use Toast;
+    use WireUiActions;
     use WithPagination;
 
     public ?LoanProduct $loanProduct;
@@ -78,10 +80,13 @@ class LoanProducts extends Component
     #[Validate('nullable')]
     public $requirements = [];
 
-    #[Validated('nullable')]
+    #[Validate('nullable')]
     public ?array $allowed_frequencies = [];
+
     public Collection $frequenciesSearchable;
-    
+
+    public $filtersDrawer = false;
+
 
     public $columns = [
         'loans_count' => true,
@@ -94,7 +99,7 @@ class LoanProducts extends Component
         'maximum_term' => true,
         'processing_fee' => true,
         'status' => true,
-        ];
+    ];
 
     public function mount()
     {
@@ -166,17 +171,11 @@ class LoanProducts extends Component
             'requirements' => $this->requirements,
         ]);
 
-        $this->toast(
-                type: 'success',
-                title: 'Loan product created successfully',
-                position: 'toast-top toast-end',
-                icon: 'o-check-circle',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
+        $this->notification()->send([
+            'icon' => 'success',
+            'title' => 'Loan product created successfully'
+        ]);
 
-        );
-        
         // $this->reset();
         $this->addLoanProductModal = false;
     }
@@ -185,7 +184,7 @@ class LoanProducts extends Component
     public function editLoanProduct($loanProductId)
     {
         $loanProduct = LoanProduct::find($loanProductId);
-        
+
         $this->loanProduct = $loanProduct;
         $this->name = $loanProduct->name;
         $this->description = $loanProduct->description;
@@ -200,13 +199,13 @@ class LoanProducts extends Component
         $this->early_payment_fee_percentage = $loanProduct->early_payment_fee_percentage;
         $this->status = $loanProduct->status;
         $this->requirements = $loanProduct->requirements;
-        
+
         // Refresh the frequencies list with selected values
         $this->searchFrequencies();
-        
+
         $this->editLoanProductModal = true;
     }
-    
+
     public function updateLoanProduct()
     {
         $this->validate();
@@ -229,15 +228,14 @@ class LoanProducts extends Component
 
         // $this->reset();
         $this->editLoanProductModal = false;
-        $this->toast(
-                type: 'success',
-                title: 'Loan product updated successfully',
-                position: 'toast-top toast-end',
-                icon: 'o-check-circle',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-        );
+
+        $this->notification()->send([
+            'icon' => 'success',
+            'title' => 'Loan product updated successfully'
+        ]);
+
+        $this->allowed_frequencies = [];
+        $this->reset(['name','description','interest_rate', 'minimum_amount', 'maximum_amount', 'minimum_term', 'maximum_term', 'processing_fee', 'late_payment_fee_percentage', 'early_payment_fee_percentage', 'status','requirements']);
     }
 
     public function OpenPreviewLoanProductModal($id)
@@ -257,36 +255,36 @@ class LoanProducts extends Component
     {
         try {
             $loanProduct = LoanProduct::findOrFail($id);
-            
+
             // Begin a database transaction
-            \DB::beginTransaction();
-            
+            DB::beginTransaction();
+
             // Delete all associated loans if needed
             // $loanProduct->loans()->delete();
-            
+
             // Delete the loan product
             $loanProduct->delete();
-            
+
             // Commit the transaction
-            \DB::commit();
-            
+            DB::commit();
+
             $this->deleteLoanProductModal = false;
-            $this->toast(
-                type: 'success',
-                title: 'Loan Product deleted successfully',
-                position: 'toast-top toast-end'
-            );
+
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Loan product deleted successfully'
+            ]);
         } catch (\Exception $e) {
             // Rollback the transaction in case of error
-            \DB::rollBack();
-            
+            DB::rollBack();
+
             $this->deleteLoanProductModal = false;
-            $this->toast(
-                type: 'error',
-                title: 'Failed to delete Loan Product',
-                description: $e->getMessage(),
-                position: 'toast-top toast-end'
-            );
+
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Failed to delete Loan Product',
+                'description' => $e->getMessage()
+            ]);
         }
     }
 
@@ -298,7 +296,7 @@ class LoanProducts extends Component
         return $count;
     }
 
-    
+
     public function updateActiveFilters()
     {
         $this->activeFilters = [];

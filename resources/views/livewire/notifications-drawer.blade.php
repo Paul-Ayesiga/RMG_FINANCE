@@ -114,9 +114,9 @@
         x-transition:leave-start="opacity-100 translate-y-0"
         x-transition:leave-end="opacity-0 translate-y-4"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center">
-        <div class="bg-white p-6 rounded-lg max-w-sm mt-6">
+        <div class="bg-white p-6 rounded-lg max-w-sm mt-6 dark:bg-black">
             <h3 x-text="selectedNotification?.title || 'No Title'" class="text-lg font-semibold"></h3>
-            <p x-text="selectedNotification?.message || 'No Message'" class="text-gray-600 mt-2"></p>
+            <p x-text="selectedNotification?.message || 'No Message'" class="text-gray-600 mt-2 dark:text-white"></p>
             <button @click="showModal = false" class="bg-red-600 text-white px-4 py-2 rounded-lg mt-4">
                 Close
             </button>

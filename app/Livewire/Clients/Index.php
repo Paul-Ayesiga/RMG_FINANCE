@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Validate;
-use Mary\Traits\Toast;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\WithMediaSync;
@@ -19,11 +18,12 @@ use Illuminate\Validation\Rules;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
+use WireUi\Traits\WireUiActions;
 
 #[Lazy()]
 class Index extends Component
 {
-    use Toast;
+    use WireUiActions;
     use WithPagination;
     use WithFileUploads, WithMediaSync;
 
@@ -61,25 +61,25 @@ class Index extends Component
     #[Validate('nullable')]
     public $secondaryAdress;
 
-    // #[Validate('required')]
+    #[Validate('required')]
     public $gender;
 
-    // #[Validate('required')]
+    #[Validate('required')]
     public $maritalStatus;
 
-    // #[Validate('required')]
+    #[Validate('required')]
     public $birthDate;
 
     #[Validate('required')]
     public $identification_number;
 
-    // #[Validate('required')]
+    #[Validate('required')]
     public $occupation;
 
-    // #[Validate('required')]
+    #[Validate('required')]
     public $employer;
 
-    // #[Validate('required')]
+    #[Validate('required')]
     public $annual_income;
 
     // user fields
@@ -96,13 +96,15 @@ class Index extends Component
     public string $password_confirmation = '';
 
     public $columns = [
-        // 'user.avatar' => true,
+        'user.avatar' => true,
         'id' => true,
         'user.name' => true,
         'user.email' => true,
         'phone_number' => true,
         'address' => true,
     ];
+
+    public $filtersDrawer = false;
 
 
     public function placeholder()
@@ -168,10 +170,10 @@ class Index extends Component
     public function headers()
     {
         return collect([
-            // ['key' => 'user.avatar', 'label' => 'Photo', 'class' => 'w-1'],
+            ['key' => 'user.avatar', 'label' => 'Photo', 'class' => 'w-1', 'sortable' => false],
             ['key' => 'id', 'label' => '#'],
-            ['key' => 'user.name', 'label' => 'Name'],
-            ['key' => 'user.email', 'label' => 'Email'],
+            ['key' => 'user.name', 'label' => 'Name', 'sortable' => false],
+            ['key' => 'user.email', 'label' => 'Email', 'sortable' => false],
             ['key' => 'phone_number', 'label' => 'Phone No'],
             ['key' => 'address', 'label' => 'Address'],
         ])->filter(function ($header) {
@@ -191,7 +193,7 @@ class Index extends Component
     {
         return Customer::with('user') // Eager load the User relationship
             ->when($this->search, fn(Builder $q) => $q->whereHas('user', function ($query) {
-                $query->where('name', 'like', "%$this->search%");
+                $query->where('name', 'ilike', "%$this->search%");
             }))
             ->orderBy(...array_values($this->sortBy))
             ->paginate($this->perPage);
@@ -263,28 +265,19 @@ class Index extends Component
 
             $this->addCustomerDrawer = false;
             $this->resetForm();
-            $this->toast(
-                    type: 'success',
-                    title: 'Client created with success',
-                    description: null,
-                    position: 'toast-top toast-end',
-                    icon: 'o-check-badge',
-                    css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                    timeout: 3000,
-                    redirectTo: null
-                );
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Client created with success',
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->toast(
-                type: 'error',
-                title: 'Failed to create client',
-                description: $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Failed to create client',
+                'description' => $e->getMessage(),
+
+            ]);
         }
     }
 
@@ -348,30 +341,21 @@ class Index extends Component
 
             $this->deleteCustomerModal = false;
             $this->resetPage();
-            $this->toast(
-                type: 'success',
-                title: 'Client and all related data deleted permanently',
-                description: null,
-                position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+
+            $this->notification()->send([
+                'icon' => 'success',
+                'title' => 'Client and all related data deleted permanently'
+            ]);
+
         } catch (\Exception $e) {
             // Rollback the transaction in case of error
             DB::rollBack();
 
-            $this->toast(
-                type: 'error',
-                title: 'Failed to delete client',
-                description: $e->getMessage(),
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle',
-                css: 'alert alert-error text-white shadow-lg rounded-sm p-3',
-                timeout: 3000,
-                redirectTo: null
-            );
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Failed to delete client',
+                'description' => $e->getMessage(),
+            ]);
         }
     }
 
@@ -390,7 +374,12 @@ class Index extends Component
 
         $this->selected = [];
         $this->filledbulk = false;
-        $this->success('Selected Customers deleted successfully');
+
+        $this->notification()->send([
+            'title' => 'Selected Customers deleted successfully',
+            'icon' => 'success'
+        ]);
+
     }
 
     public function activeFiltersCount(): int

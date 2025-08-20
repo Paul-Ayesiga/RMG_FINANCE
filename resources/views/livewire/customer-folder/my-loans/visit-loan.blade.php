@@ -71,210 +71,188 @@
 
     <!-- Tab Content -->
     <div class="relative w-full mt-4 content">
-        <!-- Loan Details Tab -->
-        <div
-            :id="$id(tabId + '-content')"
-            x-show="tabContentActive($el)"
-            class="relative"
-            >
-            <div class="p-6 bg-white border rounded-lg shadow-sm dark:bg-inherit dark:text-white">
 
+       <!-- Loan Details Tab -->
+        <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative">
+            <div class="p-6 bg-white border rounded-lg shadow-sm dark:bg-inherit dark:text-white">
                 <p class="text-gray-600 mb-3 dark:text-white">View your Loans details here.</p>
                 <div class="max-w-3xl mx-auto p-6 bg-white border rounded-lg shadow-sm dark:bg-inherit dark:text-white">
-                <div class="grid grid-cols-2 md:grid-cols-1 gap-6">
-                    <div>
-                         <h2 class="text-2xl font-semibold text-gray-800 mb-6 dark:text-white">Loan Details</h2>
-                    </div>
-                    @if($loan->status == 'active')
-                        <div class="mb-4">
-                            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-                                <div class="text-sm">
-                                    <p><span class="font-semibold text-justify" role="alert">Next Payment Due:</span>
-                                        {{ $loan->schedules->where('status', '!=', 'paid')->first()?->due_date->format('F j, Y g:i A')  }}
-                                    </p>
-                                    <p><span class="font-semibold">Amount Due:</span>
-                                        {{ number_format($loan->schedules->where('status', '!=', 'paid')->first()?->remaining_amount ?? 0, 2) }}
-                                    </p>
+                    <div class="grid grid-cols-2 md:grid-cols-1 gap-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold text-gray-800 mb-6 dark:text-white">Loan Details</h2>
+                        </div>
+                        @if($loan->status == 'active')
+                            <div class="mb-4">
+                                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+                                    <div class="text-sm">
+                                        <p><span class="font-semibold text-justify" role="alert">Next Payment Due:</span>
+                                            {{ $loan->schedules->where('status', '!=', 'paid')->first()?->due_date->format('F j, Y g:i A')  }}
+                                        </p>
+                                        <p><span class="font-semibold">Amount Due:</span>
+                                            {{ $currency .' '. number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->first()?->remaining_amount, 'UGX', $currency), 0) }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
-                </div>
-
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Customer Information -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Loan Owner</h3>
-                        <p class="text-gray-600 dark:text-slate-100">{{$loan->customer->user->name}}</p>
-                    </div>
-
-                    <!-- Loan Type -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Loan Product</h3>
-                        <p class="text-gray-600 dark:text-slate-100">{{ $loan->loanProduct->name}}</p>
-                    </div>
-
-                    <!-- Disbursement Account Number -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Disbursement Account Number</h3>
-                        <p class="text-gray-600 dark:text-slate-100">{{$loan->account->account_number}}</p>
-                    </div>
-
-                    <!-- Principal Amount -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Principal Amount</h3>
-                        <p class="text-green-600 font-bold">UGX {{ $loan->amount }}</p>
-                    </div>
-
-                    <!-- Total Payable Amount -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white"> Total Payable Amount</h3>
-                        <p class="text-green-600 font-bold">UGX {{ number_format($loan->total_payable,0)}}</p>
-                    </div>
-
-                    <!-- Interest  Rate -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Interest Rate</h3>
-                        <p class="text-gray-600">{{ $loan->interest_rate }}</p>
-                    </div>
-
-                    <!-- Total Term -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Total Term ( months )</h3>
-                        <p class="text-gray-600"> {{ $loan->term }}</p>
-                    </div>
-
-                    <!-- Due Term -->
-                    {{-- to work upon later --}}
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Due Term</h3>
-                        <p class="text-gray-600 ">N/A</p>
-                    </div>
-
-                     <!-- Total Interest Rate -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Total Interest Rate</h3>
-                        <p class="text-green-600 font-bold">UGX {{ $loan->total_interest }}</p>
-                    </div>
-
-                    <!-- payment frequency-->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Payment Frequency</h3>
-                        <p class="text-gray-600 ">{{ $loan->payment_frequency}}</p>
-                    </div>
-
-                    <!-- processing fee-->
-                    @if($loan->processing_fee)
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Processing fee</h3>
-                            <p class="text-gray-600 ">{{ $loan->processing_fee}}</p>
-                        </div>
-                    @endif
-
-                    <!-- early paymeny fee-->
-                    @if($loan->early_payment_fee)
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Early payment fee</h3>
-                            <p class="text-gray-600 ">{{ $loan->early_payment_fee}}</p>
-                        </div>
-                    @endif
-
-                    <!-- late paymeny fee-->
-                    @if($loan->late_payment_fee)
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Late payment fee</h3>
-                            <p class="text-gray-600 ">{{ $loan->late_payment_fee}}</p>
-                        </div>
-                    @endif
-
-                    <!-- disbursment date-->
-                     @if($loan->disbursement_date)
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Disbursment Date</h3>
-                            <p class="text-blue-600">{{ $loan->disbursement_date->format('F j, Y g:i A') }}</p>
-                        </div>
-                    @endif
-
-                    <!-- first payment date-->
-                    {{-- @if($loan->schedules->status)
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">First Payment Date</h3>
-                            <p class="text-blue-600 font-bold">{{ $loan->first_payment_date->format('F j, Y g:i A') }}</p>
-                        </div>
-                    @endif --}}
-
-                    <!-- last payment date-->
-                    @if($loan->last_payment_date)
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Last Payment Date</h3>
-                            <p class="text-blue-600 font-bold">{{ $loan->last_payment_date->format('F j, Y g:i A') }}</p>
-                        </div>
-                    @endif
-
-                    <!-- Account Status -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Status</h3>
-                        @if($loan->status === 'active')
-                            <x-wireui-badge class="bg-green-500 font-semibold capitalize p-3" lg label="{{ $loan->status}}">
-                                 <x-slot name="prepend" class="relative flex items-center w-2 h-2">
-                                    <span
-                                        class="absolute inline-flex w-full h-full rounded-full opacity-75 bg-white animate-ping"></span>
-                                    <span class="relative inline-flex w-2 h-2 rounded-full bg-white"></span>
-                                </x-slot>
-                            </x-wireui-badge>
-                        @elseif($loan->status === 'paid')
-                            <x-wireui-badge class="bg-indigo-500 font-semibold capitalize p-3" lg label="{{ $loan->status}}"/>
-                            <p>This loan was closed on : {{ $loan->closed_at->format('F j, Y g:i A') }}</p>
-                        @elseif($loan->status === 'pending')
-                            <x-wireui-badge class="bg-yellow-300 font-semibold capitalize p-3" lg label="{{ $loan->status}}"/>
-                        @elseif($loan->status === 'rejected')
-                            <x-wireui-badge class="bg-red-500 font-semibold capitalize p-3" lg label="{{ $loan->status}}"/>
-                        @elseif($loan->status === 'approved')
-                            <x-wireui-badge class=" bg-lime-300 font-semibold capitalize p-3" lg label="{{ $loan->status}}"/>
-                            <p class="italic tooltip-info text-sm">Your loan is approved, please wait for disbursement</p>
                         @endif
                     </div>
 
-
-                    <!-- Created At -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Applied For On</h3>
-                        <p class="text-blue-600 dark:text-slate-100">{{ $loan->created_at->format('F j, Y g:i A') }}</p>
-                    </div>
-
-                    @if($loan->approved_at)
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Customer Information -->
                         <div>
-                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Approved At</h3>
-                            <p class="text-blue-600 dark:text-slate-100">{{ $loan->approved_at->format('F j, Y g:i A') }}</p>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Loan Owner</h3>
+                            <p class="text-gray-600 dark:text-slate-100">{{$loan->customer->user->name}}</p>
                         </div>
-                    @endif
 
-                    @if($loan->reject_at)
+                        <!-- Loan Type -->
                         <div>
-                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Reject At</h3>
-                            <p class="text-blue-600 dark:text-slate-100">{{ $loan->rejected_at->format('F j, Y g:i A') }}</p>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Loan Product</h3>
+                            <p class="text-gray-600 dark:text-slate-100">{{ $loan->loanProduct->name}}</p>
                         </div>
-                        <div class="mb-4">
-                            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-                                <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Rejection Reason</h3>
-                                <p class="text-blue-600 dark:text-slate-100">{{ $loan->rejection_reason }}</p>
+
+                        <!-- Disbursement Account Number -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Disbursement Account Number</h3>
+                            <p class="text-gray-600 dark:text-slate-100">{{$loan->account->account_number}}</p>
+                        </div>
+
+                        <!-- Principal Amount -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Principal Amount</h3>
+                            <p class="text-green-600 font-bold">{{ $currency .' '. number_format(convertCurrency($loan->amount, 'UGX', $currency), 0) }}</p>
+                        </div>
+
+                        <!-- Total Payable Amount -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Total Payable Amount</h3>
+                            <p class="text-green-600 font-bold">{{ $currency .' '. number_format(convertCurrency($loan->total_payable, 'UGX', $currency), 0) }}</p>
+                        </div>
+
+                        <!-- Interest Rate -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Interest Rate</h3>
+                            <p class="text-gray-600">{{ $loan->interest_rate }}</p>
+                        </div>
+
+                        <!-- Total Term -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Total Term ( months )</h3>
+                            <p class="text-gray-600">{{ $loan->term }}</p>
+                        </div>
+
+                        <!-- Due Term -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Due Term</h3>
+                            <p class="text-gray-600 ">N/A</p>
+                        </div>
+
+                        <!-- Total Interest Rate -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Total Interest Rate</h3>
+                            <p class="text-green-600 font-bold">{{ $currency .' '. number_format(convertCurrency($loan->total_interest, 'UGX', $currency), 0) }}</p>
+                        </div>
+
+                        <!-- Payment Frequency -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Payment Frequency</h3>
+                            <p class="text-gray-600 ">{{ $loan->payment_frequency }}</p>
+                        </div>
+
+                        <!-- Processing Fee -->
+                        @if($loan->processing_fee)
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Processing fee</h3>
+                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->processing_fee, 'UGX', $currency), 0) }}</p>
                             </div>
-                         </div>
-                    @endif
-                </div>
-                </div>
+                        @endif
 
+                        <!-- Early Payment Fee -->
+                        @if($loan->early_payment_fee)
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Early payment fee</h3>
+                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->early_payment_fee, 'UGX', $currency),0) }}</p>
+                            </div>
+                        @endif
+
+                        <!-- Late Payment Fee -->
+                        @if($loan->late_payment_fee)
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Late payment fee</h3>
+                                <p class="text-gray-600 ">{{ $currency .' '. number_format(convertCurrency($loan->late_payment_fee, 'UGX', $currency), 0) }}</p>
+                            </div>
+                        @endif
+
+                        <!-- Disbursement Date -->
+                        @if($loan->disbursement_date)
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Disbursement Date</h3>
+                                <p class="text-blue-600">{{ $loan->disbursement_date->format('F j, Y g:i A') }}</p>
+                            </div>
+                        @endif
+
+                        <!-- Last Payment Date -->
+                        @if($loan->last_payment_date)
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Last Payment Date</h3>
+                                <p class="text-blue-600 font-bold">{{ $loan->last_payment_date->format('F j, Y g:i A') }}</p>
+                            </div>
+                        @endif
+
+                        <!-- Account Status -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Status</h3>
+                            @if($loan->status === 'active')
+                                <x-wireui-badge class="bg-green-500 font-semibold capitalize p-3" lg label="{{ $loan->status }}">
+                                    <x-slot name="prepend" class="relative flex items-center w-2 h-2">
+                                        <span class="absolute inline-flex w-full h-full rounded-full opacity-75 bg-white animate-ping"></span>
+                                        <span class="relative inline-flex w-2 h-2 rounded-full bg-white"></span>
+                                    </x-slot>
+                                </x-wireui-badge>
+                            @elseif($loan->status === 'paid')
+                                <x-wireui-badge class="bg-indigo-500 font-semibold capitalize p-3" lg label="{{ $loan->status }}"/>
+                                <p>This loan was closed on : {{ $loan->closed_at->format('F j, Y g:i A') }}</p>
+                            @elseif($loan->status === 'pending')
+                                <x-wireui-badge class="bg-yellow-300 font-semibold capitalize p-3" lg label="{{ $loan->status }}"/>
+                            @elseif($loan->status === 'rejected')
+                                <x-wireui-badge class="bg-red-500 font-semibold capitalize p-3" lg label="{{ $loan->status }}"/>
+                            @elseif($loan->status === 'approved')
+                                <x-wireui-badge class="bg-lime-300 font-semibold capitalize p-3" lg label="{{ $loan->status }}"/>
+                                <p class="italic tooltip-info text-sm">Your loan is approved, please wait for disbursement</p>
+                            @endif
+                        </div>
+
+                        <!-- Created At -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Applied For On</h3>
+                            <p class="text-blue-600 dark:text-slate-100">{{ $loan->created_at->format('F j, Y g:i A') }}</p>
+                        </div>
+
+                        @if($loan->approved_at)
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Approved At</h3>
+                                <p class="text-blue-600 dark:text-slate-100">{{ $loan->approved_at->format('F j, Y g:i A') }}</p>
+                            </div>
+                        @endif
+
+                        @if($loan->reject_at)
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Reject At</h3>
+                                <p class="text-blue-600 dark:text-slate-100">{{ $loan->rejected_at->format('F j, Y g:i A') }}</p>
+                            </div>
+                            <div class="mb-4">
+                                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+                                    <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Rejection Reason</h3>
+                                    <p class="text-blue-600 dark:text-slate-100">{{ $loan->rejection_reason }}</p>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Payment Schedules Tab -->
-        <div
-            :id="$id(tabId + '-content')"
-            x-show="tabContentActive($el)"
-            class="relative"
-            x-cloak
-            >
+       <!-- Payment Schedules Tab -->
+        <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative" x-cloak>
             <div class="p-6 bg-white border rounded-lg shadow-sm dark:bg-inherit">
                 <h3 class="text-lg font-semibold mb-3">Payment Schedules</h3>
                 <p class="text-gray-600 dark:text-white mb-5">View your loan payment dates here.</p>
@@ -295,31 +273,11 @@
                                     @foreach($loan->schedules as $schedule)
                                         <tr>
                                             <td>{{ $schedule->due_date->format('Y-m-d') }}</td>
-                                            <td>{{ number_format($schedule->total_amount, 2) }}</td>
-                                            <td>{{ number_format($schedule->paid_amount, 2) }}</td>
-                                            <td>{{ number_format($schedule->remaining_amount, 2) }}</td>
+                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->total_amount, 'UGX', $currency), 0) }}</td> <!-- Using convertCurrency with $currency -->
+                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->paid_amount, 'UGX', $currency), 0) }}</td> <!-- Using convertCurrency with $currency -->
+                                            <td>{{ $currency . ' ' . number_format(convertCurrency($schedule->remaining_amount, 'UGX', $currency), 0) }}</td> <!-- Using convertCurrency with $currency -->
                                             <td>
-                                            @if($schedule->status)
-                                                {{-- <div class="badge gap-2 {{ match($schedule->status) {
-                                                    'pending' => 'badge-warning',
-                                                    'approved' => 'badge-success',
-                                                    'active' => 'badge-info',
-                                                    'rejected' => 'badge-error',
-                                                    default => 'badge-default'
-                                                } }}">
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        class="inline-block h-4 w-4 stroke-current">
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M6 18L18 6M6 6l12 12"></path>
-                                                    </svg>
-                                                    {{ ucfirst($schedule->status) }} --}}
-
+                                                @if($schedule->status)
                                                     @if($schedule->status == 'pending')
                                                         <x-wireui-badge icon-size="sm" sm icon="x-mark" orange label="pending" />
                                                     @elseif($schedule->status == 'paid')
@@ -327,10 +285,9 @@
                                                     @else
                                                         <x-wireui-badge icon-size="sm" sm icon="clock" blue label="partial" />
                                                     @endif
-                                                </div>
-                                            @else
-                                                <span class="text-gray-500">Not available</span>
-                                            @endif
+                                                @else
+                                                    <span class="text-gray-500">Not available</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -339,18 +296,13 @@
                         </div>
                     </div>
                 @else
-                    <h1 class=" text-pretty text-red-300  dark:text-yellow-200 font-bold text-center">Your Loan is closed or not active!, Contact Support Centre</h1>
+                    <h1 class="text-pretty text-red-300 dark:text-yellow-200 font-bold text-center">Your Loan is closed or not active!, Contact Support Centre</h1>
                 @endif
             </div>
         </div>
 
         <!-- Make Payment Tab -->
-        <div
-            :id="$id(tabId + '-content')"
-            x-show="tabContentActive($el)"
-            class="relative"
-            x-cloak
-            >
+        <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative" x-cloak>
             <div class="p-6 bg-white border rounded-lg shadow-sm dark:bg-inherit">
                 <h3 class="text-lg font-semibold mb-3">Make Loan Payment</h3>
                 <p class="text-gray-600 dark:text-white mb-5"> You can make loan repayments here.</p>
@@ -365,7 +317,7 @@
                                                 {{ $loan->schedules->where('status', '!=', 'paid')->first()?->due_date->format('F j, Y g:i A')  }}
                                             </p>
                                             <p><span class="font-semibold">Amount Due:</span>
-                                                {{ number_format($loan->schedules->where('status', '!=', 'paid')->first()?->remaining_amount ?? 0, 2) }}
+                                                {{ $currency . ' ' . number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->first()?->remaining_amount ?? 0, 'UGX', $currency), 0) }}
                                             </p>
                                         </div>
                                     </div>
@@ -387,7 +339,7 @@
                                             <div class="mb-4 p-4 bg-gray-50 rounded-lg">
                                                 <p class="text-sm text-gray-600">Total Outstanding Amount</p>
                                                 <p class="text-2xl font-bold text-gray-800">
-                                                    {{ number_format($loan->schedules->where('status', '!=', 'paid')->sum('remaining_amount'), 2) }}
+                                                    {{ $currency . ' ' . number_format(convertCurrency($loan->schedules->where('status', '!=', 'paid')->sum('remaining_amount'), 'UGX', $currency), 0) }}
                                                 </p>
                                             </div>
 
@@ -401,14 +353,14 @@
                                                 class="border-b-2 border-white shadow-lg focus:border-none focus:outline-dashed"
                                                 search-function="searchLoanToPaymentAccounts"
                                             >
-                                                @scope('item', $account)
+                                                @scope('item', $account, $currency)
                                                     <x-mary-list-item :item="$account" sub-value="account_number">
                                                         <x-slot:avatar>
-                                                            <x-mary-icon name="o-credit-card" class="bg-orange-100 p-2 w-8 h8 rounded-full" />
+                                                            <x-mary-icon name="o-credit-card" class="bg-orange-100 p-2 w-8 h-8 rounded-full" />
                                                         </x-slot:avatar>
                                                         <p>{{$account->account_number}}</p>
                                                         <x-slot:actions>
-                                                            <x-mary-badge :value="number_format($account->balance, 2)" />
+                                                            <x-mary-badge :value="number_format(convertCurrency($account->balance, 'UGX', $currency), 0)" />
                                                         </x-slot:actions>
                                                     </x-mary-list-item>
                                                 @endscope
@@ -444,6 +396,7 @@
                                                     type="text"
                                                     label="Amount to Pay"
                                                     wire:model="paymentAmount"
+
                                                     placeholder="Enter amount to pay"
                                                 />
 
@@ -468,6 +421,7 @@
                                                 class="btn-primary"
                                                 type="submit"
                                                 icon="o-credit-card"
+                                                spinner="makePaymentFromAccount"
                                             />
                                         </x-slot:actions>
                                     </x-mary-form>
@@ -572,127 +526,126 @@
                         </div>
                     </div>
                 @else
-                    <h1 class=" text-pretty text-red-300  dark:text-yellow-200 font-bold text-center">Your Loan is closed or not active!, Contact Support Centre</h1>
+                    <h1 class=" text-pretty text-red-300 dark:text-yellow-200 font-bold text-center">Your Loan is closed or not active!, Contact Support Centre</h1>
                 @endif
             </div>
         </div>
 
+          <!-- Add this near the end of your file -->
+        <x-mary-modal wire:model="showReceiptModal" title="Transaction Receipt" separator class="z-50">
+            <div class="p-6 bg-white">
+                <!-- Receipt Header -->
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold">Transaction Receipt</h2>
+                    <p class="text-gray-600">{{ ucfirst($receiptType) }} Confirmation</p>
+                </div>
+
+                <!-- Receipt Body -->
+                <div class="space-y-4">
+                    <!-- Date -->
+                    <div class="flex justify-between">
+                        <span class="font-semibold">Date:</span>
+                        <span>{{ $receiptData['date'] ?? '' }}</span>
+                    </div>
+
+                    <!-- Reference Number -->
+                    <div class="flex justify-between">
+                        <span class="font-semibold">Reference:</span>
+                        <span>{{ $receiptData['reference'] ?? '' }}</span>
+                    </div>
+
+                    @if($receiptType === 'transfer')
+                        <!-- Transfer-specific details -->
+                        <div class="flex justify-between">
+                            <span class="font-semibold">From Account:</span>
+                            <span>{{ $receiptData['from_account'] ?? '' }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-semibold">To Account:</span>
+                            <span>{{ $receiptData['to_account'] ?? '' }}</span>
+                        </div>
+                    @else
+                        <!-- Deposit/Withdrawal account -->
+                        <div class="flex justify-between">
+                            <span class="font-semibold">Account:</span>
+                            <span>{{ $receiptData['account_number'] ?? '' }}</span>
+                        </div>
+                    @endif
+
+                    <!-- Transaction Details -->
+                    <div class="space-y-2 border-t pt-2">
+                        <!-- Base Amount -->
+                        <div class="flex justify-between">
+                            <span class="font-semibold">Base Amount:</span>
+                            <span class="text-lg {{ $receiptType === 'withdrawal' ? 'text-red-600' : 'text-green-600' }}">
+                                {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['amount'] ?? 0, 0) }}
+                            </span>
+                        </div>
+
+                        <!-- Charges Breakdown -->
+                        @if(!empty($receiptData['charges']))
+                            <div class="space-y-1">
+                                <p class="font-semibold text-sm text-gray-600">Bank Charges:</p>
+                                @foreach($receiptData['charges'] as $charge)
+                                    <div class="flex justify-between text-sm pl-4">
+                                        <span class="text-gray-600">{{ $charge['name'] }} ({{ $charge['rate'] }}):</span>
+                                        <span class="text-red-600">-{{ number_format($charge['amount'], 0) }}</span>
+                                    </div>
+                                @endforeach
+                                <div class="flex justify-between text-sm font-medium border-t border-dashed pt-1">
+                                    <span>Total Charges:</span>
+                                    <span class="text-red-600">-{{ number_format($receiptData['total_charges'] ?? 0, 0) }}</span>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Taxes Breakdown -->
+                        @if(!empty($receiptData['taxes']))
+                            <div class="space-y-1">
+                                <p class="font-semibold text-sm text-gray-600">Taxes:</p>
+                                @foreach($receiptData['taxes'] as $tax)
+                                    <div class="flex justify-between text-sm pl-4">
+                                        <span class="text-gray-600">{{ $tax['name'] }} ({{ $tax['rate'] }}):</span>
+                                        <span class="text-red-600">-{{ number_format($tax['amount'], 0) }}</span>
+                                    </div>
+                                @endforeach
+                                <div class="flex justify-between text-sm font-medium border-t border-dashed pt-1">
+                                    <span>Total Taxes:</span>
+                                    <span class="text-red-600">-{{ number_format($receiptData['total_taxes'] ?? 0, 0) }}</span>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Total Amount -->
+                        <div class="flex justify-between font-bold text-lg border-t pt-2">
+                            <span>Total Amount:</span>
+                            <span class="{{ $receiptType === 'withdrawal' ? 'text-red-600' : 'text-green-600' }}">
+                                {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['total_amount'] ?? 0, 0) }}
+                            </span>
+                        </div>
+
+                        <!-- New Balance -->
+                        <div class="flex justify-between border-t pt-2">
+                            <span class="font-semibold">Available Balance:</span>
+                            <span>{{ number_format($receiptData['balance'] ?? 0, 0) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-6 text-center text-sm text-gray-600">
+                    <p>Thank you for banking with us!</p>
+                    <p>Please keep this receipt for your records.</p>
+                </div>
+            </div>
+
+            <x-slot:actions>
+                <x-mary-button label="Print" icon="o-printer" @click="window.print()" class="bg-blue-500 text-white" />
+                <x-mary-button label="Close" @click="$wire.showReceiptModal = false" class="bg-gray-500 text-white" />
+            </x-slot:actions>
+        </x-mary-modal>
 
     </div>
-
-    <!-- Add this near the end of your file -->
-    <x-mary-modal wire:model="showReceiptModal" title="Transaction Receipt" separator class="z-50">
-        <div class="p-6 bg-white">
-            <!-- Receipt Header -->
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold">Transaction Receipt</h2>
-                <p class="text-gray-600">{{ ucfirst($receiptType) }} Confirmation</p>
-            </div>
-
-            <!-- Receipt Body -->
-            <div class="space-y-4">
-                <!-- Date -->
-                <div class="flex justify-between">
-                    <span class="font-semibold">Date:</span>
-                    <span>{{ $receiptData['date'] ?? '' }}</span>
-                </div>
-
-                <!-- Reference Number -->
-                <div class="flex justify-between">
-                    <span class="font-semibold">Reference:</span>
-                    <span>{{ $receiptData['reference'] ?? '' }}</span>
-                </div>
-
-                @if($receiptType === 'transfer')
-                    <!-- Transfer-specific details -->
-                    <div class="flex justify-between">
-                        <span class="font-semibold">From Account:</span>
-                        <span>{{ $receiptData['from_account'] ?? '' }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="font-semibold">To Account:</span>
-                        <span>{{ $receiptData['to_account'] ?? '' }}</span>
-                    </div>
-                @else
-                    <!-- Deposit/Withdrawal account -->
-                    <div class="flex justify-between">
-                        <span class="font-semibold">Account:</span>
-                        <span>{{ $receiptData['account_number'] ?? '' }}</span>
-                    </div>
-                @endif
-
-                <!-- Transaction Details -->
-                <div class="space-y-2 border-t pt-2">
-                    <!-- Base Amount -->
-                    <div class="flex justify-between">
-                        <span class="font-semibold">Base Amount:</span>
-                        <span class="text-lg {{ $receiptType === 'withdrawal' ? 'text-red-600' : 'text-green-600' }}">
-                            {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['amount'] ?? 0, 2) }}
-                        </span>
-                    </div>
-
-                    <!-- Charges Breakdown -->
-                    @if(!empty($receiptData['charges']))
-                        <div class="space-y-1">
-                            <p class="font-semibold text-sm text-gray-600">Bank Charges:</p>
-                            @foreach($receiptData['charges'] as $charge)
-                                <div class="flex justify-between text-sm pl-4">
-                                    <span class="text-gray-600">{{ $charge['name'] }} ({{ $charge['rate'] }}):</span>
-                                    <span class="text-red-600">-{{ number_format($charge['amount'], 2) }}</span>
-                                </div>
-                            @endforeach
-                            <div class="flex justify-between text-sm font-medium border-t border-dashed pt-1">
-                                <span>Total Charges:</span>
-                                <span class="text-red-600">-{{ number_format($receiptData['total_charges'] ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- Taxes Breakdown -->
-                    @if(!empty($receiptData['taxes']))
-                        <div class="space-y-1">
-                            <p class="font-semibold text-sm text-gray-600">Taxes:</p>
-                            @foreach($receiptData['taxes'] as $tax)
-                                <div class="flex justify-between text-sm pl-4">
-                                    <span class="text-gray-600">{{ $tax['name'] }} ({{ $tax['rate'] }}):</span>
-                                    <span class="text-red-600">-{{ number_format($tax['amount'], 2) }}</span>
-                                </div>
-                            @endforeach
-                            <div class="flex justify-between text-sm font-medium border-t border-dashed pt-1">
-                                <span>Total Taxes:</span>
-                                <span class="text-red-600">-{{ number_format($receiptData['total_taxes'] ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- Total Amount -->
-                    <div class="flex justify-between font-bold text-lg border-t pt-2">
-                        <span>Total Amount:</span>
-                        <span class="{{ $receiptType === 'withdrawal' ? 'text-red-600' : 'text-green-600' }}">
-                            {{ $receiptType === 'withdrawal' ? '-' : '+' }}{{ number_format($receiptData['total_amount'] ?? 0, 2) }}
-                        </span>
-                    </div>
-
-                    <!-- New Balance -->
-                    <div class="flex justify-between border-t pt-2">
-                        <span class="font-semibold">Available Balance:</span>
-                        <span>{{ number_format($receiptData['balance'] ?? 0, 2) }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="mt-6 text-center text-sm text-gray-600">
-                <p>Thank you for banking with us!</p>
-                <p>Please keep this receipt for your records.</p>
-            </div>
-        </div>
-
-        <x-slot:actions>
-            <x-mary-button label="Print" icon="o-printer" @click="window.print()" class="bg-blue-500 text-white" />
-            <x-mary-button label="Close" @click="$wire.showReceiptModal = false" class="bg-gray-500 text-white" />
-        </x-slot:actions>
-    </x-mary-modal>
 </div>
 
 </div>
