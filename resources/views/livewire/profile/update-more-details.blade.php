@@ -10,61 +10,59 @@ use Mary\Traits\Toast;
 use Livewire\Attributes\Validate;
 use WireUi\Traits\WireUiActions;
 
-
-new class extends Component
-{
+new class extends Component {
     use Toast;
     use wireuiActions;
 
     public ?User $user;
 
-    public $activeTab = 'moreDetails';
-    public $tabs = ['moreDetails','addresses', 'payments'];
+    public $activeTab = "moreDetails";
+    public $tabs = ["moreDetails", "addresses", "payments"];
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $phone_number;
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $address;
 
-    #[Validate('nullable')]
+    #[Validate("nullable")]
     public $secondaryAdress;
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $gender;
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $marital_status;
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $date_of_birth;
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $identification_number;
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $occupation;
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $employer;
 
-    #[Validate('required')]
+    #[Validate("required")]
     public $annual_income;
 
-
-    public function mount(){
+    public function mount()
+    {
         $this->user = Auth::user();
 
         $this->gender = $this->user->customer->gender;
         $this->marital_status = $this->user->customer->marital_status;
         $this->phone_number = $this->user->customer->phone_number;
         $this->date_of_birth = $this->user->customer->date_of_birth;
-        $this->identification_number = $this->user->customer->identification_number;
+        $this->identification_number =
+            $this->user->customer->identification_number;
         $this->occupation = $this->user->customer->occupation;
         $this->employer = $this->user->customer->employer;
         $this->annual_income = $this->user->customer->annual_income;
         $this->address = $this->user->customer->address;
-
     }
 
     public function updateMoreDetails()
@@ -72,45 +70,44 @@ new class extends Component
         $this->validate();
 
         try {
-
             $this->user->customer->update([
-                'phone_number' => $this->phone_number,
-                'address' => $this->address,
-                'gender' => $this->gender,
-                'date_of_birth' => $this->date_of_birth,
-                'marital_status' => $this->marital_status,
-                'identification_number' => $this->identification_number,
-                'occupation' => $this->occupation,
-                'employer' => $this->employer,
-                'annual_income' => $this->annual_income,
+                "phone_number" => $this->phone_number,
+                "address" => $this->address,
+                "gender" => $this->gender,
+                "date_of_birth" => $this->date_of_birth,
+                "marital_status" => $this->marital_status,
+                "identification_number" => $this->identification_number,
+                "occupation" => $this->occupation,
+                "employer" => $this->employer,
+                "annual_income" => $this->annual_income,
             ]);
 
             $this->toast(
-                type: 'success',
-                title: 'Updates received successfully',
+                type: "success",
+                title: "Updates received successfully",
                 description: null,
-                position: 'toast-top toast-end',
-                icon: 'o-check-badge',
-                css: 'alert alert-success text-white shadow-lg rounded-sm p-3',
+                position: "toast-top toast-end",
+                icon: "o-check-badge",
+                css: "alert alert-success text-white shadow-lg rounded-sm p-3",
                 timeout: 3000,
-                redirectTo: route('customer-dashboard')
+                redirectTo: route("customer-dashboard"),
             );
         } catch (\Exception $e) {
             // Handle the error and show an error toast
             $this->toast(
-                type: 'error',
-                title: 'Update failed',
+                type: "error",
+                title: "Update failed",
                 description: $e->getMessage(), // Show error message
-                position: 'toast-top toast-end',
-                icon: 'o-x-circle', // Use an error icon
-                css: 'alert alert-danger text-white shadow-lg rounded-sm p-3',
+                position: "toast-top toast-end",
+                icon: "o-x-circle", // Use an error icon
+                css: "alert alert-danger text-white shadow-lg rounded-sm p-3",
                 timeout: 3000,
-                redirectTo: null
+                redirectTo: null,
             );
         }
     }
 
-     // tab switching
+    // tab switching
     public function setTab($tab)
     {
         $this->activeTab = $tab;
@@ -119,7 +116,10 @@ new class extends Component
     public function next($currentTab)
     {
         $index = array_search($currentTab, $this->tabs);
-        if ($this->validateCurrentTab($currentTab) && isset($this->tabs[$index + 1])) {
+        if (
+            $this->validateCurrentTab($currentTab) &&
+            isset($this->tabs[$index + 1])
+        ) {
             $this->activeTab = $this->tabs[$index + 1];
         }
     }
@@ -135,27 +135,27 @@ new class extends Component
     private function validateCurrentTab($currentTab)
     {
         switch ($currentTab) {
-            case 'moreDetails':
+            case "moreDetails":
                 $this->validate([
-                    'phone_number' => 'required',
-                    'gender' => 'required',
-                    'marital_status' => 'required',
-                    'date_of_birth' => 'required|date',
-                    'identification_number' => 'required|string',
-                    'annual_income' => 'required',
-                    'occupation' => 'required',
-                    'employer' => 'required'
+                    "phone_number" => "required",
+                    "gender" => "required",
+                    "marital_status" => "required",
+                    "date_of_birth" => "required|date",
+                    "identification_number" => "required|string",
+                    "annual_income" => "required",
+                    "occupation" => "required",
+                    "employer" => "required",
                 ]);
                 break;
-            case 'addresses':
+            case "addresses":
                 $this->validate([
-                    'address' => 'required',
+                    "address" => "required",
                 ]);
                 break;
-            case 'payments':
+            case "payments":
                 $this->validate([
-                    'paymentMethod' => 'nullable',
-                    'cardNumber' => 'nullable',
+                    "paymentMethod" => "nullable",
+                    "cardNumber" => "nullable",
                 ]);
                 break;
             // case 'notes':
@@ -163,7 +163,8 @@ new class extends Component
         }
         return true;
     }
-}; ?>
+};
+?>
 
 <section>
 <header>
@@ -172,7 +173,7 @@ new class extends Component
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-white">
-            {{ __("Update your account's more detail information to full activate RMG Finance features.") }}
+            {{ __("Update your account's more detail information to full activate Santrix Finance features.") }}
         </p>
 </header>
 

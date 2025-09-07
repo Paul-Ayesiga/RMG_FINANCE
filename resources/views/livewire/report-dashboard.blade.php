@@ -2,7 +2,7 @@
     <!-- Page Header -->
     <header class="mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Reports Dashboard</h1>
-        <p class="text-gray-600 text-sm">Generate and export reports for RMG Finance system.</p>
+        <p class="text-gray-600 text-sm">Generate and export reports for Santrix Finance system.</p>
     </header>
 
     <!-- Filters Section -->

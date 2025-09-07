@@ -25,7 +25,7 @@ class SuperAdminSeeder extends Seeder
 
         ], [
             'name' => 'Super-Admin',
-            'password' => Hash::make('kellyrina'),
+            'password' => Hash::make('123456789'),
         ]);
         //assign roles
         $clintonAccount->assignRole('super-admin');
