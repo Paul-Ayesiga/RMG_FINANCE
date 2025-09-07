@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" sizes="512x512" href="{{ asset('logos/rmg.png') }}" type="image/png">
+    <link rel="icon" sizes="512x512" href="{{ asset('logos/Santrix.png') }}" type="image/png">
     <title>{{ isset($title) ? $title.' - '.config('app.name') : config('app.name') }}</title>
     <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -167,7 +167,7 @@
                         <x-mary-menu-item title="My Loans" icon="o-banknotes" link="{{ route('my-loans')}}" wire:current="bg-gradient-to-r from-blue-300 to-blue-100 text-white font-bold shadow-lg"  style="font-weight:700" class=" text-sm font-medium leading-6 rounded-md hover:bg-zinc-200/70 hover:text-zinc-900  group"/>
                         <x-mary-menu-item title="Set Scheduled or Standing Order" icon="o-clock" link="{{ route('standing-order')}}" wire:current="bg-gradient-to-r from-blue-300 to-blue-100 text-white font-bold shadow-lg"  style="font-weight:700" class=" text-sm font-medium leading-6 rounded-md hover:bg-zinc-200/70 hover:text-zinc-900  group"/>
                         <x-mary-menu-item title="Groups" icon="o-users" link="{{ route('group.management')}}" wire:current="bg-gradient-to-r from-blue-300 to-blue-100 text-white font-bold shadow-lg"  badge="beta" badge-classes="bg-blue-200"  style="font-weight:700" class=" text-sm font-medium leading-6 rounded-md hover:bg-zinc-200/70 hover:text-zinc-900  group"/>
-                        <x-mary-menu-item title="RMG PAY" icon="o-rectangle-group" link="{{ route('rmgpay')}}" badge="NEW" badge-classes="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-bold animate-pulse shadow-lg" class="mt-auto mb-4"  style="font-weight:700" class=" text-sm font-medium leading-6 rounded-md hover:bg-zinc-200/70 hover:text-zinc-900  group"/>
+                        <x-mary-menu-item title="Santrix PAY" icon="o-rectangle-group" link="{{ route('Santrixpay')}}" badge="NEW" badge-classes="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-bold animate-pulse shadow-lg" class="mt-auto mb-4"  style="font-weight:700" class=" text-sm font-medium leading-6 rounded-md hover:bg-zinc-200/70 hover:text-zinc-900  group"/>
                     @endif
                 @endrole
             </x-mary-menu>

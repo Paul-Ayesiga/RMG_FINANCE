@@ -1115,7 +1115,7 @@
 </div>
 @else
     <div class="text-center bg-white p-6">
-        <h1 class="font-bold text-red-500 text-xl">Sorry Your Account is not active</h1>, <h1 class="text-bold">Please contact RMG Finance Team For Assistance</h1>
+        <h1 class="font-bold text-red-500 text-xl">Sorry Your Account is not active</h1>, <h1 class="text-bold">Please contact Santrix Finance Team For Assistance</h1>
 
         <div class="text-center mt-5">
             <a href="{{route('my-accounts')}}" wire:navigate>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RMG Finance</title>
+    <title>Santrix Finance</title>
     <script src="https://cdn.tailwindcss.com"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -162,7 +162,7 @@
 
 
 
-            <a href="#" class="text-2xl font-bold text-blue-600 animate__animated animate__fadeIn">RMG FINANCE</a>
+            <a href="#" class="text-2xl font-bold text-blue-600 animate__animated animate__fadeIn">Santrix FINANCE</a>
 
                 <!-- Desktop Menu -->
                 <div class="desktop-menu space-x-8">
@@ -185,7 +185,7 @@
 
         <!-- Mobile Menu -->
         <div class="mobile-menu">
-            <div class="text-2xl font-bold text-blue-600 text-center py-4">RMG FINANCE</div>
+            <div class="text-2xl font-bold text-blue-600 text-center py-4">Santrix FINANCE</div>
             <a href="#home" class="nav-link text-gray-700">Home</a>
             <a href="#services" class="nav-link text-gray-700">Services</a>
             <a href="#about" class="nav-link text-gray-700">About</a>
@@ -198,17 +198,17 @@
 
 
     <!-- Hero Section -->
-    <section id="home" class="pt-24 pb-12 bg-gradient-to-r from-blue-600 to-blue-800">
+    <section id="home" class="pt-24 pb-12 bg-gradient-to-r from-orange-400 to-orange-600">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row items-center">
                 <div class="md:w-2/3 text-white slide-in-left">
                     <h1 class="text-4xl md:text-6xl font-bold mb-6">Empowering Communities Through Microfinance</h1>
-                    <p class="text-xl mb-8">RMG Finance provides accessible financial solutions to help small businesses and individuals achieve their dreams.</p>
+                    <p class="text-xl mb-8">Santrix Finance provides accessible financial solutions to help small businesses and individuals achieve their dreams.</p>
                     <a href="#contact" class="bg-white text-blue-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition animate__animated animate__pulse animate__infinite">Get Started</a>
                 </div>
-                <div class="md:w-1/2 mt-8 md:mt-0 slide-in-right">
+                <!--<div class="md:w-1/2 mt-8 md:mt-0 slide-in-right">
                     <img src="{{asset('custom/Welcome.webp')}}" alt="Microfinance" class="rounded-lg shadow-xl" width="500" height="100">
-                </div>
+                </div>-->
             </div>
         </div>
     </section>
@@ -276,8 +276,8 @@
                     <img src="{{asset('custom/aboutUs.webp')}}" alt="About Us" class="rounded-lg shadow-xl" width="500" height="400">
                 </div>
                 <div class="md:w-2/3 md:pl-12 slide-in-right">
-                    <h2 class="text-3xl font-bold mb-6">About RMG Finance</h2>
-                    <p class="mb-4">RMG Finance is dedicated to promoting financial inclusion and economic empowerment in underserved communities. With over 10 years of experience, we've helped thousands of individuals and small businesses achieve their financial goals.</p>
+                    <h2 class="text-3xl font-bold mb-6">About Santrix Finance</h2>
+                    <p class="mb-4">Santrix Finance is dedicated to promoting financial inclusion and economic empowerment in underserved communities. With over 10 years of experience, we've helped thousands of individuals and small businesses achieve their financial goals.</p>
                     <p>Our mission is to provide accessible financial services while fostering sustainable economic growth in the communities we serve.</p>
                 </div>
             </div>
@@ -336,7 +336,7 @@
                             <div class="space-y-4">
                                 <p><i class="fas fa-map-marker-alt text-blue-600 mr-2"></i> 123 Finance Street, City</p>
                                 <p><i class="fas fa-phone text-blue-600 mr-2"></i> (123) 456-7890</p>
-                                <p><i class="fas fa-envelope text-blue-600 mr-2"></i> info@rmgfinance.com</p>
+                                <p><i class="fas fa-envelope text-blue-600 mr-2"></i> info@Santrixfinance.com</p>
                             </div>
                         </div>
                         <div>
@@ -364,7 +364,7 @@
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div class="fade-in">
-                    <h4 class="text-xl font-bold mb-4">RMG Finance</h4>
+                    <h4 class="text-xl font-bold mb-4">Santrix Finance</h4>
                     <p>Empowering communities through accessible financial services.</p>
                 </div>
                 <div class="fade-in">
@@ -396,7 +396,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-                <p>&copy; 2024 RMG Finance. All rights reserved.</p>
+                <p>&copy; 2025 Santrix Finance. All rights reserved.</p>
             </div>
         </div>
     </footer>

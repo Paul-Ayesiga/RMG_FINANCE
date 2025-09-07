@@ -73,7 +73,7 @@ Route::middleware(['auth','verified','role:customer'])->group(function(){
     Route::get('/customer/my-accounts/{account}/do-something', VisitAccount::class)->name('visit-account')->middleware('protectUserAccount');
     Route::get('/customer/my-loans',MyLoans::class)->name('my-loans');
     Route::get('/customer/my-loans/{loan}/do-something', VisitLoan::class)->name('visit-loan')->middleware('protectCustomerLoan');
-    Route::get('/rmgpay',RMGPAY::class)->name('rmgpay');
+    Route::get('/rmgpay',RMGPAY::class)->name('Santrixpay');
     Route::get('/standing-order',StandingOrders::class)->name('standing-order');
     Route::get('/not', NotificationsDrawer::class )->name('not');
     Route::get('/groups',GroupManagement::class)->name('group.management');

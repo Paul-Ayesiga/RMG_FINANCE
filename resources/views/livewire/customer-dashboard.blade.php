@@ -20,7 +20,7 @@
 <div
     x-data="{
         text: '',
-        textArray : ['Welcome to RMG Finance', 'Your Financial Partner'],
+        textArray : ['Welcome to Santrix Finance', 'Your Financial Partner'],
         textIndex: 0,
         charIndex: 0,
         typeSpeed: 110,
@@ -93,7 +93,7 @@
 {{-- typing effect --}}
 
 <h3 class="text-lg font-serif text-center text-gray-600 mb-6 dark:text-white mt-7">
-    You're just a few steps away from embarking on a successful financial journey with RMG Finance.
+    You're just a few steps away from embarking on a successful financial journey with Santrix Finance.
 </h3>
 
 <section class="relative bg-gray-50 dark:bg-gray-900">
@@ -163,7 +163,7 @@
 
 <section class="bg-inherit">
     <div class="max-w-screen-xl px-4 mx-auto py-8">
-        <div class="flex flex-row gap-4 justify-center">
+        <!--<div class="flex flex-row gap-4 justify-center">
             <a href="#_" class="transform hover:scale-125 duration-300">
                 <img src="{{asset('banners\banner1.jpeg')}}"
                     class="rounded-lg rotate-3 hover:rotate-0 h-32 w-32 object-cover" alt="Image 1">
@@ -180,7 +180,7 @@
                 <img src="{{ asset('banners/banner3.jpeg')}}"
                     class="rounded-lg -rotate-3 hover:rotate-0 h-32 w-32 object-cover" alt="Image 4">
             </a>
-        </div>
+        </div>-->
     </div>
 </section>
 
